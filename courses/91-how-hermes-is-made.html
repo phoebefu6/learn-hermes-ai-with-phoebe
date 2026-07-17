@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep dive D1 · How Hermes is made - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Deep dive D1 of 5</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Deep dive D1 of 5</div>
+    <h1>How Hermes is made: <span class="accent">the published recipe</span></h1>
+    <p class="sub">The training recipe behind the model you have been running - all published, all reproducible in spirit. DataForge synthesizes the data, Atropos rejects the bad samples, and 192 GPUs bake it in. Every fact on this page traces to the Hermes 4 technical report.</p>
+    <div class="chip-row">
+      <span class="chip level">🔵 Self-paced</span>
+      <span class="chip audience">Curious builders</span>
+      <span class="chip audience">No install</span>
+      <span class="chip time">~30 min read</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">Part 0 · Why</span>
+      <span class="a2" style="flex:3">Part 1 · DataForge</span>
+      <span class="a3" style="flex:3">Part 2 · Rejection sampling</span>
+      <span class="a4" style="flex:3">Part 3 · The training run</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Deep dive D1</span>
+      <h2>Why read this</h2>
+    </div>
+    <p class="lede">Using a tool is level 1. Knowing how it was made is level 2 - and with Hermes, level 2 is actually open to you. Most labs publish a glossy blog post and hide the recipe; Nous published a 41-page technical report (arXiv 2508.18255) that walks through the data factory, the quality filter, and the training run in enough detail to reproduce the approach. This page turns that report into a guided tour. Nothing here is speculation - every number cites a section.</p>
+    <div class="legend">
+      <span class="pill light">Self-study - read at your own pace</span>
+      <span class="pill peach">★ Try it now prompt</span>
+      <span class="pill inkpill">Source: Hermes 4 technical report</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with</strong>
+      A working mental model of the three-stage Hermes pipeline: DataForge (a graph that manufactures ~5M training conversations), rejection sampling through Atropos environments (only verified-good samples survive), and a pure-SFT training run on 192 B200 GPUs - plus the cleverest trick in the report: teaching the model when to STOP thinking, and what that costs.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: DATAFORGE ============ -->
+  <section class="section" id="dataforge">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the report's data pipeline, §2</span>
+      <h2>DataForge - the data factory <span class="tag concept">~9 min read</span></h2>
+    </div>
+    <p class="lede">Hermes 4 was post-trained on roughly 5 million samples, about 19 billion tokens (4.3 scaled to ~60B) - and most of it was newly synthesized, not scraped. The machine that made it is called DataForge, and it is the most original idea in the report.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DataForge pipeline: seed data flows through a graph of transformations into five million training conversations">
+        <style>
+          .d1fA-T { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .d1fA-S { font: 700 15px Inter, sans-serif; fill: #010A26; }
+          .d1fA-X { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .d1fA-N { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .d1fA-Arr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#d1fA-Ah); }
+          .d1fA-Edge { stroke: #C3CFD8; stroke-width: 2; fill: none; }
+        </style>
+        <defs>
+          <marker id="d1fA-Ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="30" y="80" width="180" height="70" rx="12" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="d1fA-S" x="55" y="110">Seed data</text>
+        <text class="d1fA-X" x="55" y="132">web text · taxonomies</text>
+        <line class="d1fA-Arr" x1="218" y1="115" x2="268" y2="115"/>
+        <circle cx="330" cy="60" r="24" fill="#8B8BF9"/>
+        <circle cx="420" cy="115" r="24" fill="#3430F7"/>
+        <circle cx="330" cy="170" r="24" fill="#3430F7"/>
+        <circle cx="510" cy="60" r="24" fill="#0000F2"/>
+        <circle cx="510" cy="170" r="24" fill="#0000F2"/>
+        <line class="d1fA-Edge" x1="330" y1="84" x2="410" y2="100"/>
+        <line class="d1fA-Edge" x1="330" y1="146" x2="405" y2="125"/>
+        <line class="d1fA-Edge" x1="444" y1="105" x2="490" y2="75"/>
+        <line class="d1fA-Edge" x1="444" y1="125" x2="490" y2="158"/>
+        <line class="d1fA-Edge" x1="354" y1="60" x2="486" y2="60"/>
+        <text class="d1fA-X" x="285" y="225">The graph: each node = one PDDL-style transformation</text>
+        <text class="d1fA-X" x="285" y="243">random walks trace a path = one training conversation</text>
+        <line class="d1fA-Arr" x1="560" y1="115" x2="625" y2="115"/>
+        <rect x="633" y="80" width="217" height="70" rx="12" fill="#0000A3"/>
+        <text class="d1fA-T" x="658" y="110">~5M conversations</text>
+        <text class="d1fA-X" x="658" y="132" fill="#DCE4F0">~19B tokens · Hermes 4</text>
+        <rect x="30" y="252" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="d1fA-N" x="54" y="264">Graphs compose into higher-order graphs - factories that build factories.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the DataForge pipeline: seed data walks through a graph of transformations and comes out as training conversations</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode self">Self-study</span>Why synthetic data won<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The obvious way to post-train a model is to collect human conversations and imitate them. The Hermes team went the other way: the report states the corpus is mostly <strong>newly synthesized</strong> - generated by models, filtered by machines, at a scale and precision no human labeling budget can match. Three reasons this won:</p>
+        <ul>
+          <li><strong>Precision of behavior.</strong> You cannot scrape "always emit valid JSON matching this Pydantic schema" from the web. You CAN generate a million examples of exactly that behavior and verify each one programmatically.</li>
+          <li><strong>Coverage on demand.</strong> Human data clusters around what humans happen to write about. A generator can be pointed at the gaps - rare formats, unusual personas, adversarial phrasings - deliberately.</li>
+          <li><strong>Verifiability.</strong> Synthetic data can be born with a checkable answer key. That is what makes Part 2's rejection sampling possible: you can only reject bad samples if you can define "bad" mechanically.</li>
+        </ul>
+        <p>The honest tradeoff: synthetic data inherits the quirks of whatever generated it, and naive generation collapses into repetitive sameness. The whole design of DataForge - and the covering-sets idea two cards down - exists to fight that sameness.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The lineage.</strong> The report credits Microsoft's AgentInstruct as inspiration: the idea that agentic pipelines of models - generating, transforming, critiquing - can manufacture better instruction data than humans can label. DataForge is that idea rebuilt as a formal graph.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The DAG idea - PDDL-style nodes and random walks<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>DataForge (report §2) is a <strong>directed acyclic graph</strong> where every node is one transformation with a formal contract, in the style of PDDL - the classical planning language:</p>
+        <ul>
+          <li><strong>Each node is a struct-to-struct transformation.</strong> It takes a typed input (say, a raw web article), does one job (turn it into a lecture transcript, translate it, derive a quiz from it), and emits a typed output.</li>
+          <li><strong>Preconditions and postconditions.</strong> A node declares what must be true of its input before it runs and what it guarantees about its output. That is what makes nodes safely composable - the same trick classical planners use to chain actions.</li>
+          <li><strong>Random walks generate diversity.</strong> A training sample is made by walking a random valid path through the graph. Different paths = different chains of transformations = structurally different conversations, from the same seed material.</li>
+          <li><strong>Graphs compose.</strong> A whole graph can become a node in a higher-order graph. Small verified pipelines snap together into bigger ones without anyone re-checking the plumbing.</li>
+        </ul>
+        <p>The punchline: diversity is not left to a prompt that says "please be diverse". It is a structural property of how many distinct paths exist through the graph.</p>
+        <div class="prompt-box good"><span class="label">★ Try it now (any Hermes, or any chat AI)</span>Explain PDDL preconditions and postconditions to a software engineer in 5 bullets, then show how the same idea could make a data-generation pipeline composable.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Covering sets - taxonomies + PersonaHub<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Random walks give structural diversity; covering sets give <strong>topical and human diversity</strong>. The report describes seeding generation against explicit coverage targets:</p>
+        <ul>
+          <li><strong>Taxonomies</strong> - enumerated trees of subjects, task types, and difficulty levels. Generation is steered so the corpus covers the tree instead of clustering on whatever a generator finds easy.</li>
+          <li><strong>PersonaHub</strong> - a public library of hundreds of thousands of synthetic personas. Asking the same question as a retired marine biologist, a teenage speedrunner, and a tax auditor yields genuinely different conversations - tone, vocabulary, and what "a good answer" even means.</li>
+        </ul>
+        <p>This is the same discipline a survey designer uses: define the population you need to cover FIRST, then sample against it. It is also why Hermes holds personas so well in Session 3 - it was trained on data that took personas seriously.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: REJECTION SAMPLING ============ -->
+  <section class="section" id="rejection-sampling">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the report's rejection sampling, §2</span>
+      <h2>Rejection sampling - only the good survives <span class="tag concept">~7 min read</span></h2>
+    </div>
+    <p class="lede">Generating candidate data is cheap; the value is in what you throw away. Hermes 4 is a pure SFT recipe - no RLHF headline stage - so quality control happens BEFORE training: candidate generations are run through automated verifier environments, and only samples that pass get to become training data.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Funnel: many candidate generations pass through environment checks and only verified samples are kept">
+        <style>
+          .d1fB-T { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .d1fB-S { font: 700 15px Inter, sans-serif; fill: #010A26; }
+          .d1fB-X { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .d1fB-D { font: 400 12.5px Inter, sans-serif; fill: #DCE4F0; }
+          .d1fB-N { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .d1fB-Arr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#d1fB-Ah); }
+        </style>
+        <defs>
+          <marker id="d1fB-Ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="30" y="30" width="220" height="170" rx="12" fill="#8B8BF9"/>
+        <text class="d1fB-T" x="55" y="62">Candidate</text>
+        <text class="d1fB-T" x="55" y="82">generations</text>
+        <text class="d1fB-D" x="55" y="112">many attempts per task,</text>
+        <text class="d1fB-D" x="55" y="130">sampled from strong models</text>
+        <line class="d1fB-Arr" x1="258" y1="115" x2="308" y2="115"/>
+        <rect x="316" y="55" width="250" height="120" rx="12" fill="#0000F2"/>
+        <text class="d1fB-T" x="340" y="87">Atropos checks</text>
+        <text class="d1fB-D" x="340" y="112">format · instructions</text>
+        <text class="d1fB-D" x="340" y="130">schema · tool calls</text>
+        <text class="d1fB-D" x="340" y="148">verified answers</text>
+        <line class="d1fB-Arr" x1="574" y1="115" x2="624" y2="115"/>
+        <rect x="632" y="80" width="218" height="70" rx="12" fill="#0000A3"/>
+        <text class="d1fB-T" x="657" y="110">Kept samples</text>
+        <text class="d1fB-D" x="657" y="132">verified pass = training data</text>
+        <text class="d1fB-X" x="316" y="205">Fail any check → the sample is rejected. The model never sees it.</text>
+        <rect x="30" y="236" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="d1fB-N" x="54" y="248">Pure SFT: quality lives in the filter, not in a reward model after the fact.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the funnel: candidates go in, environment checks reject, only verified samples train the model</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The Atropos environments - what "good" means, mechanically<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The verifiers run inside <strong>Atropos</strong>, Nous's open framework of RL environments (github.com/NousResearch/atropos) - here used not for RL, but as a battery of pass/fail judges for rejection sampling. The report describes environments including:</p>
+        <table class="clean">
+          <thead><tr><th>Environment</th><th>What it enforces</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Answer format</strong></td><td>Roughly 1,000 distinct output formats, checked strictly - including exact <code>&lt;think&gt;&lt;/think&gt;</code> delimiter usage. This is why the reasoning tags you met in Session 4 are so reliable.</td></tr>
+            <tr><td><strong>Instruction following</strong></td><td>Did the response actually obey the constraints in the prompt - length, structure, forbidden words, ordering?</td></tr>
+            <tr><td><strong>Internbootcamp</strong></td><td>A large suite of verifiable reasoning tasks with checkable answers.</td></tr>
+            <tr><td><strong>Schema adherence</strong></td><td>JSON outputs validated against Pydantic schemas - the ancestry of Session 5's "JSON that validates" behavior.</td></tr>
+            <tr><td><strong>Tool use</strong></td><td>Tool calls checked for well-formed structure and correct invocation - the ancestry of Session 6.</td></tr>
+          </tbody>
+        </table>
+        <p>Notice the pattern: every behavior you have relied on in this course - clean think tags, valid JSON, disciplined tool calls - maps to a specific verifier that filtered the training data. Reliability was not hoped for; it was selected for.</p>
+        <div class="callout tip">
+          <strong>Why this beats "train on everything"</strong>
+          A wrong sample does not just waste tokens - it actively teaches the wrong behavior. Rejection sampling means the model only ever imitates demonstrations that provably passed. The filter IS the alignment mechanism in a pure-SFT recipe.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The honest note: Atropos is archived<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Full transparency, because this course does not paper over inconvenient facts: the Atropos repository was <strong>archived (made read-only) on July 4, 2026</strong>. You can still read every line of it, but it is no longer maintained.</p>
+        <ul>
+          <li><strong>How to teach it, then:</strong> as history - "this is how Hermes 4 was built" - not as a live tool to adopt for your own projects today.</li>
+          <li><strong>Why it still matters:</strong> the design pattern (a library of programmatic pass/fail environments doing double duty for RL and for data filtering) outlives any one repo. If you ever build a data pipeline, this is the pattern to steal.</li>
+          <li><strong>The code is still evidence.</strong> An archived repo is a frozen, checkable record of exactly how the published recipe worked. Few labs leave that much on the table for you.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE TRAINING RUN ============ -->
+  <section class="section" id="training-run">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the report's training setup, §3 + §3.1</span>
+      <h2>The training run <span class="tag concept">~9 min read</span></h2>
+    </div>
+    <p class="lede">Data made, data filtered - now bake it in. The run itself is disciplined engineering rather than magic, and the report publishes every number. Then comes the cleverest section in the whole paper: teaching the model to stop thinking.</p>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The recipe card - hardware and numbers<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>From report §3, the Hermes 4 run at a glance:</p>
+        <table class="clean">
+          <thead><tr><th>Dimension</th><th>The run</th></tr></thead>
+          <tbody>
+            <tr><td>Framework</td><td>A modified TorchTitan</td></tr>
+            <tr><td>Hardware</td><td>192 NVIDIA B200 GPUs</td></tr>
+            <tr><td>Steps</td><td>9,000 optimizer steps</td></tr>
+            <tr><td>Global batch</td><td>384</td></tr>
+            <tr><td>Context</td><td>16,384-token packed sequences</td></tr>
+            <tr><td>Attention</td><td>Flex Attention</td></tr>
+            <tr><td>Base models</td><td>Llama 3.1 405B / 70B · Qwen3-14B</td></tr>
+          </tbody>
+        </table>
+        <p>Hold the scale in perspective: 192 GPUs is a serious cluster, but it is post-training, not pretraining - orders of magnitude below what it took to make the base models. The leverage is in the data recipe, which is exactly why Parts 1 and 2 came first.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Two quiet tricks: loss masking and bin packing<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two unglamorous details in §3 do a lot of work:</p>
+        <ul>
+          <li><strong>Loss on assistant tokens only.</strong> Training conversations contain system prompts, user turns, and assistant replies - but the loss is computed only on the assistant's tokens. The model learns to WRITE good answers, not to imitate users or parrot system prompts. This is standard practice done carefully, and it matters for steerability: system prompts stay instructions, not content to reproduce.</li>
+          <li><strong>First-Fit-Decreasing packing.</strong> Samples have wildly different lengths; padding short ones to 16,384 tokens would burn most of the cluster on nothing. FFD - the classic bin-packing heuristic - packs samples into sequences so tightly that the report claims over 99.9% batch efficiency. Almost no GPU-hour is spent computing on padding.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The suitcase analogy.</strong> FFD is how an experienced packer fills a suitcase: biggest items first, then progressively smaller ones into the remaining gaps. Same algorithm, applied to token sequences, worth real money at 192-GPU scale.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Teaching it to stop thinking - the second SFT stage<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Report §3.1 tells the best story in the paper. Reasoning models have a failure mode: they think too long. Hermes 4 14B, with its 40,960-token limit, <strong>hit that cap on 60% of LiveCodeBench reasoning runs</strong> - burning the whole budget mid-thought and truncating.</p>
+        <p>The fix is elegant: a <strong>second SFT stage</strong> that teaches the model to wrap up - to close its <code>&lt;/think&gt;</code> tag by around 30,000 tokens and commit to an answer. No new knowledge, just a learned sense of when to stop deliberating.</p>
+        <ul>
+          <li><strong>The cost is real and published:</strong> in that condition, Hermes 4 405B drops from 55.0 to 52.4 on AIME'24 - a few points of peak reasoning, traded away deliberately.</li>
+          <li><strong>The win is bigger:</strong> overlong generations collapse. In production, a model that reliably finishes inside its budget beats one that occasionally thinks brilliantly and often runs off a cliff.</li>
+          <li><strong>The takeaway for you:</strong> this is why your local Hermes self-terminates its reasoning around ~30k tokens (the Session 4 behavior). It was explicitly trained to.</li>
+        </ul>
+        <figure class="zoomable">
+          <svg viewBox="0 0 880 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar comparison of unbounded thinking versus the second SFT stage that stops at thirty thousand tokens">
+            <style>
+              .d1fC-T { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+              .d1fC-S { font: 700 14px Inter, sans-serif; fill: #010A26; }
+              .d1fC-X { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+              .d1fC-N { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+            </style>
+            <text class="d1fC-S" x="30" y="35">Runaway thinking (14B, LiveCodeBench runs hitting the 40,960 cap)</text>
+            <rect x="30" y="50" width="480" height="34" rx="8" fill="#0000F2"/>
+            <text class="d1fC-T" x="46" y="72">Unbounded: 60% hit the cap</text>
+            <rect x="30" y="92" width="90" height="34" rx="8" fill="#8B8BF9"/>
+            <text class="d1fC-S" x="130" y="114">After 2nd SFT stage: overlong runs massively cut</text>
+            <text class="d1fC-S" x="30" y="165">The price (405B, AIME'24 in that condition)</text>
+            <rect x="30" y="178" width="440" height="34" rx="8" fill="#0000A3"/>
+            <text class="d1fC-T" x="46" y="200">Unbounded: 55.0</text>
+            <rect x="30" y="220" width="419" height="20" rx="8" fill="#3430F7"/>
+            <text class="d1fC-T" x="46" y="235">Taught to stop at ~30k: 52.4</text>
+            <rect x="560" y="185" width="14" height="14" rx="3" fill="#E08700"/>
+            <text class="d1fC-N" x="584" y="197">A few points traded for a</text>
+            <text class="d1fC-N" x="584" y="215">model that reliably finishes.</text>
+          </svg>
+          <figcaption>🔍 Click to zoom - unbounded thinking vs taught to stop at ~30k: overlong runs collapse, at a small published cost</figcaption>
+        </figure>
+        <p>And the payoff at eval time - Hermes 4 405B in reasoning mode: MATH-500 96.3, AIME'24 81.9, GPQA Diamond 70.5, LiveCodeBench v6 61.3, MMLU 87.2, Arena-Hard v1 94.4, and RefusalBench 57.1 (deep dive D5 teaches you to read that last one critically).</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 30-45 min total</span></h2>
+    </div>
+    <ul>
+      <li>Read ONE section of the actual report: open arXiv 2508.18255 and pick §2 (the data factory) or §3.1 (reasoning-length control). Primary sources are less scary than they look, and this one is well written.</li>
+      <li>Run a format-adherence probe on your local Hermes: ask it 10 times for the same answer in a strict format (for example: "Answer in exactly 3 bullets, each under 10 words, no preamble"). Count how many of 10 comply perfectly. You are reproducing, in miniature, what the answer-format environment measured.</li>
+      <li>Now try the same probe on any other model you use and compare the compliance rate. The gap (or lack of one) is Part 2 made visible.</li>
+      <li>Optional: skim the archived Atropos repo (github.com/NousResearch/atropos) and find the answer-format environment. Reading real verifier code beats any summary of it.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official Nous sources covered</h2>
+    </div>
+    <p class="lede">This page is a guided tour of the Hermes 4 technical report's recipe sections, with the archived Atropos repo as supporting evidence.</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Hermes 4 technical report §2</span><span class="note">arXiv 2508.18255 · DataForge, rejection sampling, covering sets - Parts 1 and 2 of this page</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Hermes 4 technical report §3</span><span class="note">training setup, packing, loss masking + §3.1 reasoning-length control - Part 3 of this page</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Atropos repo</span><span class="note">github.com/NousResearch/atropos · archived read-only 2026-07-04; covered as history, not a live tool</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · How does DataForge generate diverse training data?</p>
+      <button class="qopt" type="button">A · It prompts a big model with "please generate diverse examples"</button>
+      <button class="qopt" type="button">B · Random walks through a DAG of PDDL-style transformations, each node a struct-to-struct step with preconditions and postconditions</button>
+      <button class="qopt" type="button">C · It scrapes diverse websites and lightly rewrites them</button>
+      <p class="qwhy">Diversity is structural, not requested: different random paths through the graph chain different transformations, and covering sets (taxonomies + PersonaHub) steer topical and persona coverage on top.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · In the Hermes 4 recipe, what role does Atropos play?</p>
+      <button class="qopt" type="button">A · It is the RLHF stage that fine-tunes the model with human preferences</button>
+      <button class="qopt" type="button">B · It is the GPU scheduler for the 192-node cluster</button>
+      <button class="qopt" type="button">C · Its environments act as pass/fail judges for rejection sampling - only candidate samples that pass format, instruction, schema, and tool checks become training data</button>
+      <p class="qwhy">Hermes 4 is pure SFT - no RLHF headline stage. Quality control happens before training: the Atropos verifiers (answer format with ~1k formats, instruction following, Internbootcamp, Pydantic schemas, tool use) reject bad candidates so the model only imitates verified-good demonstrations.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · What did the second SFT stage (report §3.1) teach the model, and at what cost?</p>
+      <button class="qopt" type="button">A · To close its think tag around ~30k tokens - massively cutting overlong runs, at the cost of a few points (405B AIME'24: 55.0 down to 52.4 in that condition)</button>
+      <button class="qopt" type="button">B · To think longer, which raised every benchmark for free</button>
+      <button class="qopt" type="button">C · To skip thinking entirely on hard problems to save compute</button>
+      <p class="qwhy">The 14B was hitting its 40,960-token cap on 60% of LiveCodeBench reasoning runs. The second stage teaches it WHEN to stop - trading a little peak reasoning for a model that reliably finishes inside its budget.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Deep dive D1 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The corpus</b><span>~5M samples · ~19B tokens (4.3: ~60B), mostly newly synthesized. Pure SFT - no RLHF headline stage.</span></div>
+      <div class="cheat-item"><b>DataForge</b><span>DAG of PDDL-style struct-to-struct nodes (preconditions/postconditions) · random walks = diverse conversations · graphs compose. Inspired by AgentInstruct.</span></div>
+      <div class="cheat-item"><b>Covering sets</b><span>Taxonomies + PersonaHub personas: define the coverage target first, generate against it.</span></div>
+      <div class="cheat-item"><b>Rejection sampling</b><span>Atropos environments as pass/fail judges: ~1k answer formats (strict think tags), instruction following, Internbootcamp, Pydantic schemas, tool use.</span></div>
+      <div class="cheat-item"><b>Atropos status</b><span>Archived read-only 2026-07-04. Teach as "how Hermes was built"; steal the pattern, not the repo.</span></div>
+      <div class="cheat-item"><b>The run</b><span>Modified TorchTitan · 192 B200s · 9,000 steps · batch 384 · 16,384-token packed context · Flex Attention · loss on assistant tokens only · FFD packing at over 99.9% efficiency.</span></div>
+      <div class="cheat-item"><b>Length control (§3.1)</b><span>14B hit its 40,960 cap on 60% of LiveCodeBench runs → 2nd SFT stage closes think at ~30k · 405B AIME'24 55.0 to 52.4 in that condition.</span></div>
+      <div class="cheat-item"><b>The scoreboard</b><span>405B reasoning: MATH-500 96.3 · AIME'24 81.9 · GPQA Diamond 70.5 · LiveCodeBench v6 61.3 · MMLU 87.2 · Arena-Hard v1 94.4 · RefusalBench 57.1.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Deep dive D1 of 5 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="../index.html">← All sessions</a> &nbsp;·&nbsp; <a href="92-trained-by-the-swarm.html">Next: Trained by the swarm →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

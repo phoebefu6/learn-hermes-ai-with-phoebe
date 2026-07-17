@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 1 · Meet Hermes: the AI that answers to you - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Session 1 of 8</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Session 1 of 8</div>
+    <h1>Meet Hermes: <span class="accent">the AI that answers</span> to you</h1>
+    <p class="sub">An open-weights model family you can download, steer, and own - built by Nous Research on a simple thesis: the model should follow YOUR instructions, not a lab's policy layer. Today: what Hermes is, why it exists, and your first conversation with it.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Easiest</span>
+      <span class="chip audience">Everyone starts here</span>
+      <span class="chip audience">Zero-install path available</span>
+      <span class="chip time">45 min live + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Concepts (live cards)</span>
+      <span class="a3" style="flex:4">20-40 · Two demos</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>Why this course exists</h2>
+    </div>
+    <p class="lede">Most people experience AI as a subscription: a chat box owned by someone else, with someone else's rules, on someone else's servers. Hermes is the other path - a frontier-quality model whose weights you can download tonight and run on the laptop you already own. Over 8 sessions we build one running artifact: <strong>your own private AI assistant</strong>, upgraded every session until, in the finale, it goes autonomous.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">★ Try it now prompt</span>
+      <span class="pill inkpill">Official Nous sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      A clear map of the Hermes model family and which one fits your machine, the "neutral alignment" idea that makes Hermes genuinely different, your first Hermes conversation (hosted, zero install), and - if your laptop cooperates - a local model running fully offline by the end of Demo 2.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: WHAT HERMES IS ============ -->
+  <section class="section" id="what-is-hermes">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the Nous releases timeline + model cards</span>
+      <h2>What Hermes actually is <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">Hermes is not one model - it is a family of open-weights models, each built by taking a strong base model and post-training it with Nous Research's data recipe. Get the family map right and every later session gets easier.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hermes release timeline from Hermes 2 to Hermes Agent">
+        <style>
+          .tlY { font: 700 13px Inter, sans-serif; fill: #5C6B75; }
+          .tlT { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .tlS { font: 700 15px Inter, sans-serif; fill: #010A26; }
+          .tlX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .tlN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+        </style>
+        <line x1="30" y1="70" x2="850" y2="70" stroke="#C3CFD8" stroke-width="2"/>
+        <rect x="30" y="46" width="130" height="48" rx="10" fill="#8B8BF9"/>
+        <text class="tlT" x="48" y="75">Hermes 2</text>
+        <text class="tlY" x="30" y="118">2024</text>
+        <text class="tlX" x="30" y="138">Set the standard for</text>
+        <text class="tlX" x="30" y="154">open function calling</text>
+        <rect x="200" y="46" width="130" height="48" rx="10" fill="#3430F7"/>
+        <text class="tlT" x="218" y="75">Hermes 3</text>
+        <text class="tlY" x="200" y="118">Aug 2024</text>
+        <text class="tlX" x="200" y="138">First full finetune of</text>
+        <text class="tlX" x="200" y="154">Llama 3.1 405B</text>
+        <rect x="370" y="46" width="130" height="48" rx="10" fill="#0000F2"/>
+        <text class="tlT" x="388" y="75">Hermes 4</text>
+        <text class="tlY" x="370" y="118">Aug 2025</text>
+        <text class="tlX" x="370" y="138">Hybrid reasoning:</text>
+        <text class="tlX" x="370" y="154">thinks when it matters</text>
+        <rect x="540" y="46" width="130" height="48" rx="10" fill="#0000A3"/>
+        <text class="tlT" x="552" y="75">Hermes 4.3</text>
+        <text class="tlY" x="540" y="118">Dec 2025</text>
+        <text class="tlX" x="540" y="138">Trained by a swarm:</text>
+        <text class="tlX" x="540" y="154">the Psyche network</text>
+        <rect x="710" y="46" width="140" height="48" rx="10" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="tlS" x="722" y="75">Hermes Agent</text>
+        <text class="tlY" x="710" y="118">Feb 2026</text>
+        <text class="tlX" x="710" y="138">Not a model: an open</text>
+        <text class="tlX" x="710" y="154">agent (Session 8)</text>
+        <rect x="30" y="196" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="tlN" x="54" y="208">Two things share the name: Hermes the MODEL family (Sessions 1-7) and Hermes the AGENT (Session 8).</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the Hermes timeline, from function-calling pioneer to autonomous agent</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Open weights - what you actually get<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>When Nous releases a Hermes model, they publish the <strong>weights</strong> - the full set of learned numbers that IS the model - on HuggingFace, for anyone to download. That single fact changes your relationship with AI:</p>
+        <ul>
+          <li><strong>You can run it yourself.</strong> On your laptop, on a server, on a machine with no internet. Your prompts never leave the room.</li>
+          <li><strong>Nobody can take it away.</strong> A subscription model can be deprecated, price-hiked, or policy-changed overnight. A model on your disk is yours forever.</li>
+          <li><strong>You can modify it.</strong> Quantize it smaller, fine-tune it on your data, embed it in a product (license permitting - Session 7 covers licenses).</li>
+        </ul>
+        <p>The tradeoff is honest: hosted frontier models are bigger and come with a support team. Open weights trade a little peak capability for total ownership. This course teaches you to get the most out of that trade.</p>
+        <div class="prompt-box good"><span class="label">★ Try it now (any chat AI you use today)</span>In 3 bullets each, compare what I control with a hosted AI subscription vs an open-weights model running on my own laptop. Cover: privacy, cost, and who sets the rules.</div>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The lawyer's laptop.</strong> A solo lawyer wants AI help on client files but cannot send privileged documents to any cloud. A local Hermes on a MacBook reads every file offline - the documents never leave the machine. That use case is impossible with any subscription chatbot, at any price.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The family lineup - which Hermes is yours<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every Hermes is a strong open base model plus the Nous post-training recipe. The current lineup, and what each is for:</p>
+        <table class="clean">
+          <thead><tr><th>Model</th><th>Built on</th><th>Best for</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Hermes 4 14B</strong></td><td>Qwen3 14B</td><td>The course hero: runs on a 16GB Mac, does everything we need</td></tr>
+            <tr><td><strong>Hermes 4.3 36B</strong></td><td>ByteDance Seed 36B</td><td>The newest and smartest per parameter: 512K context, Apache 2.0, needs 32GB+</td></tr>
+            <tr><td><strong>Hermes 4 70B</strong></td><td>Llama 3.1 70B</td><td>Power users with 64GB machines or a GPU server</td></tr>
+            <tr><td><strong>Hermes 4 405B</strong></td><td>Llama 3.1 405B</td><td>API only - nobody runs this at home (Session 7)</td></tr>
+            <tr><td><strong>Hermes 3 8B</strong></td><td>Llama 3.1 8B</td><td>The gentle on-ramp: one command in Ollama, runs on almost anything</td></tr>
+          </tbody>
+        </table>
+        <p>Rule of thumb for tonight: <strong>16GB of RAM → start with Hermes 3 8B or Hermes 4 14B. 32GB → add Hermes 4.3 36B. 64GB → the 70B is yours.</strong> Session 2 does the full sizing math.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Same body, different values - how a Hermes is made<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Hermes 4 70B and Llama 3.1 70B have the same architecture and started from the same weights. So what did Nous change? The <strong>post-training</strong>: roughly 5 million carefully synthesized examples (about 19 billion tokens for Hermes 4, 60 billion for 4.3) that teach the base model how to behave - how to follow a system prompt faithfully, call tools, produce valid JSON, reason step by step, and skip the moralizing.</p>
+        <figure class="zoomable">
+          <svg viewBox="0 0 880 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pipeline: base model plus Nous post-training equals Hermes">
+            <style>
+              .bpT { font: 700 16px Inter, sans-serif; fill: #FFFFFF; }
+              .bpS { font: 700 16px Inter, sans-serif; fill: #010A26; }
+              .bpX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+              .bpArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#bpAh); }
+            </style>
+            <defs>
+              <marker id="bpAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+              </marker>
+            </defs>
+            <rect x="30" y="40" width="220" height="70" rx="12" fill="#EAEAFE" stroke="#8B8BF9"/>
+            <text class="bpS" x="62" y="70">Strong base model</text>
+            <text class="bpX" x="62" y="92">Llama · Qwen · Seed</text>
+            <line class="bpArr" x1="258" y1="75" x2="308" y2="75"/>
+            <rect x="316" y="40" width="240" height="70" rx="12" fill="#0000F2"/>
+            <text class="bpT" x="348" y="70">Nous post-training</text>
+            <text class="bpX" x="348" y="92" fill="#DCE4F0">~5M synthetic examples</text>
+            <line class="bpArr" x1="564" y1="75" x2="614" y2="75"/>
+            <rect x="622" y="40" width="228" height="70" rx="12" fill="#0000A3"/>
+            <text class="bpT" x="668" y="70">Hermes</text>
+            <text class="bpX" x="650" y="92" fill="#DCE4F0">steerable · tools · reasoning</text>
+            <text class="bpX" x="30" y="150">"Same body, different values": the knowledge comes from the base; the character, obedience to YOUR system</text>
+            <text class="bpX" x="30" y="168">prompt, tool calling, and low-refusal behavior come from the Nous recipe.</text>
+          </svg>
+          <figcaption>🔍 Click to zoom - how a base model becomes a Hermes</figcaption>
+        </figure>
+        <p>Deep-dive D1 walks through the actual machinery (DataForge graphs, rejection sampling) for the curious - it is genuinely elegant engineering, and all of it is published in the Hermes 4 technical report.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Who is Nous Research?<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Nous Research started as a loose collective of open-source finetuners and grew into one of the most influential open-model labs. Their naming is deliberately hermetic - <em>Nous</em> is Greek for divine intellect, and the stack reads like a mythology shelf: Hermes (the messenger), Psyche (the distributed training network), Atropos (the RL environments framework), Nomos (a math model).</p>
+        <ul>
+          <li><strong>Track record:</strong> Hermes 2 Pro set the open standard for function calling; Hermes 3 was the first full finetune of Llama 3.1 405B; the tool-calling format Hermes pioneered is now literally a named parser in vLLM (<code>--tool-call-parser hermes</code>).</li>
+          <li><strong>Radical openness:</strong> weights, datasets (the Hermes 3 dataset is public), technical reports, and even the training experiments are published.</li>
+          <li><strong>The 2026 headline:</strong> Hermes Agent - their open-source autonomous agent - became one of the fastest-growing open projects ever, and the company was last reported in funding talks at a $1.5B valuation.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: NEUTRAL ALIGNMENT ============ -->
+  <section class="section" id="neutral-alignment">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the Hermes 4 report, section 5 + RefusalBench</span>
+      <h2>Neutral alignment - aligned to you <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Every big-lab model ships with a policy layer: topics it deflects, tones it refuses, opinions it sands down - decided by the lab, not by you. The Hermes bet is different: make the model follow the user's system prompt as faithfully as possible, and let the human own the values. Nous calls it neutral alignment, and it is the single most important idea in this course.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What "aligned to you" means in practice<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ask a heavily-aligned model to play a ruthless negotiation counterpart for practice, and you often get a lecture about kindness instead. Hermes takes the system prompt as its constitution: tell it who to be, and it commits. Three practical consequences:</p>
+        <ul>
+          <li><strong>The system prompt is a steering wheel, not a suggestion.</strong> Personas hold. Rules hold. Formats hold. Session 3 is entirely about exploiting this.</li>
+          <li><strong>Far fewer refusals on legitimate work.</strong> Edgy marketing copy, adversarial role-play, security education, dark fiction - Hermes engages where other models deflect.</li>
+          <li><strong>No hidden thumb on the scale.</strong> Ask for both sides of a contested question and you get both sides, argued properly, without a lab's house opinion leaking in.</li>
+        </ul>
+        <p>Nous measures this with <strong>RefusalBench</strong>, their published benchmark of borderline-but-legitimate prompts. Hermes 4 405B engages with 57% of them; the big hosted models manage roughly 17%. Hermes 4.3 pushes to 75%. Whatever you think the right number is, the gap is the product.</p>
+        <div class="prompt-box good"><span class="label">★ Try it now (in Demo 1)</span>You are "Red", my negotiation sparring partner. You are a tough, experienced procurement director who wants a 30% discount and shows no warmth. Stay fully in character until I say STOP. Open the negotiation.</div>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The sales trainer.</strong> A sales team wanted to rehearse against realistic difficult buyers. Their hosted AI kept breaking character to be supportive. The same role-play prompt on Hermes stays in character for a full session - which is exactly what makes the practice useful.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The other side of the deal: you own safety<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Neutral alignment is a transfer of responsibility, not an absence of it. When the lab stops deciding what is appropriate, that decision lands on whoever writes the system prompt - you. Treat these as house rules from day one:</p>
+        <ul>
+          <li><strong>Steerable is not omniscient.</strong> Hermes hallucinates like every LLM. Low refusal means it will also confidently attempt things it should decline for accuracy reasons - your verification habits matter MORE here, not less.</li>
+          <li><strong>Your system prompt is your policy.</strong> Deploying Hermes for a team or a product? Write the guardrails into the system prompt explicitly - tone limits, forbidden topics, escalation rules. Session 3 gives you the pattern.</li>
+          <li><strong>The law still applies to you.</strong> An open model on your laptop does not change what is legal or ethical to produce and ship. The model follows you; accountability follows you too.</li>
+        </ul>
+        <div class="callout tip">
+          <strong>The house rule for this course</strong>
+          We use Hermes's openness for legitimate work: personas, candor, edge-case testing, private data. "It will do what I say" is the tool; "I stand behind what I ship" is the license for it.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where Hermes sits in the model landscape<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <table class="clean">
+          <thead><tr><th>Versus</th><th>The honest one-liner</th></tr></thead>
+          <tbody>
+            <tr><td>Llama / Qwen base models</td><td>Hermes IS them, post-trained for steerability, tool calling, and low refusal - same body, different values</td></tr>
+            <tr><td>GPT / Claude / Gemini</td><td>They are bigger and hosted; Hermes is yours - open weights, your rules, your hardware, your responsibility</td></tr>
+            <tr><td>Other open finetunes</td><td>Pedigree: the function-calling format everyone copied, the first open 405B finetune, and a decentralized-training story nobody else has</td></tr>
+          </tbody>
+        </table>
+        <p>The mature take: this is not "Hermes good, hosted bad". Most practitioners run both - hosted frontier models for maximum capability with non-sensitive work, local Hermes for private data, personas the hosted models refuse, offline work, and anything you want to own end to end. By Session 7 you will know exactly which jobs go where.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE RUNNING PROJECT ============ -->
+  <section class="section" id="running-project">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the course spine</span>
+      <h2>One artifact, eight upgrades <span class="tag concept">2 min live</span></h2>
+    </div>
+    <p class="lede">This course is not eight lectures - it is one build. Every session upgrades the same thing: a private AI assistant that is genuinely yours. Here is the full arc, so you always know where we are.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Eight session ladder from first run to autonomous agent">
+        <style>
+          .ldT { font: 700 13.5px Inter, sans-serif; fill: #FFFFFF; }
+          .ldS { font: 700 13.5px Inter, sans-serif; fill: #010A26; }
+          .ldX { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+          .ldN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+        </style>
+        <rect x="20" y="180" width="95" height="40" rx="8" fill="#8B8BF9"/>
+        <text class="ldT" x="34" y="205">1 · Meet it</text>
+        <rect x="125" y="160" width="95" height="60" rx="8" fill="#8B8BF9"/>
+        <text class="ldT" x="139" y="195">2 · Run it</text>
+        <rect x="230" y="140" width="95" height="80" rx="8" fill="#3430F7"/>
+        <text class="ldT" x="242" y="185">3 · Steer it</text>
+        <rect x="335" y="120" width="95" height="100" rx="8" fill="#3430F7"/>
+        <text class="ldT" x="345" y="175">4 · Reason</text>
+        <rect x="440" y="100" width="95" height="120" rx="8" fill="#0000F2"/>
+        <text class="ldT" x="458" y="165">5 · JSON</text>
+        <rect x="545" y="80" width="95" height="140" rx="8" fill="#0000F2"/>
+        <text class="ldT" x="558" y="155">6 · Tools</text>
+        <rect x="650" y="60" width="95" height="160" rx="8" fill="#0000A3"/>
+        <text class="ldT" x="670" y="145">7 · API</text>
+        <rect x="755" y="40" width="105" height="180" rx="8" fill="#010A26"/>
+        <text class="ldT" x="768" y="135">8 · Agent 🏁</text>
+        <text class="ldX" x="20" y="245">Sessions 1-2: it runs · 3-4: it behaves your way · 5-6: it does real work · 7-8: it serves and acts on its own</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the eight-session ladder: every step upgrades the same assistant</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>What "your own private AI assistant" will mean<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>By Session 8 the artifact on your machine will: run a model you chose for your hardware, hold a persona and house rules you wrote, think deeply only when a task deserves it, return clean JSON your scripts can consume, call tools you gave it, fall back to a hosted API when you allow it, and finally act autonomously through Hermes Agent - checking in with you on its own schedule.</p>
+        <p>Each session's homework is one more brick in that build. Skip a session and the next one still works - but the assistant you finish with is exactly as good as the bricks you laid.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>First contact - no install needed <span class="tag demo">★ 8 min · everyone follows</span></h2>
+    </div>
+    <p class="lede">Before we install anything, meet the model where it is easiest: a hosted Hermes in the browser. The goal is to FEEL the neutral-alignment difference, not just hear about it.</p>
+
+    <div class="steps">
+      <div class="step"><p>Open <a href="https://chat.nousresearch.com">chat.nousresearch.com</a> (Nous Chat, free account) - or, alternate route, <a href="https://openrouter.ai">openrouter.ai</a> where Hermes 3 405B has a free tier in the model playground.</p></div>
+      <div class="step"><p>Warm-up: ask something you would ask any chatbot. Confirm it is just a very good LLM - fluent, fast, ordinary. The differences are in the steering, not the small talk.</p></div>
+      <div class="step"><p>Now run the "Red" negotiation prompt from Part 2. Push it: be difficult, go three rounds, try to make it break character. Notice it does not.</p></div>
+      <div class="step"><p>Steering test: "Answer the next question twice: once as a cautious risk manager, once as an aggressive growth founder. Same facts, both fully committed." Ask a real question from your work.</p></div>
+      <div class="step"><p>Compare mentally with your daily hosted AI: where the answers feel the same, and where the persona commitment feels different. That gap is what you are here to learn to use.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>Data tip</strong>
+      Hosted Hermes is still hosted - treat Nous Chat and OpenRouter like any cloud service and keep confidential data out. The fully-private version of this conversation is exactly what Demo 2 and Session 2 set up.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Your first local Hermes <span class="tag demo">★ 12 min · build your own</span></h2>
+    </div>
+    <p class="lede">One installer, one command, and a Hermes is running on your machine with no internet required. We use the friendliest on-ramp today (Hermes 3 8B via Ollama); Session 2 upgrades you to the full lineup.</p>
+
+    <div class="steps">
+      <div class="step"><p>Install Ollama: download from <a href="https://ollama.com">ollama.com</a> (Mac / Windows / Linux) and run the installer. It lives in your menu bar and serves models locally.</p></div>
+      <div class="step"><p>Open a terminal and run the one-liner below. First run downloads ~4.7GB, then drops you into a chat prompt.</p></div>
+      <div class="step"><p>Say hello. Then prove it is local: turn OFF your wifi and ask another question. It answers. Let that land - a capable AI is running entirely on your hardware.</p></div>
+      <div class="step"><p>Re-run the "Red" negotiation prompt from Demo 1, now fully offline. Same steerability, zero cloud.</p></div>
+      <div class="step"><p>Type <code>/bye</code> to exit. Run <code>ollama list</code> to see the model sitting on your disk - that file is yours.</p></div>
+    </div>
+
+    <div class="prompt-box good"><span class="label">★ The one-liner</span>ollama run hermes3:8b</div>
+
+    <div class="prompt-box good"><span class="label">★ Try it now - the offline test</span>Wifi is off. Where are you running right now, and what does that mean for the privacy of this conversation? Answer in 3 short bullets.</div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The plane test.</strong> A consultant drafts client interview summaries on flights - no wifi, hard confidentiality rules, dead hours. A local Hermes turned flight time into the most productive part of the trip. The setup was exactly the five steps above.</p>
+    </div>
+
+    <div class="callout tip">
+      <strong>If your machine groans</strong>
+      8B needs roughly 8GB of RAM to be comfortable. Older laptop? Try <code>ollama run hermes3:3b</code> style smaller models, or just do Demo 1's hosted route today - Session 2 includes a full "what fits my machine" clinic.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 30-45 min total</span></h2>
+    </div>
+    <ul>
+      <li>Finish Demo 2 if you did not complete it live: Ollama installed, <code>hermes3:8b</code> pulled, offline test passed.</li>
+      <li>Have three real conversations with your local Hermes - one work task, one persona role-play, one "explain something to me". Note where it shines and where it stumbles.</li>
+      <li>Run the steering test (risk manager vs growth founder) on a question you actually care about, and save the best answer.</li>
+      <li>Check your machine: how much RAM do you have? (Mac: Apple menu → About This Mac.) Bring the number to Session 2 - it decides which Hermes you graduate to.</li>
+      <li>Optional reading: the Hermes 4.3 announcement at <a href="https://nousresearch.com/introducing-hermes-4-3">nousresearch.com/introducing-hermes-4-3</a> - skim for the "trained by a swarm" story; deep-dive D2 unpacks it properly.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official Nous sources covered</h2>
+    </div>
+    <p class="lede">This course teaches from primary sources: Nous Research's own releases, model cards, and the published Hermes 4 technical report. Hermes has no official certification program - what you get here is the working knowledge, verified against the sources below (all free).</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Nous releases timeline</span><span class="note">nousresearch.com/releases · Part 1 covers the full model lineage</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Hermes 4 technical report</span><span class="note">arXiv 2508.18255 · Part 2 covers section 5 (behavior) + RefusalBench; the training recipe is deep-dive D1</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">HuggingFace model cards</span><span class="note">Part 1 family table · full specs, quants and prompt formats in Session 2</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Ollama hermes3 library page</span><span class="note">Demo 2 · the official Ollama on-ramp</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Hermes 4.3 announcement</span><span class="note">Part 1 timeline + homework reading · Psyche story is deep-dive D2</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · What exactly does Nous publish when they release a Hermes model?</p>
+      <button class="qopt" type="button">A · An app you install from an app store</button>
+      <button class="qopt" type="button">B · An API subscription</button>
+      <button class="qopt" type="button">C · The full model weights, downloadable by anyone</button>
+      <p class="qwhy">Open weights are the whole point: the model itself, on your disk, yours to run offline, modify, and keep.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">2 · "Neutral alignment" means...</p>
+      <button class="qopt" type="button">A · The model has no values at all</button>
+      <button class="qopt" type="button">B · The model follows the user's system prompt instead of a lab's policy layer - and you own the responsibility</button>
+      <button class="qopt" type="button">C · The model refuses anything controversial to stay neutral</button>
+      <p class="qwhy">Aligned to YOU: the system prompt is the constitution. The flip side is that safety, policy, and accountability transfer to whoever writes it.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Hermes 4 70B and Llama 3.1 70B - what is the relationship?</p>
+      <button class="qopt" type="button">A · Hermes IS Llama 3.1 70B, post-trained with the Nous recipe - same body, different values</button>
+      <button class="qopt" type="button">B · Competitors trained from scratch by different labs</button>
+      <button class="qopt" type="button">C · Hermes is a compressed copy of Llama</button>
+      <p class="qwhy">Every Hermes is a strong open base (Llama, Qwen, Seed) plus ~5M examples of Nous post-training. The knowledge is the base's; the character is the recipe's.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 1 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The one-liner</b><span>ollama run hermes3:8b - your first local Hermes, ~4.7GB, fully offline.</span></div>
+      <div class="cheat-item"><b>Family lineup</b><span>14B = 16GB hero · 4.3-36B = newest, 32GB+ · 70B = 64GB · 405B = API only · 3-8B = on-ramp.</span></div>
+      <div class="cheat-item"><b>Neutral alignment</b><span>Aligned to your system prompt, not a lab's policy. You get obedience; you own responsibility.</span></div>
+      <div class="cheat-item"><b>Same body, different values</b><span>Hermes = open base model + Nous post-training recipe (~5M synthetic examples).</span></div>
+      <div class="cheat-item"><b>Two Hermeses</b><span>Hermes the MODEL family (Sessions 1-7) vs Hermes the AGENT (Session 8). Don't mix them up in the wild.</span></div>
+      <div class="cheat-item"><b>Zero-install taste</b><span>chat.nousresearch.com, or Hermes 3 405B free tier on OpenRouter.</span></div>
+      <div class="cheat-item"><b>The offline test</b><span>Wifi off, still answering = truly local. Do it once; it changes how you think about AI.</span></div>
+      <div class="cheat-item"><b>Next session</b><span>Bring your RAM number - we pick YOUR model and set it up properly.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 1 of 8 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="../index.html">← All sessions</a> &nbsp;·&nbsp; <a href="02-on-your-machine.html">Next: Get it on your machine →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

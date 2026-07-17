@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep dive D2 · Trained by the swarm: Psyche and DisTrO - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Deep dive D2 of 5</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Deep dive D2 of 5</div>
+    <h1>Trained by the swarm: <span class="accent">Psyche and DisTrO</span></h1>
+    <p class="sub">In December 2025, Nous shipped Hermes 4.3-36B - the first production model post-trained entirely on a decentralized network of GPUs scattered across the open internet. This is the story of how that works, the controlled experiment that proved it, and how to read the claim with clear eyes.</p>
+    <div class="chip-row">
+      <span class="chip level">🔬 Self-paced</span>
+      <span class="chip audience">For the curious</span>
+      <span class="chip audience">No install - pure story and systems</span>
+      <span class="chip time">~20-25 min read</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:2">Part 1 · Why decentralize</span>
+      <span class="a2" style="flex:3">Part 2 · The machinery</span>
+      <span class="a3" style="flex:3">Part 3 · The twin experiment</span>
+      <span class="a4" style="flex:2">Part 4 · Critical read</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Deep dive D2</span>
+      <h2>Why this page exists</h2>
+    </div>
+    <p class="lede">Every frontier model you have ever used was trained in a datacenter: one building, one owner, one bill measured in the hundreds of millions. Hermes 4.3 was not. It was post-trained by 24 independent nodes coordinating over the ordinary internet - and in a controlled head-to-head, that swarm-trained model beat its conventionally trained twin. Nous calls the framing "Local Intelligence Globally Trained". This deep dive unpacks the why, the how, and the honest caveats.</p>
+    <div class="legend">
+      <span class="pill light">Self-study - read at your own pace</span>
+      <span class="pill inkpill">Source: the Hermes 4.3 announcement</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with</strong>
+      A plain-words understanding of why anyone would train a model outside a datacenter, what DisTrO and Psyche actually do (and what Solana is doing in the loop), the twin experiment - one model trained twice, centralized vs swarm - and a balanced read: what is genuinely historic here and what still deserves skepticism.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: WHY DECENTRALIZE ============ -->
+  <section class="section" id="why-decentralize">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the thesis</span>
+      <h2>Why decentralize training at all <span class="tag concept">~6 min read</span></h2>
+    </div>
+    <p class="lede">Open weights solve half the ownership problem: anyone can RUN the model. But the ability to MAKE frontier models still belongs to whoever owns a datacenter full of tightly interconnected GPUs. Decentralized training attacks that last gate.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="One datacenter with a single gatekeeper versus a swarm of nodes over the open internet">
+        <style>
+          .d2aT { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .d2aS { font: 700 15px Inter, sans-serif; fill: #010A26; }
+          .d2aX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .d2aN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .d2aL { stroke: #C3CFD8; stroke-width: 2; }
+        </style>
+        <rect x="40" y="40" width="300" height="150" rx="12" fill="#0000A3"/>
+        <text class="d2aT" x="70" y="75">One datacenter</text>
+        <text class="d2aX" x="70" y="105" fill="#DCE4F0">One owner · one location · one bill</text>
+        <text class="d2aX" x="70" y="127" fill="#DCE4F0">GPUs wired with exotic interconnects</text>
+        <text class="d2aX" x="70" y="149" fill="#DCE4F0">Whoever owns it decides what gets built</text>
+        <text class="d2aX" x="40" y="220">The status quo: training capability</text>
+        <text class="d2aX" x="40" y="238">concentrated behind one gate</text>
+        <line class="d2aL" x1="620" y1="115" x2="530" y2="65"/>
+        <line class="d2aL" x1="620" y1="115" x2="545" y2="160"/>
+        <line class="d2aL" x1="620" y1="115" x2="700" y2="55"/>
+        <line class="d2aL" x1="620" y1="115" x2="720" y2="170"/>
+        <line class="d2aL" x1="620" y1="115" x2="800" y2="100"/>
+        <circle cx="620" cy="115" r="30" fill="#0000F2"/>
+        <text class="d2aT" x="606" y="120">hub</text>
+        <circle cx="530" cy="65" r="22" fill="#3430F7"/>
+        <circle cx="545" cy="160" r="22" fill="#3430F7"/>
+        <circle cx="700" cy="55" r="22" fill="#3430F7"/>
+        <circle cx="720" cy="170" r="22" fill="#3430F7"/>
+        <circle cx="800" cy="100" r="22" fill="#8B8BF9"/>
+        <text class="d2aS" x="480" y="220">The Psyche swarm</text>
+        <text class="d2aX" x="480" y="238">Independent nodes over the ordinary internet · nobody owns the whole</text>
+        <rect x="40" y="256" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="d2aN" x="64" y="268">The hard part: ordinary internet is thousands of times slower than datacenter interconnects. That is DisTrO's job.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the gate being attacked: one building vs a swarm of independent nodes</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode self">Self-study</span>The gatekeeper problem<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Run through what it takes to train (or seriously post-train) a frontier-class model today, and one fact dominates: the GPUs must talk to each other constantly, exchanging enormous gradient updates many times per second. That only works over specialized datacenter interconnects - which means the whole job must live in one building, and one building means one owner. Three consequences follow:</p>
+        <ul>
+          <li><strong>A single gatekeeper.</strong> Whoever owns the datacenter decides which models get made, with what values, released under what terms. Open weights give you the artifact; the means of production stay closed.</li>
+          <li><strong>Stranded compute.</strong> The world is full of GPUs that are idle, scattered, or too small alone to matter - community rigs, university clusters, small providers. A datacenter-only paradigm makes all of that irrelevant.</li>
+          <li><strong>A single point of pressure.</strong> One building, one company, one jurisdiction: easy to regulate, pressure, or switch off. A training run spread across independent nodes in many places has no single plug to pull.</li>
+        </ul>
+        <p>The decentralization thesis in one line: if training can run over the open internet, then making models stops being a privilege of datacenter owners - the same move open weights made for running them.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The precedent.</strong> Folding@home and SETI@home showed decades ago that scattered volunteer machines can add up to world-class compute for problems that tolerate loose coordination. The open question was always whether LLM training - the most communication-hungry workload in computing - could ever be made to tolerate it.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Local Intelligence Globally Trained<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Nous frames Hermes 4.3 with the slogan "Local Intelligence Globally Trained", and it is worth pausing on how neatly the two halves of the course thesis snap together:</p>
+        <ul>
+          <li><strong>Local intelligence</strong> - the part you already live: open weights, running on your machine, answering to your system prompt. Sessions 1-8.</li>
+          <li><strong>Globally trained</strong> - the new part: the model was also MADE outside any single company's walls, by a network anyone with GPUs can in principle join.</li>
+        </ul>
+        <p>Whether or not decentralized training becomes the norm, the direction of the argument matters: it extends the ownership story from inference (running models) to training (making them). Keep that frame in mind - and keep your skeptic's hat on until Part 4, where we stress-test it.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE MACHINERY ============ -->
+  <section class="section" id="machinery">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the 4.3 announcement's systems story</span>
+      <h2>The machinery: DisTrO, Psyche, and a blockchain <span class="tag concept">~7 min read</span></h2>
+    </div>
+    <p class="lede">Three named pieces make the swarm work: DisTrO (the algorithm that shrinks what nodes must say to each other), Psyche (the network that organizes the nodes), and Solana (the neutral referee keeping them honest). Plain words for each.</p>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>DisTrO - training over slow wires<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>In normal distributed training, every GPU computes gradients - "here is how I would nudge every weight in the model" - and all GPUs merge their nudges before taking the next step. For a 36B-parameter model that is a gigantic message, exchanged constantly. Datacenter interconnects exist precisely to survive this firehose; your home fiber cannot.</p>
+        <p><strong>DisTrO</strong> (Distributed Training Over-the-Internet) is Nous's family of optimizers built on one bet: the firehose is mostly redundant. By radically compressing what nodes exchange - transmitting only the informative core of each update rather than the full raw gradient - DisTrO cuts the required bandwidth so far that ordinary internet links become good enough to train over.</p>
+        <ul>
+          <li><strong>The mental model:</strong> instead of shipping the entire markup of everything you would change, ship a tight summary that captures what matters. Everyone stays in sync on much thinner wires.</li>
+          <li><strong>The cost:</strong> compression and coordination are not free - there is overhead, and making convergence behave took years of iteration. Psyche also trained an earlier proof model, Consilience 40B, before 4.3 made it to production.</li>
+        </ul>
+        <div class="callout tip">
+          <strong>Why this is the load-bearing piece</strong>
+          Everything else in this story is organization. DisTrO is the physics: without the compression breakthrough, "train over the open internet" is simply impossible, no matter how clever the network around it is.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Psyche - the network, and the numbers<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Psyche</strong> is the coordination layer that turns DisTrO from an algorithm into a working training network: it splits the job, hands shards to nodes, collects and merges their compressed updates, and keeps the run marching forward even though the workers are independent machines in different places. The Hermes 4.3 run, in numbers Nous published:</p>
+        <table class="clean">
+          <thead><tr><th>Dimension</th><th>The 4.3 run</th></tr></thead>
+          <tbody>
+            <tr><td>Nodes</td><td>24 independent nodes over the open internet</td></tr>
+            <tr><td>Throughput</td><td>Averaging 144k tokens/sec across the swarm</td></tr>
+            <tr><td>Post-training corpus</td><td>~5M samples · ~60B tokens</td></tr>
+            <tr><td>Base model</td><td>ByteDance Seed-OSS-36B · 512K context</td></tr>
+            <tr><td>License</td><td>Apache 2.0 - the clean, permissive one</td></tr>
+          </tbody>
+        </table>
+        <p>Keep the scale honest: 24 nodes is a coordinated network of serious GPU operators, not (yet) a million laptops folding proteins. The claim being tested is narrower and more falsifiable: can a real production model be post-trained this way at all, without giving up quality? Part 3 is the answer.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What Solana is doing in the loop<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A decentralized run has a trust problem a datacenter never faces: the workers do not belong to you. Who decides the authoritative order of updates? What stops a faulty - or malicious - node from corrupting the run? You need a referee that no single participant controls.</p>
+        <p>Psyche's answer is to use the <strong>Solana blockchain as its coordination and security layer</strong>: the shared, tamper-evident record of the run that all nodes can verify, exactly because consensus on an untrusted network is the one problem blockchains were actually built to solve.</p>
+        <ul>
+          <li><strong>The charitable read:</strong> a neutral referee for mutually untrusting parties is a legitimate engineering requirement here, and reusing battle-tested consensus beats inventing your own.</li>
+          <li><strong>The skeptical read:</strong> "AI + crypto" is a phrase that has decorated a lot of vapor, and the association imposes a real credibility tax. Note honestly that the blockchain coordinates the training; the learning itself is DisTrO and GPUs.</li>
+        </ul>
+        <p>Both reads fit the facts. Hold them together until Part 4.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE TWIN EXPERIMENT ============ -->
+  <section class="section" id="twin-experiment">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the scientific highlight</span>
+      <h2>The twin experiment <span class="tag concept">~5 min read</span></h2>
+    </div>
+    <p class="lede">"Swarm training works" would be easy to claim and hard to check. So Nous did the thing you almost never see a vendor do: they trained the same model twice - once the normal way, once on Psyche - and published both, as a controlled comparison anyone can rerun.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Twin training paths from one base model converging on the same evals, with the Psyche run winning">
+        <style>
+          .d2bT { font: 700 14.5px Inter, sans-serif; fill: #FFFFFF; }
+          .d2bS { font: 700 14.5px Inter, sans-serif; fill: #010A26; }
+          .d2bX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .d2bN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .d2bArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#d2bAh); }
+        </style>
+        <defs>
+          <marker id="d2bAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="30" y="110" width="190" height="70" rx="12" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="d2bS" x="52" y="140">Seed-OSS-36B</text>
+        <text class="d2bX" x="52" y="162">same base · same data</text>
+        <line class="d2bArr" x1="228" y1="130" x2="300" y2="80"/>
+        <line class="d2bArr" x1="228" y1="160" x2="300" y2="210"/>
+        <rect x="308" y="45" width="250" height="70" rx="12" fill="#8B8BF9"/>
+        <text class="d2bT" x="330" y="75">Centralized twin</text>
+        <text class="d2bX" x="330" y="97" fill="#FFFFFF">TorchTitan FSDP + AdamW · datacenter</text>
+        <rect x="308" y="180" width="250" height="70" rx="12" fill="#0000F2"/>
+        <text class="d2bT" x="330" y="210">Psyche run</text>
+        <text class="d2bX" x="330" y="232" fill="#DCE4F0">24 nodes · DisTrO · open internet</text>
+        <line class="d2bArr" x1="566" y1="80" x2="640" y2="130"/>
+        <line class="d2bArr" x1="566" y1="215" x2="640" y2="165"/>
+        <rect x="648" y="110" width="200" height="70" rx="12" fill="#0000A3"/>
+        <text class="d2bT" x="672" y="140">Same eval suite</text>
+        <text class="d2bX" x="672" y="162" fill="#DCE4F0">the Psyche run won</text>
+        <rect x="30" y="270" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="d2bN" x="54" y="282">The losing twin was released too: NousResearch/Hermes-4.3-36B-centralized on HuggingFace, as a research artifact.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one base, two training paths, one eval suite: a genuine controlled experiment</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The setup, and why it is good science<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The design is exactly what you would demand from a skeptic's chair. Hold everything constant - same Seed-OSS-36B base, same ~60B-token post-training corpus - and vary only the training infrastructure:</p>
+        <ul>
+          <li><strong>Twin A, centralized:</strong> a conventional datacenter run on TorchTitan FSDP with the AdamW optimizer - the industry-standard recipe, as the control.</li>
+          <li><strong>Twin B, decentralized:</strong> the Psyche network - 24 nodes, DisTrO compression, Solana coordination, over the open internet.</li>
+        </ul>
+        <p>Then run both through the same eval suite. The result: <strong>the Psyche-trained twin won</strong>. Not "came close", not "acceptable quality loss" - the swarm-trained model scored better, and it is the one that shipped as Hermes 4.3. The production model's own numbers stand on their own: it matches or exceeds Hermes 4 70B at roughly half the parameters, with AIME'24 71.9, MATH-500 93.8, MMLU 87.7, BBH 86.4, and a 74.6 non-reasoning RefusalBench score (state of the art among popular models - deep dive D5 teaches you to read that one critically).</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The part nobody else does.</strong> Labs bury failed baselines. Nous released the losing twin - <code>NousResearch/Hermes-4.3-36B-centralized</code> on HuggingFace - so anyone can download both models and check the comparison themselves. Publishing your control group is genuinely unique in the industry, and it is what lifts this from a marketing claim to an experiment.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What the result does and does not prove<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Sharpen the conclusion before Part 4 stress-tests it:</p>
+        <ul>
+          <li><strong>Proven:</strong> decentralized post-training over the open internet can produce a production-quality frontier finetune with no quality penalty - in this controlled instance, an advantage.</li>
+          <li><strong>Not proven:</strong> that this holds at every scale, for pretraining from scratch, or across many repeated runs. One excellent experiment is one data point, however well designed.</li>
+          <li><strong>Worth savoring anyway:</strong> the null hypothesis for years was "internet-scale links are far too slow for serious training, full stop". That hypothesis is now dead, killed in public, with both bodies of evidence downloadable.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 4: CRITICAL READ ============ -->
+  <section class="section" id="critical-read">
+    <div class="section-kicker">
+      <span class="klabel">Part 4 · keep your head</span>
+      <h2>Reading it critically <span class="tag concept">~4 min read</span></h2>
+    </div>
+    <p class="lede">The course rule for vendor stories applies to stories we like, too. Here is the honest scorecard - enthusiasm and skepticism on the same page.</p>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The caveats card<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <table class="clean">
+          <thead><tr><th>Caveat</th><th>The honest version</th></tr></thead>
+          <tbody>
+            <tr><td><strong>One proof point</strong></td><td>4.3 is the first production model trained this way (Consilience 40B was the earlier proof run). Extraordinary claims need replication; watch whether the next Psyche runs repeat the result.</td></tr>
+            <tr><td><strong>Coordination overhead</strong></td><td>Compression, consensus, and stragglers all cost something. A swarm is not automatically cheaper or faster than a datacenter - the claim is that it is now POSSIBLE and competitive, not strictly superior.</td></tr>
+            <tr><td><strong>The crypto coupling</strong></td><td>Solana consensus is an engineering answer to a real trust problem, but it welds the training story to a blockchain ecosystem, which raises eyebrows and adds a dependency that is not strictly about machine learning.</td></tr>
+            <tr><td><strong>Scale unknown</strong></td><td>24 coordinated nodes post-training a 36B model is not yet "the world's idle GPUs pretraining a trillion-parameter model". The extrapolation is plausible, not demonstrated.</td></tr>
+          </tbody>
+        </table>
+        <p>And the other column, held simultaneously: the twin experiment is real, controlled, and published including the control group; the evals favored the swarm; and the ownership argument - no single datacenter gatekeeper deciding which models exist - is the same argument that made open weights matter. Both columns can be true. That is what a fair reading looks like.</p>
+        <div class="callout tip">
+          <strong>A note on sources</strong>
+          The Psyche website is a JavaScript-only app that resists citation; treat the Hermes 4.3 announcement post as the citable source of record for everything on this page, and the HuggingFace artifact as the checkable evidence.
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ FURTHER READING ============ -->
+  <section class="section" id="further-reading">
+    <div class="section-kicker">
+      <span class="klabel">Further reading</span>
+      <h2>Go to the sources <span class="tag exercise">◐ 20-30 min</span></h2>
+    </div>
+    <ul>
+      <li>Read the Hermes 4.3 announcement end to end: <a href="https://nousresearch.com/introducing-hermes-4-3">nousresearch.com/introducing-hermes-4-3</a> - the systems story, the eval tables, and the "Local Intelligence Globally Trained" framing in Nous's own words.</li>
+      <li>Visit the control group: search HuggingFace for <code>NousResearch/Hermes-4.3-36B-centralized</code> and read its model card - you are looking at a released losing baseline, a genuine rarity.</li>
+      <li>If you run 4.3 locally (32GB+ machines, Session 2 sizing rules apply): ask the swarm-trained model to explain decentralized training to you, then fact-check it against the announcement. Meta, but instructive.</li>
+      <li>Optional: skim what DisTrO claims in Nous's published materials and note the trick - compressing the exchange, not shrinking the model.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official Nous sources covered</h2>
+    </div>
+    <p class="lede">Everything factual on this page traces to the sources below. Where the record is thin (Psyche's own site), the page says so rather than papering over it.</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Hermes 4.3 announcement</span><span class="note">nousresearch.com/introducing-hermes-4-3 · the citable source for Psyche, DisTrO, the twin experiment, and all numbers here</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Hermes-4.3-36B-centralized</span><span class="note">HuggingFace research artifact · the released centralized twin, checkable by anyone</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Psyche network site</span><span class="note">JS-only app, cited via the announcement · earlier proof run: Consilience 40B</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · What is Psyche?</p>
+      <button class="qopt" type="button">A · A new Hermes model optimized for psychology questions</button>
+      <button class="qopt" type="button">B · Nous's decentralized training network - independent nodes over the open internet, coordinated and secured via Solana consensus</button>
+      <button class="qopt" type="button">C · A datacenter Nous built to train Hermes 4.3</button>
+      <p class="qwhy">Psyche is the network layer: it organized the 24 nodes (averaging 144k tokens/sec) that post-trained Hermes 4.3 entirely outside any single datacenter, with Solana as the neutral coordination and security referee.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · What did the twin experiment show?</p>
+      <button class="qopt" type="button">A · The centralized run won, but the Psyche run was close enough to ship</button>
+      <button class="qopt" type="button">B · The two runs could not be compared because they used different data</button>
+      <button class="qopt" type="button">C · Same base, same data, two training paths - and the Psyche-trained twin won on evals, with the centralized twin released openly as the control</button>
+      <p class="qwhy">That is what makes it science rather than marketing: everything held constant except the infrastructure, the swarm won, and the losing baseline (Hermes-4.3-36B-centralized) was published for anyone to verify.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · What problem does DisTrO solve?</p>
+      <button class="qopt" type="button">A · Ordinary internet links are far too slow for the gradient exchange training needs - DisTrO radically compresses what nodes exchange so slow links become good enough</button>
+      <button class="qopt" type="button">B · It makes the model smaller so it downloads faster</button>
+      <button class="qopt" type="button">C · It encrypts the training data so nodes cannot read it</button>
+      <p class="qwhy">DisTrO is the physics of the whole story: distributed training over slow internet links, made possible by shrinking the communication, not the model. Without it, Psyche is just a nice org chart.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Deep dive D2 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The headline</b><span>Hermes 4.3-36B (Dec 2025): first production model post-trained entirely on a decentralized network.</span></div>
+      <div class="cheat-item"><b>The three pieces</b><span>DisTrO = compress the exchange · Psyche = organize the nodes · Solana = neutral referee.</span></div>
+      <div class="cheat-item"><b>The numbers</b><span>24 nodes · ~144k tokens/sec average · ~5M samples / ~60B tokens · Seed-OSS-36B base · 512K context · Apache 2.0.</span></div>
+      <div class="cheat-item"><b>The twin experiment</b><span>Same base + data, trained twice (TorchTitan FSDP + AdamW vs Psyche). The swarm won on evals.</span></div>
+      <div class="cheat-item"><b>The rare move</b><span>The losing control was released: NousResearch/Hermes-4.3-36B-centralized on HuggingFace.</span></div>
+      <div class="cheat-item"><b>Result quality</b><span>Matches/exceeds Hermes 4 70B at half the parameters · AIME'24 71.9 · MATH-500 93.8 · MMLU 87.7 · BBH 86.4.</span></div>
+      <div class="cheat-item"><b>The caveats</b><span>One production proof point so far · coordination overhead is real · the Solana coupling raises fair eyebrows.</span></div>
+      <div class="cheat-item"><b>The frame</b><span>"Local Intelligence Globally Trained": open weights freed running models; Psyche aims to free making them.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Deep dive D2 of 5 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="91-how-hermes-is-made.html">← D1: How Hermes is made</a> &nbsp;·&nbsp; <a href="93-production-serving.html">Next: Production serving →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

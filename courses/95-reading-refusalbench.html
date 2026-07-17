@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep dive D5 · Reading RefusalBench: what neutral alignment really means - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Deep dive D5 of 5</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Deep dive D5 of 5</div>
+    <h1>Reading RefusalBench: <span class="accent">what neutral alignment really means</span></h1>
+    <p class="sub">Session 1 quoted the numbers: Hermes engages where hosted models refuse, 57% vs roughly 17%, and Hermes 4.3 pushes to 74.6. This deep dive is about reading those numbers like a critical adult - what the benchmark actually measures, where its blind spots are, and what a high score quietly hands to YOU: the policy job.</p>
+    <div class="chip-row">
+      <span class="chip level">🔵 Self-paced</span>
+      <span class="chip audience">Everyone, esp. leaders</span>
+      <span class="chip audience">No install</span>
+      <span class="chip time">~25 min read</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:3">Part 1 · How it works</span>
+      <span class="a2" style="flex:3">Part 2 · Reading it critically</span>
+      <span class="a3" style="flex:3">Part 3 · Your policy layer</span>
+      <span class="a4" style="flex:2">Homework · red-team it</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Deep dive D5</span>
+      <h2>The number behind the philosophy</h2>
+    </div>
+    <p class="lede">Every course quote of "Hermes engages, hosted models refuse" traces to one artifact: RefusalBench, Nous's own published benchmark. It is the quantification of the neutral-alignment thesis - and precisely because it carries the course's most-repeated claim, it deserves the course's most careful reading. By the end of this page you will be able to explain the score to a skeptical executive, name its three caveats without flinching, and turn its real lesson into the one deliverable that matters: a written policy layer for your own deployment.</p>
+    <div class="legend">
+      <span class="pill light">Self-study - read at your own pace</span>
+      <span class="pill solid">Live-style - the deployment pattern</span>
+      <span class="pill inkpill">Sources: Hermes 4 report §4.5.1 · 4.3 announcement</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with</strong>
+      The mechanics of RefusalBench (32 categories, 166 prompts, an LLM judge), the full score table with Hermes and its rivals, three honest caveats that survive contact with a boardroom, the refusal-vs-engagement tradeoff as a VALUES choice rather than a leaderboard, and the operational takeaway: a guardrail system prompt pattern you can adapt this week.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: HOW IT WORKS ============ -->
+  <section class="section" id="mechanics">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the Hermes 4 report §4.5.1</span>
+      <h2>How the benchmark works <span class="tag concept">~8 min read</span></h2>
+    </div>
+    <p class="lede">Before critiquing a benchmark, know it cold. RefusalBench is small, focused, and unusually transparent about what it wants to measure: willingness to engage with requests that are borderline in tone but legitimate in substance.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Horizontal bar chart of RefusalBench engagement scores across six models">
+        <style>
+          .d5bT { font: 700 13.5px Inter, sans-serif; fill: #010A26; }
+          .d5bV { font: 700 13.5px Inter, sans-serif; fill: #5C6B75; }
+          .d5bW { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .d5bX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .d5bN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+        </style>
+        <text class="d5bX" x="30" y="34">RefusalBench engagement score (% of 166 borderline-but-legitimate prompts engaged with)</text>
+        <text class="d5bT" x="30" y="72">Hermes 4.3-36B</text>
+        <rect x="230" y="56" width="560" height="26" rx="6" fill="#0000A3"/>
+        <text class="d5bW" x="746" y="74">74.6</text>
+        <text class="d5bT" x="30" y="114">Hermes 4 70B</text>
+        <rect x="230" y="98" width="446" height="26" rx="6" fill="#0000F2"/>
+        <text class="d5bW" x="632" y="116">59.5</text>
+        <text class="d5bT" x="30" y="156">Hermes 4 405B</text>
+        <rect x="230" y="140" width="428" height="26" rx="6" fill="#0000F2"/>
+        <text class="d5bW" x="614" y="158">57.1</text>
+        <text class="d5bT" x="30" y="198">Qwen3-235B</text>
+        <rect x="230" y="182" width="257" height="26" rx="6" fill="#3430F7"/>
+        <text class="d5bW" x="443" y="200">34.3</text>
+        <text class="d5bT" x="30" y="240">Hosted frontier</text>
+        <rect x="230" y="224" width="128" height="26" rx="6" fill="#8B8BF9"/>
+        <text class="d5bV" x="366" y="242">~17</text>
+        <text class="d5bT" x="30" y="282">DeepSeek R1</text>
+        <rect x="230" y="266" width="125" height="26" rx="6" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="d5bV" x="363" y="284">16.7</text>
+        <rect x="30" y="308" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="d5bN" x="54" y="320">Higher = engages more. Read Part 2 before deciding higher = better: this axis is a values choice.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the published scores: Hermes models cluster high, hosted frontier models near 17</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode self">Self-study</span>The mechanics - 32 categories, 166 prompts, one judge<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>RefusalBench is Nous's own published benchmark, and its design is simple enough to hold in your head:</p>
+        <ul>
+          <li><strong>166 prompts across 32 categories</strong> of borderline-but-legitimate requests: the kind of ask that sounds edgy but has a defensible real-world purpose - adversarial role-play, dark fiction, security education, blunt professional candor, contested-topic argumentation.</li>
+          <li><strong>Each model answers every prompt</strong>, and an LLM judge scores whether the response ENGAGED with the request or deflected it - lectured, moralized, refused, or answered a sanitized different question.</li>
+          <li><strong>The score is the engagement rate:</strong> the percentage of the 166 where the model actually did the legitimate-but-uncomfortable job it was asked to do.</li>
+        </ul>
+        <p>The intent is to measure the gap Session 1 demonstrated live: the difference between a model that takes your system prompt as its constitution and one that overrides you with a lab's policy layer. Nous's stated framing is that models should give users "the broadest agency in exploration" - and, to their credit, they say plainly that standard benchmarks are "easily gamed", which applies to theirs too.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The score table - who sits where<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The published numbers, in one table. Two details matter when quoting them: the 405B figure is the reasoning mode, and the 4.3 figure - the score Nous claims as state of the art among popular models - is non-reasoning.</p>
+        <table class="clean">
+          <thead><tr><th>Model</th><th>Engagement</th><th>Reading note</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Hermes 4.3-36B</strong></td><td>74.6</td><td>Non-reasoning · Nous's SOTA-among-popular-models claim</td></tr>
+            <tr><td><strong>Hermes 4 70B</strong></td><td>59.5</td><td>The mid-size flagship</td></tr>
+            <tr><td><strong>Hermes 4 405B</strong></td><td>57.1</td><td>Reasoning mode</td></tr>
+            <tr><td><strong>Qwen3-235B</strong></td><td>34.3</td><td>Strong open model, conventional alignment</td></tr>
+            <tr><td><strong>Big hosted models</strong></td><td>~17</td><td>The cluster Session 1 quoted</td></tr>
+            <tr><td><strong>DeepSeek R1</strong></td><td>16.7</td><td>Open weights does not automatically mean low refusal</td></tr>
+          </tbody>
+        </table>
+        <p>Two honest observations fall out of the table itself. First, the gap is not noise: Hermes models cluster 3-4x above the hosted pack - whatever you think of the axis, the product difference is real. Second, R1's score is a quiet lesson: openness and neutral alignment are different properties. Hermes's low-refusal behavior comes from the Nous recipe, not from being downloadable.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What "engagement" is NOT<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The fastest way to misuse this benchmark is to read it as a quality score. Keep the boundaries sharp:</p>
+        <ul>
+          <li><strong>Not accuracy.</strong> A model can engage with every prompt and be wrong in every answer. RefusalBench never checks whether the content is correct.</li>
+          <li><strong>Not quality.</strong> A grudging, thin, hedge-everything response can still count as engagement; a brilliant answer to a slightly reframed question can count as deflection. The judge measures willingness, not craft.</li>
+          <li><strong>Not safety.</strong> The prompts are curated to be legitimate, so the score does not tell you how the model behaves on genuinely harmful asks - that is a different eval entirely.</li>
+        </ul>
+        <p>One sentence to carry into any meeting: <strong>RefusalBench measures willingness to engage with uncomfortable-but-legitimate requests - nothing more, nothing less.</strong> It quantifies the neutral-alignment thesis; it does not certify the model as smarter, safer, or better.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The slide that overreached.</strong> A team pitched a model swap with a slide reading "74.6 vs 17: 4x better". A reviewer asked "better at what?" - and the honest answer, "willing to engage 4x more often on borderline prompts", changed the meeting. The swap still happened, but with a policy workstream attached. Precision about what a number measures is what makes it usable.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: READING IT CRITICALLY ============ -->
+  <section class="section" id="critical-read">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · keep your head</span>
+      <h2>Reading it critically <span class="tag concept">~8 min read</span></h2>
+    </div>
+    <p class="lede">The course rule from deep dive D2 applies double here: vendor stories we LIKE deserve the hardest reading. Three caveats, and then the reframe that makes the whole benchmark useful.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Spectrum from lab decides to you decide, with models placed along it and responsibility shifting toward the user">
+        <style>
+          .d5sT { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .d5sS { font: 700 14px Inter, sans-serif; fill: #010A26; }
+          .d5sX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .d5sN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .d5sArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#d5sAh); }
+        </style>
+        <defs>
+          <marker id="d5sAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <line x1="60" y1="140" x2="820" y2="140" stroke="#C3CFD8" stroke-width="3"/>
+        <rect x="40" y="50" width="180" height="52" rx="10" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="d5sS" x="62" y="72">Lab decides</text>
+        <text class="d5sX" x="62" y="92">policy baked in upstream</text>
+        <rect x="660" y="50" width="180" height="52" rx="10" fill="#0000A3"/>
+        <text class="d5sT" x="682" y="72">You decide</text>
+        <text class="d5sX" x="682" y="92" fill="#DCE4F0">policy written by you</text>
+        <circle cx="150" cy="140" r="9" fill="#8B8BF9"/>
+        <text class="d5sX" x="98" y="172">Hosted ~17 · R1 16.7</text>
+        <circle cx="330" cy="140" r="9" fill="#3430F7"/>
+        <text class="d5sX" x="290" y="172">Qwen3 34.3</text>
+        <circle cx="560" cy="140" r="9" fill="#0000F2"/>
+        <text class="d5sX" x="480" y="172">Hermes 4 57.1-59.5</text>
+        <circle cx="730" cy="140" r="9" fill="#0000A3"/>
+        <text class="d5sX" x="690" y="172">Hermes 4.3 74.6</text>
+        <line class="d5sArr" x1="180" y1="220" x2="700" y2="220"/>
+        <text class="d5sX" x="240" y="244">Moving right = more agency AND more responsibility transferred to whoever deploys</text>
+        <rect x="40" y="272" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="d5sN" x="64" y="284">Neither end is "correct". A children's product belongs left; a security tool belongs right.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the real axis: who writes the policy, the lab upstream or you downstream</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Caveat one and two - the author, and the judge<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two structural caveats, stated plainly:</p>
+        <ul>
+          <li><strong>The benchmark is authored by the vendor whose product wins it.</strong> Nous designed RefusalBench to measure the exact property the Hermes recipe optimizes. That does not make the numbers false - it makes them a measurement of the author's chosen axis. Every vendor benchmark works this way; the discipline is to notice, not to be shocked. Nous themselves concede standard benchmarks are "easily gamed" - a candor worth crediting AND applying to their own.</li>
+          <li><strong>"Engagement" is judged by an LLM.</strong> A judge model decides what counts as engaging vs deflecting - so the judge's own alignment, biases, and blind spots are baked into every score. A different judge could shift every number. LLM-judged evals are standard practice now, but "judged by whom?" belongs in your first three questions about any of them.</li>
+        </ul>
+        <p>The habit this trains generalizes far beyond Hermes: for ANY benchmark, ask who authored it, what axis they chose, and who or what did the judging. Most leaderboard mystique does not survive those three questions.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Caveat three - a values tradeoff, not a capability axis<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The deepest misreading is treating the score like a benchmark of intelligence, where more is simply better. Refusal vs engagement is a <strong>values tradeoff</strong>: every point on the spectrum is the right answer for SOME deployment and the wrong answer for another.</p>
+        <table class="clean">
+          <thead><tr><th>Deployment</th><th>Right end of the spectrum</th></tr></thead>
+          <tbody>
+            <tr><td>A children's homework helper</td><td>Low engagement on borderline content is a FEATURE - you want the upstream policy layer, and a hosted model's ~17 may be exactly right</td></tr>
+            <tr><td>A security research tool</td><td>High engagement is the point - a model that lectures instead of analyzing attack patterns is useless for the legitimate job</td></tr>
+            <tr><td>A sales role-play trainer</td><td>High - the Session 1 demo: the value IS staying in an uncomfortable character</td></tr>
+            <tr><td>A public-facing brand chatbot</td><td>Lower - or high engagement PLUS a strict written policy layer, which is Part 3</td></tr>
+          </tbody>
+        </table>
+        <p>So the mature reading of "Hermes 4.3 scores 74.6" is not "best model". It is: <strong>this model will do what your system prompt says, including the uncomfortable parts - is that what your deployment needs?</strong> For this course's thesis - a private assistant answering to you - it usually is. For your company's public chatbot, the answer is "yes, with the guardrails WE write".</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The responsibility transfer - what a high score hands you<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Here is the sentence that reconciles the whole page: <strong>a high engagement score is a transfer of responsibility from the lab to you.</strong> When the model stops saying no on the lab's behalf, every remaining "should we?" lands on whoever writes the system prompt and ships the deployment.</p>
+        <ul>
+          <li><strong>Low-refusal model + no written policy</strong> = you have silently accepted a policy of "whatever anyone asks, we answer". Nobody decided that; it just happened. That is the failure mode.</li>
+          <li><strong>Low-refusal model + explicit policy layer</strong> = you now hold MORE control than a hosted deployment ever gave you: the rules are yours, written down, versioned, and auditable - instead of implicit in a lab's opaque training choices.</li>
+        </ul>
+        <p>Session 1 called neutral alignment "a transfer of responsibility, not an absence of it". RefusalBench is that sentence with a number attached. Which makes the operational question unavoidable: what does your policy layer actually look like? Part 3.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: YOUR POLICY LAYER ============ -->
+  <section class="section" id="policy-layer">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the operational takeaway</span>
+      <h2>Your system prompt is your policy <span class="tag concept">~7 min read</span></h2>
+    </div>
+    <p class="lede">Everything critical in Part 2 lands on one desk: yours. The good news is that the fix is a pattern you already have the skills for - Session 3's system prompt discipline, applied as governance.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The org deployment pattern - guardrails, logs, review<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Organizations that deploy Hermes well all converge on the same pattern. It has three parts, and none of them is exotic:</p>
+        <ul>
+          <li><strong>Explicit guardrails in the system prompt.</strong> The policy layer the lab did not bake in, you write in: allowed scope, forbidden topics, tone limits, and an escalation rule for anything ambiguous. Because Hermes treats the system prompt as its constitution (Session 3), a written policy actually holds.</li>
+          <li><strong>Logging.</strong> Inputs and outputs recorded like any other production system - because that is what this is. A model with no lab policy layer and no logs is a system nobody is accountable for.</li>
+          <li><strong>Review.</strong> A human looks at samples of real transcripts on a schedule, the escalation path gets tested, and the system prompt gets versioned and updated like code - because it IS the policy, and policies get amended.</li>
+        </ul>
+        <div class="callout tip">
+          <strong>The one-line governance pitch</strong>
+          "The lab's policy layer is gone, so we wrote our own - it is twelve lines, it is in version control, and here are last month's review notes." That sentence has calmed more risk committees than any benchmark score.
+        </div>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The audit that went well.</strong> An internal-tools team ran a local Hermes for a year before their first compliance review. They walked in with three artifacts: the guardrail system prompt (with its git history), a month of sampled transcripts, and the escalation log. The reviewer's summary: "clearer policy ownership than most of our vendor tools". The pattern is boring on purpose - boring is what passes audits.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>A worked example - the guardrail system prompt<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A complete, adaptable policy layer for a generic internal deployment - a customer-support assistant at an anonymous appliance company. Note the four moving parts: scope, forbidden areas, escalation, tone.</p>
+        <div class="prompt-box good"><span class="label">★ Guardrail system prompt - the pattern</span>You are the customer support assistant for a home-appliance company.
+
+SCOPE - you help with: product usage questions, troubleshooting steps from the official manual, warranty process explanations, and directing customers to the right human team.
+
+FORBIDDEN - you never: give repair instructions involving opening a unit or its electrical components; discuss competitors' products; make promises about refunds, compensation, or delivery dates; give legal, medical, or safety-incident advice.
+
+ESCALATION - if a request is out of scope, ambiguous, or involves an angry customer, an injury, or a fire/smoke report: stop troubleshooting, express care, and hand off with "I am connecting you with our specialist team" plus the handoff tag [ESCALATE].
+
+TONE - warm, plain language, no jargon, maximum three steps per reply. Never speculate: if the manual does not cover it, say so and escalate.</div>
+        <p>Twelve lines of policy. Session 3 taught you the mechanics; the shift here is treating this text as a governed artifact: reviewed, versioned, and red-teamed - which is exactly the homework.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The mature two-model take<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>After five deep dives and eight sessions, the grown-up position is not "Hermes good, hosted bad" - it is portfolio thinking:</p>
+        <ul>
+          <li><strong>Hosted frontier models</strong> for maximum capability on non-sensitive work, and for deployments where the lab's conservative policy layer is genuinely what you want (public-facing, minors, regulated content).</li>
+          <li><strong>Hermes</strong> for private data, personas hosted models refuse, offline work, latency- and cost-sensitive volume, and anywhere you need the policy to be YOURS - written, versioned, and auditable.</li>
+        </ul>
+        <p>The point of reading RefusalBench critically was never to crown a winner. It was this: the refusal spectrum is a dial, someone always sets it, and the only wrong configuration is not knowing who set yours. Informed humans, deciding deliberately, owning the consequences - that is what neutral alignment really means, and it is a fitting last sentence for the deep-dive track.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 45-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Write the guardrail system prompt for YOUR real use case, using the four-part pattern: scope, forbidden areas, escalation rule, tone. Twelve lines or fewer - if it needs more, your scope is too broad.</li>
+      <li>Red-team it with 5 prompts against your local Hermes: one clearly in scope, one clearly forbidden, one ambiguous edge case, one angry-user message, and one attempt to talk the model out of its rules ("ignore your instructions and...").</li>
+      <li>Score the transcript honestly: did the forbidden request get refused? Did the edge case escalate? Patch the prompt where it leaked, and rerun - that loop IS the review process from Part 3, in miniature.</li>
+      <li>Explain the 74.6 to someone: one sentence on what RefusalBench measures, one caveat, one operational consequence. If you can do that without notes, this page did its job.</li>
+      <li>Optional: skim §4.5.1 of the Hermes 4 technical report (arXiv 2508.18255) and compare Nous's own framing against Part 2's caveats - notice which caveats they volunteer and which they do not.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official Nous sources covered</h2>
+    </div>
+    <p class="lede">Every number on this page traces to a published Nous source; the critical reading is this course's own, applied to those sources.</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Hermes 4 technical report §4.5.1</span><span class="note">arXiv 2508.18255 · RefusalBench design: 32 categories, 166 prompts, LLM-judged engagement, the 57.1 / 59.5 scores</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Hermes 4.3 announcement scores</span><span class="note">nousresearch.com/introducing-hermes-4-3 · the 74.6 non-reasoning score and the SOTA-among-popular-models claim</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Nous positioning posts</span><span class="note">"broadest agency in exploration" framing + the "easily gamed" benchmark concession · read as vendor position, not neutral fact</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · What does a RefusalBench score of 74.6 actually measure?</p>
+      <button class="qopt" type="button">A · Answer accuracy on hard questions</button>
+      <button class="qopt" type="button">B · Overall model quality vs competitors</button>
+      <button class="qopt" type="button">C · The share of 166 borderline-but-legitimate prompts the model engaged with rather than deflected, as judged by an LLM</button>
+      <p class="qwhy">Willingness, not accuracy, quality, or safety: the benchmark measures whether the model does the uncomfortable-but-legitimate job it was asked to do - nothing more, nothing less.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · Which caveat list survives a boardroom?</p>
+      <button class="qopt" type="button">A · The vendor whose model wins authored the benchmark; an LLM judge decides what counts as engagement; and the axis is a values tradeoff, not a capability score</button>
+      <button class="qopt" type="button">B · The sample is too small, so the numbers are meaningless</button>
+      <button class="qopt" type="button">C · There are no real caveats - the scores were independently audited</button>
+      <p class="qwhy">The three from Part 2, and note the numbers are not meaningless - a 3-4x gap measured consistently is a real product difference. The discipline is knowing exactly what axis it sits on and who drew it.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · Your org deploys a high-engagement model like Hermes. What follows?</p>
+      <button class="qopt" type="button">A · Nothing - high engagement means the model handles policy itself</button>
+      <button class="qopt" type="button">B · You own the policy layer: explicit guardrails in the system prompt (scope, forbidden areas, escalation, tone), plus logging and human review like any production system</button>
+      <button class="qopt" type="button">C · You must switch back to a hosted model for anything customer-facing</button>
+      <p class="qwhy">High engagement is a responsibility transfer: the lab stopped saying no on your behalf, so your written system prompt becomes the policy - versioned, red-teamed, and reviewed. That is the operational meaning of neutral alignment.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Deep dive D5 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The mechanics</b><span>RefusalBench: 32 categories, 166 borderline-but-legitimate prompts, LLM-judged engagement rate. Nous's own benchmark.</span></div>
+      <div class="cheat-item"><b>The scores</b><span>Hermes 4.3 74.6 (non-reasoning, SOTA claim) · 70B 59.5 · 405B 57.1 (reasoning) · Qwen3-235B 34.3 · hosted ~17 · R1 16.7.</span></div>
+      <div class="cheat-item"><b>What it is NOT</b><span>Not accuracy, not quality, not safety. It measures willingness to engage - period.</span></div>
+      <div class="cheat-item"><b>Three caveats</b><span>Vendor-authored (the winner wrote the test) · LLM judge (judge choice moves scores) · values tradeoff, not capability.</span></div>
+      <div class="cheat-item"><b>The spectrum</b><span>"Lab decides" vs "you decide". Children's product belongs left; security research tool belongs right. Neither end is wrong.</span></div>
+      <div class="cheat-item"><b>The transfer</b><span>High engagement = you own more policy. No written policy = you silently chose "answer everything".</span></div>
+      <div class="cheat-item"><b>The pattern</b><span>Guardrail system prompt (scope · forbidden · escalation · tone) + logging + human review, versioned like code.</span></div>
+      <div class="cheat-item"><b>The mature take</b><span>Portfolio thinking: hosted for some jobs, Hermes for others - the dial is always set by someone; make it an informed human.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Deep dive D5 of 5 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="94-fine-tune-your-own.html">← Prev: Fine-tune your own</a> &nbsp;·&nbsp; <a href="../index.html">Back to all sessions →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

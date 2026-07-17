@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 5 · Structured output: JSON that validates - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Session 5 of 8</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Session 5 of 8</div>
+    <h1>Structured output: <span class="accent">JSON that validates</span></h1>
+    <p class="sub">Chat answers are for humans. JSON is for programs. Today your assistant stops being a conversation and starts being software: you hand Hermes a schema, it hands back JSON that parses, validates, and flows straight into your scripts - and when the JSON is broken, Hermes fixes it.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Hands-on</span>
+      <span class="chip audience">Builders</span>
+      <span class="chip audience">Python helpful</span>
+      <span class="chip time">45 min live + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Concepts (live cards)</span>
+      <span class="a3" style="flex:4">18-40 · Two demos</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The session where your assistant becomes software</h2>
+    </div>
+    <p class="lede">For four sessions your assistant has been talking TO you. Useful, but a paragraph of prose is a dead end for automation - no script can reliably read "Sure! The contact's name appears to be Dana...". Today we make Hermes answer in a machine-readable contract: JSON that matches a schema you define. That one change turns every conversation into a pipeline stage - extraction, classification, routing, logging - anything downstream code can consume. This is the skill that separates "I chat with a local model" from "I build with one".</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">★ Try it now prompt</span>
+      <span class="pill inkpill">Official Nous sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The canonical Hermes schema prompt (copy-paste ready), a working ~25-line Python extractor that turns messy text into validated records via your local Ollama, the generate-validate-repair loop that makes it production-honest, and a running-project upgrade: from tonight, every reply from your assistant is parseable JSON.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: FROM PROSE TO CONTRACT ============ -->
+  <section class="section" id="prose-to-contract">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the model cards' JSON mode + Hermes-Function-Calling repo</span>
+      <h2>From prose to contract <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">The move is simple: instead of asking for an answer, you hand the model a contract - a JSON schema - and Hermes was explicitly trained to honor it. One system prompt is all it takes.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pipeline: messy text through Hermes with a schema prompt becomes valid JSON your script can consume">
+        <style>
+          .s5pT { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .s5pS { font: 700 15px Inter, sans-serif; fill: #010A26; }
+          .s5pX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .s5pN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .s5pArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#s5pAh); }
+        </style>
+        <defs>
+          <marker id="s5pAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="24" y="46" width="180" height="70" rx="12" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="s5pS" x="48" y="76">Messy text</text>
+        <text class="s5pX" x="48" y="98">emails · notes · pastes</text>
+        <line class="s5pArr" x1="212" y1="81" x2="252" y2="81"/>
+        <rect x="260" y="46" width="220" height="70" rx="12" fill="#0000F2"/>
+        <text class="s5pT" x="288" y="70">Hermes</text>
+        <text class="s5pX" x="288" y="92" fill="#DCE4F0">+ schema system prompt</text>
+        <line class="s5pArr" x1="488" y1="81" x2="528" y2="81"/>
+        <rect x="536" y="46" width="160" height="70" rx="12" fill="#0000A3"/>
+        <text class="s5pT" x="560" y="76">Valid JSON</text>
+        <text class="s5pX" x="560" y="98" fill="#DCE4F0">schema-conformant</text>
+        <line class="s5pArr" x1="704" y1="81" x2="744" y2="81"/>
+        <rect x="752" y="46" width="108" height="70" rx="12" fill="#3430F7"/>
+        <text class="s5pT" x="770" y="76">Your</text>
+        <text class="s5pT" x="770" y="96">script</text>
+        <rect x="24" y="160" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="s5pN" x="48" y="172">The schema is the contract. Everything left of "Valid JSON" is allowed to be chaos; nothing right of it is.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the extraction pipeline: chaos in, contract out</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Why free text breaks pipelines<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ask a model to "list the contact details" and you get prose. Prose is a moving target:</p>
+        <ul>
+          <li><strong>Format drift.</strong> Today it answers with bullets, tomorrow with a sentence, Thursday it adds "Certainly! Here are the details:". Your regex dies on Thursday.</li>
+          <li><strong>Missing fields go silent.</strong> No phone number in the text? Prose just... omits it. Your downstream code never learns the field was expected.</li>
+          <li><strong>No types.</strong> Is "confidence: high" a string, an enum, or a number? Prose does not say. Your database cares.</li>
+        </ul>
+        <p>A schema kills all three problems at once: fixed keys, declared types, explicit required fields. And the failure mode changes from "silent garbage flows downstream" to "validation error at the door" - which is exactly where you want failures to happen.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The inbox miner.</strong> A freelance recruiter gets 40 candidate emails a day, each formatted differently. Her old workflow: copy-paste into a spreadsheet, 45 minutes. Her new one: a local Hermes with a Candidate schema turns each email into a validated row - name, role, years, salary expectation - and a script appends it to the sheet. Same laptop, zero cloud, 3 minutes.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The schema system prompt - one prompt, trained in<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>This is the canonical JSON-mode prompt from the Hermes model cards. Not folklore, not a community hack - it is the exact scaffolding the model was trained on. Use it verbatim and substitute your schema where <code>{schema}</code> is:</p>
+        <div class="prompt-box good"><span class="label">★ The canonical schema prompt (from the Hermes 3/4 model cards)</span>You are a helpful assistant that answers in JSON. Here's the json schema you must adhere to:
+&lt;schema&gt;
+{schema}
+&lt;/schema&gt;</div>
+        <p>Hermes replies with a JSON object that conforms to the schema - no preamble, no "Here is your JSON:", no markdown fences to strip. Two things make this stronger than "please answer in JSON" folk prompting:</p>
+        <ul>
+          <li><strong>It is a trained behavior, not a request.</strong> Hermes was explicitly post-trained to produce schema-conformant JSON for a given schema - the prompt above is the key that unlocks it.</li>
+          <li><strong>It also repairs.</strong> The same training taught Hermes to take a malformed JSON object and fix it to conform - Demo 2 exploits this deliberately.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>How schema adherence was trained - Pydantic rejection sampling<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Why does this work so reliably? Because of how the training data was built. Per the Hermes 4 technical report (section 2.2.4), the JSON-mode training examples were generated and then <strong>validated with Pydantic before being kept</strong>: candidate outputs that failed schema validation were rejected, and only conformant ones made it into the training set. That is rejection sampling with a real validator as the judge - the model literally never saw a "correct" example that did not parse.</p>
+        <p>The practical consequence for you: the tool you use to CHECK the output (Pydantic) is the same family of tool that CURATED the training data. You are validating with the judge it was raised on. The reference implementation lives in the official <a href="https://github.com/NousResearch/Hermes-Function-Calling">Hermes-Function-Calling repo</a> - see <code>jsonmode.py</code> for the exact pattern we build in Demo 1.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE VALIDATION LOOP ============ -->
+  <section class="section" id="validation-loop">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the Hermes 4 report §2.2.4 + jsonmode.py pattern</span>
+      <h2>The validation loop <span class="tag concept">7 min live</span></h2>
+    </div>
+    <p class="lede">"The model usually returns valid JSON" is a demo. "My code verifies every response and recovers when it fails" is software. The loop below is the difference, and it is about ten lines of Python.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cycle: define schema, generate, validate, then ship on pass or repair and retry on fail">
+        <style>
+          .s5lT { font: 700 14.5px Inter, sans-serif; fill: #FFFFFF; }
+          .s5lS { font: 700 14.5px Inter, sans-serif; fill: #010A26; }
+          .s5lX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .s5lN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .s5lArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#s5lAh); }
+        </style>
+        <defs>
+          <marker id="s5lAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="24" y="50" width="190" height="64" rx="12" fill="#8B8BF9"/>
+        <text class="s5lT" x="46" y="78">1 · Define schema</text>
+        <text class="s5lX" x="46" y="98" fill="#DCE4F0">Pydantic model</text>
+        <line class="s5lArr" x1="222" y1="82" x2="266" y2="82"/>
+        <rect x="274" y="50" width="180" height="64" rx="12" fill="#3430F7"/>
+        <text class="s5lT" x="296" y="78">2 · Generate</text>
+        <text class="s5lX" x="296" y="98" fill="#DCE4F0">schema prompt</text>
+        <line class="s5lArr" x1="462" y1="82" x2="506" y2="82"/>
+        <rect x="514" y="50" width="180" height="64" rx="12" fill="#0000F2"/>
+        <text class="s5lT" x="536" y="78">3 · Validate</text>
+        <text class="s5lX" x="536" y="98" fill="#DCE4F0">model_validate_json</text>
+        <line class="s5lArr" x1="702" y1="82" x2="746" y2="82"/>
+        <rect x="754" y="50" width="106" height="64" rx="12" fill="#0000A3"/>
+        <text class="s5lT" x="772" y="78">Pass →</text>
+        <text class="s5lT" x="772" y="98">ship it</text>
+        <rect x="514" y="180" width="180" height="64" rx="12" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="s5lS" x="536" y="208">Fail → repair</text>
+        <text class="s5lX" x="536" y="228">send error back</text>
+        <line class="s5lArr" x1="604" y1="118" x2="604" y2="176"/>
+        <path class="s5lArr" d="M 510 212 L 364 212 L 364 118"/>
+        <rect x="24" y="264" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="s5lN" x="48" y="276">The fail path is the design. Cap retries at 2, then log and flag for a human - never loop forever.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the generate-validate-repair loop that makes JSON output production-honest</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Pydantic drives the whole loop<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>One Pydantic class plays four roles in this pipeline, which is why the pattern is so compact:</p>
+        <ul>
+          <li><strong>Definition:</strong> your Python class IS the contract - fields, types, optionals, defaults.</li>
+          <li><strong>Schema:</strong> <code>Model.model_json_schema()</code> dumps the JSON schema you paste into the system prompt. Never hand-write schemas.</li>
+          <li><strong>Validation:</strong> <code>Model.model_validate_json(reply)</code> parses AND type-checks in one call. If it returns, you hold a real typed object.</li>
+          <li><strong>Error report:</strong> when it raises, the <code>ValidationError</code> message says exactly which field failed and why - which is precisely what you feed back to the model on retry.</li>
+        </ul>
+        <p>So the loop is: build prompt from the class, generate, validate against the class, and on failure send the error text back for one repair round. Define once, use four ways.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>JSON repair - the trained fallback<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Here is the underrated half of the JSON-mode training: Hermes was also taught to <strong>repair malformed JSON</strong>. Hand it a broken object - trailing comma, unquoted key, a stray single quote - together with the schema, and it returns the corrected, conformant version.</p>
+        <p>That gives your retry branch real teeth. Instead of regenerating from scratch (slow, may fail differently), you paste the broken output plus the validation error and ask for a fix. In practice the repair round almost always lands, because fixing syntax is an easier task than the original extraction. Demo 2 does this live with deliberately vandalized JSON.</p>
+        <div class="callout tip">
+          <strong>Repair is a safety net, not a license</strong>
+          If more than a few percent of your calls need repair, something upstream is wrong - usually temperature too high or a schema with ambiguous field names. Fix the cause; keep the net.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Temperature discipline for structured output<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The official Hermes sampling recommendation (temperature 0.6, top_p 0.95, top_k 20) is tuned for conversation, where variety is a feature. Extraction is the opposite job: there is one right answer hiding in the text, and creativity is pure risk.</p>
+        <table class="clean">
+          <thead><tr><th>Job</th><th>Temperature</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Chat, brainstorming, personas</td><td>0.6 (official default)</td><td>Variety and voice are the point</td></tr>
+            <tr><td>Extraction, classification, JSON</td><td>0.1-0.3</td><td>Deterministic-ish output, fewer format surprises</td></tr>
+            <tr><td>Repair round</td><td>0.0-0.1</td><td>Syntax fixing wants zero adventure</td></tr>
+          </tbody>
+        </table>
+        <p>Habit to build: set temperature per CALL, not per model. Your assistant chats at 0.6 and extracts at 0.2 within the same session - the API makes this a one-word argument.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Extract records from messy text <span class="tag demo">★ 10 min · build your own</span></h2>
+    </div>
+    <p class="lede">The full pipeline in ~25 lines: Pydantic model, schema dump, canonical prompt, local Ollama call, validation. This exact script is the seed of every extraction tool you will ever build with Hermes.</p>
+
+    <div class="steps">
+      <div class="step"><p>Prereqs check: Ollama running with your hero model pulled (Session 2), plus <code>pip install openai pydantic</code>. The openai library talks to Ollama because Ollama exposes an OpenAI-compatible endpoint at <code>http://localhost:11434/v1</code> - the api key is literally the string "ollama" (anything works).</p></div>
+      <div class="step"><p>Write a Pydantic model for a contact record: name, company, email, optional phone. This class is your schema, validator, and typed result all at once.</p></div>
+      <div class="step"><p>Dump the schema with <code>Contact.model_json_schema()</code> and drop it into the canonical <code>&lt;schema&gt;</code> system prompt from Part 1 - verbatim, substitution only.</p></div>
+      <div class="step"><p>Run the script below against a genuinely messy sentence. Note the temperature: 0.2, because this is extraction, not conversation.</p></div>
+      <div class="step"><p>Validate with <code>Contact.model_validate_json(...)</code>. When it prints a typed object, pause on what just happened: unstructured text went in, a contract-compliant record came out, and nothing left your machine.</p></div>
+      <div class="step"><p>Stress it: remove the phone number from the text (optional field should come back null), then add a second person (watch what a single-object schema does - and why lists need a wrapper model).</p></div>
+    </div>
+
+    <div class="prompt-box good"><span class="label">★ extract.py - the whole pipeline, ~25 lines</span>import json
+from openai import OpenAI
+from pydantic import BaseModel
+
+class Contact(BaseModel):
+    name: str
+    company: str
+    email: str
+    phone: str | None = None
+
+schema = json.dumps(Contact.model_json_schema(), indent=2)
+
+SYSTEM = (
+    "You are a helpful assistant that answers in JSON. "
+    "Here's the json schema you must adhere to:\n"
+    f"&lt;schema&gt;\n{schema}\n&lt;/schema&gt;"
+)
+
+client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
+
+messy = ("Met Dana Reyes at the logistics expo - she heads data at "
+         "Brightleaf Logistics, said to email dana.reyes@brightleaf.example, "
+         "mobile is 555-0142 but she prefers email.")
+
+resp = client.chat.completions.create(
+    model="hf.co/bartowski/NousResearch_Hermes-4-14B-GGUF:Q4_K_M",
+    temperature=0.2,
+    messages=[{"role": "system", "content": SYSTEM},
+              {"role": "user", "content": messy}],
+)
+
+contact = Contact.model_validate_json(resp.choices[0].message.content)
+print(contact)</div>
+
+    <div class="callout tip">
+      <strong>On the on-ramp model?</strong>
+      Swap the model line for <code>hermes3:8b</code> - the schema prompt is trained into Hermes 3 as well. The 14B is just noticeably steadier on gnarly schemas.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>The repair shop + your assistant learns JSON <span class="tag demo">★ 8 min · upgrade the project</span></h2>
+    </div>
+    <p class="lede">Two quick wins: watch Hermes fix JSON you deliberately broke, then give your running-project assistant a structured voice - every reply from now on is a parseable object.</p>
+
+    <div class="steps">
+      <div class="step"><p>Vandalize some JSON. Take Demo 1's output and break it two ways: add a trailing comma, un-quote a key. This is exactly the kind of damage real-world feeds and older models produce.</p></div>
+      <div class="step"><p>Send it to Hermes with the schema prompt plus one line: "The following JSON is malformed. Repair it so it is valid and conforms to the schema. Return only the corrected JSON." Paste the broken object as the user message.</p></div>
+      <div class="step"><p>Validate the repaired reply with <code>model_validate_json</code>. It passes - repair-to-schema is a trained behavior, not luck. This is your retry branch from Part 2, live.</p></div>
+      <div class="step"><p>Now the project upgrade: give your assistant the structured-reply system prompt below, so every answer arrives as <code>{intent, answer, confidence}</code>.</p></div>
+      <div class="step"><p>Chat normally for three or four turns. Every reply is now a parseable object: <code>intent</code> tells your code what kind of request it was, <code>answer</code> carries the text, <code>confidence</code> lets you route low-confidence replies to a human. Your assistant just grew an API.</p></div>
+    </div>
+
+    <div class="prompt-box bad"><span class="label">The vandalized JSON - feed this to the repair shop</span>{"name": "Dana Reyes", company: "Brightleaf Logistics", "email": "dana.reyes@brightleaf.example", "phone": "555-0142",}</div>
+
+    <div class="prompt-box good"><span class="label">★ The assistant upgrade - structured-reply system prompt</span>You are my private assistant. You are a helpful assistant that answers in JSON. Here's the json schema you must adhere to:
+&lt;schema&gt;
+{"type": "object", "properties": {"intent": {"type": "string"}, "answer": {"type": "string"}, "confidence": {"type": "number", "minimum": 0, "maximum": 1}}, "required": ["intent", "answer", "confidence"]}
+&lt;/schema&gt;</div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The triage bot.</strong> A two-person consultancy pipes inbound inquiry emails through a local Hermes wearing exactly this {intent, answer, confidence} prompt. High-confidence "pricing question" intents get an auto-drafted reply for review; anything below 0.7 confidence lands in a human queue untouched. No cloud, no per-call fees, and the schema is the whole integration.</p>
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 45-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Get <code>extract.py</code> running end to end if you did not finish live - Pydantic model, schema prompt, validation, typed print.</li>
+      <li>Build one extractor for YOUR life: a Receipt, a JobPosting, a MeetingAction - any recurring messy text you actually receive. Run it on three real samples.</li>
+      <li>Add the retry branch: wrap validation in try/except, and on <code>ValidationError</code> send the broken output plus the error text back for one repair round (temperature 0.1). Cap at 2 retries.</li>
+      <li>Keep the {intent, answer, confidence} system prompt on your assistant for a full day. Note which intents it invents - that emergent taxonomy is the seed of Session 6's tool routing.</li>
+      <li>Optional reading: <code>jsonmode.py</code> in the <a href="https://github.com/NousResearch/Hermes-Function-Calling">Hermes-Function-Calling repo</a> - the official reference for today's pattern, and a preview of the tool-calling format we meet next session.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official Nous sources covered</h2>
+    </div>
+    <p class="lede">Today's pattern is taught straight from the primary sources: the model cards' JSON-mode prompt, the official function-calling repo, and the technical report section that explains why it works.</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Hermes-Function-Calling repo (jsonmode)</span><span class="note">github.com/NousResearch/Hermes-Function-Calling · Demo 1 is the jsonmode.py pattern; the tools half is Session 6</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Hermes 4 technical report §2.2.4</span><span class="note">arXiv 2508.18255 · Pydantic-validated rejection sampling covered as self-study; full data recipe is deep-dive D1</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">HuggingFace model cards - JSON mode</span><span class="note">The canonical &lt;schema&gt; system prompt, quoted verbatim in Part 1 and used in both demos</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Why does the &lt;schema&gt; system prompt work so reliably on Hermes?</p>
+      <button class="qopt" type="button">A · JSON is easy for all language models</button>
+      <button class="qopt" type="button">B · Hermes was explicitly trained on it - with Pydantic-validated rejection sampling curating the examples</button>
+      <button class="qopt" type="button">C · Ollama post-processes the output into valid JSON</button>
+      <p class="qwhy">It is a trained behavior: JSON-mode training data was kept only if it passed Pydantic validation (Hermes 4 report §2.2.4). You are validating with the judge the model was raised on.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · You are extracting records, not chatting. What do you do with temperature?</p>
+      <button class="qopt" type="button">A · Keep the official 0.6 - it is official for a reason</button>
+      <button class="qopt" type="button">B · Raise it, so the model considers more possible readings of the text</button>
+      <button class="qopt" type="button">C · Drop it to roughly 0.1-0.3 - extraction has one right answer, and creativity is risk</button>
+      <p class="qwhy">0.6 is tuned for conversation. Structured output wants near-deterministic sampling; set temperature per call, and go even lower (0.0-0.1) for repair rounds.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · The reply fails model_validate_json. Best first move?</p>
+      <button class="qopt" type="button">A · Send the broken output plus the validation error back to Hermes for a repair round</button>
+      <button class="qopt" type="button">B · Regenerate from scratch and hope</button>
+      <button class="qopt" type="button">C · Strip the offending field in your code and continue</button>
+      <p class="qwhy">Repair-to-schema is a trained Hermes behavior and syntax fixing is an easier task than the original extraction. Cap retries at 2, then flag for a human.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 5 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The canonical prompt</b><span>"You are a helpful assistant that answers in JSON. Here's the json schema you must adhere to:" + your schema in &lt;schema&gt; tags. Verbatim.</span></div>
+      <div class="cheat-item"><b>Schema for free</b><span>Contact.model_json_schema() - never hand-write JSON schemas; the Pydantic class is the contract.</span></div>
+      <div class="cheat-item"><b>Validate in one line</b><span>Contact.model_validate_json(reply) - parses AND type-checks; if it returns, you hold a real typed object.</span></div>
+      <div class="cheat-item"><b>The loop</b><span>Define schema → generate → validate → on fail, send output + error back for repair. Cap at 2 retries, then human.</span></div>
+      <div class="cheat-item"><b>Repair is trained in</b><span>Hermes fixes malformed JSON to schema on request - trailing commas, unquoted keys, the classics.</span></div>
+      <div class="cheat-item"><b>Temperature discipline</b><span>Chat 0.6 (official) · extraction 0.1-0.3 · repair 0.0-0.1. Set it per call, not per model.</span></div>
+      <div class="cheat-item"><b>The local endpoint</b><span>base_url http://localhost:11434/v1, api_key "ollama" - the openai library talks to Ollama natively.</span></div>
+      <div class="cheat-item"><b>Next session</b><span>Same trick, bigger prize: schemas that DO things. Tool calling gives your assistant hands.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 5 of 8 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="04-hybrid-reasoning.html">← Prev: Think when it matters</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="06-tool-calling.html">Next: Tool calling →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

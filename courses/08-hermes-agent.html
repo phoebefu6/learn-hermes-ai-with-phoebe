@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 8 · Go autonomous: Hermes Agent - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Session 8 of 8</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Session 8 of 8</div>
+    <h1>Go autonomous: <span class="accent">Hermes Agent</span></h1>
+    <p class="sub">Seven sessions ago you were warned: two things share the name Hermes. Tonight you meet the second one. Hermes Agent is not a model - it is an open-source autonomous agent that runs ON your model, remembers across sessions, teaches itself skills, and reaches you on any channel you use. We plug it into the assistant you built, and the course graduates.</p>
+    <div class="chip-row">
+      <span class="chip level">🔴 Capstone</span>
+      <span class="chip audience">Everyone who made it</span>
+      <span class="chip audience">The graduation</span>
+      <span class="chip time">45 min live + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Concepts (live cards)</span>
+      <span class="a3" style="flex:4">20-40 · Two demos</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The last upgrade</h2>
+    </div>
+    <p class="lede">Everything so far had one shape: you ask, it answers. Tonight the shape changes. An agent takes a goal, makes a plan, uses tools, checks its own work, and comes back with a result - or asks you a question halfway through. Hermes Agent is Nous Research's open-source take on that idea, and the whole point of Sessions 1-7 was to give you a model, a constitution, and the judgment to run one responsibly.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">★ Try it now prompt</span>
+      <span class="pill inkpill">Official Nous sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      Hermes Agent installed and pointed at YOUR local hermes4-14b-16k, a first real task delegated and watched end to end, one repeatable skill taught and scheduled, the five safety house rules that make autonomy a tool instead of a hazard - and the full 8-session graduation checklist, complete.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE OTHER HERMES ============ -->
+  <section class="section" id="the-other-hermes">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the Hermes Agent docs + GitHub README</span>
+      <h2>The other Hermes <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Session 1's warning finally pays off. Hermes the MODEL family is what you have been running since Session 2. Hermes the AGENT, released February 25, 2026, is a different product wearing the same brand: an autonomous agent framework that can drive any capable model - including the one already on your laptop.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hermes Agent architecture: your model feeds the agent core, channels fan out right, execution backends below">
+        <style>
+          .s8aT { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .s8aS { font: 700 15px Inter, sans-serif; fill: #010A26; }
+          .s8aX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .s8aW { font: 400 12.5px Inter, sans-serif; fill: #EAEAFE; }
+          .s8aC { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .s8aN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .s8aArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#s8aAh); }
+        </style>
+        <defs>
+          <marker id="s8aAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="30" y="80" width="190" height="90" rx="12" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="s8aS" x="52" y="112">Your model</text>
+        <text class="s8aX" x="52" y="134">local hermes4-14b-16k</text>
+        <text class="s8aX" x="52" y="152">or Nous Portal (300+)</text>
+        <line class="s8aArr" x1="226" y1="125" x2="286" y2="125"/>
+        <rect x="294" y="55" width="250" height="140" rx="12" fill="#0000F2"/>
+        <text class="s8aT" x="322" y="90">Hermes Agent core</text>
+        <text class="s8aW" x="322" y="118">skills · learns as it works</text>
+        <text class="s8aW" x="322" y="140">memory · persists across sessions</text>
+        <text class="s8aW" x="322" y="162">scheduler · subagents · vision</text>
+        <line class="s8aArr" x1="550" y1="80" x2="620" y2="55"/>
+        <line class="s8aArr" x1="550" y1="110" x2="620" y2="103"/>
+        <line class="s8aArr" x1="550" y1="140" x2="620" y2="151"/>
+        <line class="s8aArr" x1="550" y1="170" x2="620" y2="199"/>
+        <rect x="628" y="38" width="222" height="34" rx="8" fill="#3430F7"/>
+        <text class="s8aC" x="644" y="60">Telegram · Discord</text>
+        <rect x="628" y="86" width="222" height="34" rx="8" fill="#3430F7"/>
+        <text class="s8aC" x="644" y="108">Slack · WhatsApp</text>
+        <rect x="628" y="134" width="222" height="34" rx="8" fill="#3430F7"/>
+        <text class="s8aC" x="644" y="156">Signal · Email</text>
+        <rect x="628" y="182" width="222" height="34" rx="8" fill="#3430F7"/>
+        <text class="s8aC" x="644" y="204">CLI / desktop app</text>
+        <text class="s8aX" x="30" y="238">Execution backends (where its hands actually work):</text>
+        <rect x="30" y="250" width="120" height="34" rx="8" fill="#8B8BF9"/>
+        <text class="s8aC" x="62" y="272">Local</text>
+        <rect x="162" y="250" width="120" height="34" rx="8" fill="#0000A3"/>
+        <text class="s8aC" x="190" y="272">Docker ✓</text>
+        <rect x="294" y="250" width="120" height="34" rx="8" fill="#8B8BF9"/>
+        <text class="s8aC" x="334" y="272">SSH</text>
+        <rect x="426" y="250" width="120" height="34" rx="8" fill="#8B8BF9"/>
+        <text class="s8aC" x="450" y="272">Singularity</text>
+        <rect x="558" y="250" width="120" height="34" rx="8" fill="#8B8BF9"/>
+        <text class="s8aC" x="592" y="272">Modal</text>
+        <rect x="30" y="304" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="s8aN" x="54" y="316">One agent identity, many doors. The brain is swappable - the agent is NOT a model.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the Hermes Agent architecture: your model is the brain, the agent is everything around it</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Model vs agent - the distinction that matters<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A model answers. An agent acts. Hermes Agent is a desktop app (macOS 12+, Windows, Linux) plus a server backend, with a CLI/TUI for terminal people. It wraps ANY capable model - a Hermes, or something else entirely - in the machinery of autonomy:</p>
+        <ul>
+          <li><strong>Persistent memory.</strong> It remembers across sessions. Close it Tuesday, and Thursday it still knows your project.</li>
+          <li><strong>Auto-generated skills.</strong> When it figures out how to do something, it writes the procedure down and reuses it. It genuinely improves with use.</li>
+          <li><strong>Hands and senses.</strong> Browser automation, vision, image generation, text to speech, cron-style scheduling, and subagent delegation for parallel work.</li>
+        </ul>
+        <p>The brain is pluggable: subscribe to Nous Portal for 300+ hosted models, or - our path - point it at the local model you already own. Same brand as the model family, different product. If a headline says "Hermes did X autonomously", it means the agent, not the weights you pulled in Session 2.</p>
+        <div class="callout tip">
+          <strong>Why it exploded</strong>
+          Released open source under the MIT license on February 25, 2026, it became one of the fastest-growing open projects ever - six figures of GitHub stars within months. The recipe: fully open, model-agnostic (bring your own brain), and it meets you on the channels you already live in.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Your local model as the brain - and its honest limits<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The official local guide is exactly the stack you built: install Ollama, run <code>hermes setup</code>, choose Custom Endpoint, point at <code>http://localhost:11434/v1</code>. You did the hard part weeks ago.</p>
+        <p>One thing changes: <strong>context.</strong> You know <code>num_ctx</code> from Session 2 - your custom model runs 16,384. Agents burn context fast: every tool call, file read, and plan revision piles into the window, and when it overflows the agent "goes senile" mid-task, forgetting what it was doing. The guide recommends 64K or more for serious agent work.</p>
+        <ul>
+          <li><strong>The honest math:</strong> Hermes 4 14B tops out at 40,960 context. Even fully raised, that is a modest agent brain - fine for learning, short tasks, and tonight's demos.</li>
+          <li><strong>Upgrade path 1:</strong> a bigger local model with a larger window, when your RAM allows.</li>
+          <li><strong>Upgrade path 2:</strong> Nous Portal - OAuth sign-in, refresh token stored at <code>~/.hermes/auth.json</code>, subscription tiers (a free tier with small monthly credits exists) bundling model access plus the Tool Gateway.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>Proof of range.</strong> The ecosystem is already building on top: <em>hermes-agent-self-evolution</em> explores DSPy/GEPA self-optimization of the agent, and <em>autonovel</em> is an autonomous novel-writing pipeline that runs entire books through it. Your Friday folder summary is the shallow end of a very deep pool.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: SKILLS, MEMORY, CHANNELS ============ -->
+  <section class="section" id="skills-memory-channels">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the Hermes Agent feature docs</span>
+      <h2>Skills, memory, channels <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Three features turn a chatbot-with-tools into something that compounds: it learns procedures, it remembers you, and it is one identity everywhere you are.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The self-improving loop: does a task, writes a skill, reuses the skill next time">
+        <style>
+          .s8bT { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .s8bX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .s8bN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .s8bArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#s8bAh); }
+        </style>
+        <defs>
+          <marker id="s8bAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="30" y="45" width="220" height="64" rx="12" fill="#3430F7"/>
+        <text class="s8bT" x="56" y="72">1 · Does a task</text>
+        <text class="s8bX" x="56" y="94" fill="#EAEAFE">figures it out the slow way</text>
+        <line class="s8bArr" x1="256" y1="77" x2="316" y2="77"/>
+        <rect x="324" y="45" width="220" height="64" rx="12" fill="#0000F2"/>
+        <text class="s8bT" x="350" y="72">2 · Writes a SKILL</text>
+        <text class="s8bX" x="350" y="94" fill="#EAEAFE">saves the procedure</text>
+        <line class="s8bArr" x1="550" y1="77" x2="610" y2="77"/>
+        <rect x="618" y="45" width="232" height="64" rx="12" fill="#0000A3"/>
+        <text class="s8bT" x="644" y="72">3 · Reuses the skill</text>
+        <text class="s8bX" x="644" y="94" fill="#EAEAFE">faster and more reliable</text>
+        <path class="s8bArr" d="M 734 115 C 734 160, 140 160, 140 115"/>
+        <rect x="30" y="160" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="s8bN" x="54" y="172">The loop compounds: an agent you have run for a month is measurably better at YOUR jobs than a fresh install.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the self-improving loop that makes week four better than week one</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The self-improving loop and persistent memory<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The first time you ask for something, the agent reasons its way through. Then it does something models never do: it <strong>writes down the procedure as a reusable skill</strong>. Next time, it loads the skill instead of rediscovering the wheel - faster, cheaper, more consistent. Skills accumulate into a private playbook shaped by your actual work.</p>
+        <p>Memory is the second compounding asset. Preferences, project context, past decisions - all persist across sessions. Together they change the economics: a chatbot resets to zero every morning; an agent appreciates.</p>
+        <p>Both live on YOUR machine in our setup - which cuts both ways, as Part 3 will insist.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>One identity, every channel - plus a calendar and helpers<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Your agent is ONE identity reachable from Telegram, Discord, Slack, WhatsApp, Signal, Email, and the CLI. Message it from your phone on the train; it is the same agent, same memory, same skills as the desktop app at home. No per-channel clones.</p>
+        <ul>
+          <li><strong>Scheduling:</strong> cron-style timed jobs - "every Friday at 4pm, do X" - no human trigger needed.</li>
+          <li><strong>Subagents:</strong> it can delegate pieces of a big task to helper agents and gather the results.</li>
+          <li><strong>Senses:</strong> browser automation for the web, vision for images and screenshots, image generation and TTS for output.</li>
+        </ul>
+        <div class="prompt-box good"><span class="label">★ Try it now (once yours is running)</span>List every channel you can reach me on with this install, every execution backend available on this machine, and every skill you currently have saved. Format: three short sections.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Where the boundaries are<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Calibration, so week one does not disappoint:</p>
+        <ul>
+          <li><strong>It is bounded by its brain.</strong> On a 14B with a modest window it handles short, well-scoped tasks well and sprawling multi-hour missions poorly. Match the task to the brain.</li>
+          <li><strong>Skills are procedures, not magic.</strong> A saved skill for a job it did badly is a fast way to do the job badly again. Review what it saves (Demo 2 shows you how).</li>
+          <li><strong>Channels need setup.</strong> Each messaging platform requires its own connection step - do the CLI and desktop first, add one channel you actually use, ignore the rest.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE SAFETY CONVERSATION ============ -->
+  <section class="section" id="safety">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the responsible-adult card of the whole course</span>
+      <h2>The safety conversation <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">In Session 1 you accepted a deal: the model obeys you, and you own the responsibility. An autonomous agent raises the stakes on that same deal - because now the thing that obeys you also has hands. Files, terminal, browser, messages. This is not a reason for fear; it is a reason for house rules.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The five house rules<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Autonomy means real permissions on a real machine. Five rules, in force from your first run tonight:</p>
+        <table class="clean">
+          <thead><tr><th>Rule</th><th>What it means in practice</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1 · Sandbox first</strong></td><td>Start in the most isolated execution backend you can - Docker is the sweet spot on a laptop. The agent works inside a container, not loose on your disk.</td></tr>
+            <tr><td><strong>2 · Allowlist tools</strong></td><td>Enable only the tools a job needs. A folder-summary agent does not need browser automation or shell access. Widen deliberately, never by default.</td></tr>
+            <tr><td><strong>3 · No credentials in prompts</strong></td><td>Never paste passwords, API keys, or tokens into a conversation. The agent remembers, logs, and may echo. Use proper credential stores; keep secrets out of the transcript.</td></tr>
+            <tr><td><strong>4 · Watch the first runs</strong></td><td>New task type? Sit with it. Read what it plans, watch what it touches. Trust is earned per task, not granted per install.</td></tr>
+            <tr><td><strong>5 · Confirm destructive and outward actions</strong></td><td>Deleting, overwriting, sending anything to another human - require your explicit yes. An unsent draft is a fix; a sent email is an incident.</td></tr>
+          </tbody>
+        </table>
+        <p>And a sixth that is really a mindset: <strong>memory is sensitive data.</strong> Everything the agent saw - file contents, names, half-finished plans - lives in its memory store. Treat that store like a confidential notebook: know where it lives, back it up deliberately, wipe it when you retire a machine.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why this is calm, not scary<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every rule above is the same discipline any competent team applies to a new hire with system access: least privilege, supervised onboarding, no shared passwords, sign-off on irreversible actions. Nothing exotic - just applied to software that works while you sleep.</p>
+        <p>The payoff for doing it right is the whole promise of this course: an assistant that acts for you, on your machine, under your rules, with your data never leaving the room. The five rules are not the price of autonomy. They are what makes it yours.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>The graduation - your model becomes an agent <span class="tag demo">★ 14 min · everyone follows</span></h2>
+    </div>
+    <p class="lede">Eight sessions of preparation converge on ten minutes of setup. We install Hermes Agent, point it at the hermes4-14b-16k you built in Session 2, and hand it its first real job.</p>
+
+    <div class="steps">
+      <div class="step"><p>Install the Hermes Agent desktop app from <a href="https://hermes-agent.nousresearch.com">hermes-agent.nousresearch.com</a> (macOS 12+, Windows, Linux). Make sure Ollama is running in the background - it has been since Session 2.</p></div>
+      <div class="step"><p>Run <code>hermes setup</code>. When asked for a provider, choose <strong>Custom Endpoint</strong> and point it at <code>http://localhost:11434/v1</code> - your local Ollama's OpenAI-compatible door, the same one your Session 5 pipeline used.</p></div>
+      <div class="step"><p>Select <code>hermes4-14b-16k</code> as the model - your custom build, constitution and 16K window included. Note the guide's warning: agents want 64K+ context or they go senile mid-task. Ours is modest; we keep tasks short on purpose.</p></div>
+      <div class="step"><p>First conversation: say hello, then run the "Try it now" inventory prompt from Part 2. Confirm it sees your backends and has zero skills saved. It is a newborn.</p></div>
+      <div class="step"><p>The first real task: point it at the demo notes folder and run the delegation prompt below. Then do the most important thing tonight - <strong>watch it work</strong>. Plan, file reads, draft, result. House rule 4, live.</p></div>
+      <div class="step"><p>Debrief honestly: it worked, and you saw the seams - a 14B brain on a small window thinks in short strides. Remember the two upgrade paths: a bigger local model, or Portal for hosted brains. The architecture you built tonight stays the same for both.</p></div>
+    </div>
+
+    <div class="prompt-box good"><span class="label">★ The first delegation</span>In the folder ~/hermes-course/notes there are 12 markdown files of my course notes. Read them all and write ONE file, SUMMARY.md, in the same folder: key ideas grouped by theme, then a 10-line "what I actually learned" section. Do not modify or delete any existing file. Show me your plan before you write anything.</div>
+
+    <div class="callout tip">
+      <strong>If setup fights you</strong>
+      Endpoint unreachable? Check Ollama is serving (<code>ollama list</code> responds). Model not found? The name must match your custom model exactly: <code>hermes4-14b-16k</code>. Agent rambles or stalls mid-task? That is the context ceiling talking - shrink the task, or revisit <code>num_ctx</code> from Session 2.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Teach it one skill <span class="tag demo">★ 6 min · build your own</span></h2>
+    </div>
+    <p class="lede">A task done once is a favor. A task saved as a skill and scheduled is an employee. We turn Demo 1's summary job into a standing weekly routine - and then read what the agent wrote down about us.</p>
+
+    <div class="steps">
+      <div class="step"><p>Ask the agent to generalize what it just did: run the skill-teaching prompt below. Watch it save the procedure as a named skill.</p></div>
+      <div class="step"><p>Schedule it: "Run the weekly-notes-summary skill every Friday at 4pm and tell me when it is done." Cron-style scheduling means this now happens without you.</p></div>
+      <div class="step"><p>Inspect its memory: "Show me everything you have saved in memory and skills from today's session." Read it slowly - this is what house rule six looks like in practice. It saw your files; now its memory contains them.</p></div>
+      <div class="step"><p>Optional, after class: connect ONE messaging channel you actually use (Telegram is the gentlest) and message your agent from your phone. Same agent, same memory, new door.</p></div>
+    </div>
+
+    <div class="prompt-box good"><span class="label">★ Teaching the skill</span>Turn what you just did into a reusable skill called weekly-notes-summary: summarize all markdown files in ~/hermes-course/notes into SUMMARY.md, overwriting the previous summary. Rules baked into the skill: never touch any other file, and if the folder has more than 40 files, stop and ask me first.</div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The Friday agent.</strong> One recurring job - "every Friday, digest this folder into one page" - is how most people find their agent groove: low stakes, high repetition, easy to verify. Get one job reliable, then add the second. The autonovel crowd started somewhere too.</p>
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework · the last one</span>
+      <h2>Run it for a week <span class="tag exercise">◐ one week, low stakes</span></h2>
+    </div>
+    <ul>
+      <li>Pick ONE low-stakes recurring job (notes summary, folder tidy-up, weekly reading digest) and let your agent own it for one full week on the schedule you set in Demo 2.</li>
+      <li>Keep a saves-vs-misses log: each run, one line - did it deliver, what did it get wrong, did it stay inside its rules. Seven lines of data beats any review you could read.</li>
+      <li>Re-read its memory at the end of the week. Anything in there you would not want on a stolen laptop? That is your cue to tighten what it sees.</li>
+      <li>If the week goes clean: widen one notch - a second job, or one new tool on the allowlist. One notch, not five.</li>
+    </ul>
+    <div class="callout tip">
+      <strong>🏁 The graduation checklist - your 8-session assistant, complete</strong>
+      Model sized to your RAM ✓ (S2) · constitution system prompt ✓ (S3) · reasoning gear you shift on demand ✓ (S4) · JSON + Pydantic pipeline ✓ (S5) · 20-line tool loop ✓ (S6) · provider switch to Portal/OpenRouter ✓ (S7) · autonomous shell with house rules ✓ (S8). Nobody rents this to you. You built it, you steer it, you own it.
+    </div>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official Nous sources covered</h2>
+    </div>
+    <p class="lede">Session 8 teaches from the official Hermes Agent documentation and repository. The deep dives that follow this session go back under the hood of the models themselves.</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Hermes Agent docs + local Ollama guide</span><span class="note">hermes-agent.nousresearch.com/docs/guides/local-ollama-setup · Demo 1 follows it step for step</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Nous Portal integration docs</span><span class="note">Part 1 covers auth (OAuth, ~/.hermes/auth.json) and tiers · full Portal walkthrough was Session 7</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Hermes Agent GitHub README</span><span class="note">Parts 1-2 cover features, channels, and execution backends · MIT license</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you graduate 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Hermes Agent and the Hermes models - what is the relationship?</p>
+      <button class="qopt" type="button">A · Hermes Agent is the newest and largest Hermes model</button>
+      <button class="qopt" type="button">B · Hermes Agent is not a model at all - it is an autonomous agent that runs ON models, including non-Hermes ones</button>
+      <button class="qopt" type="button">C · Hermes Agent only works with Hermes 4 models</button>
+      <p class="qwhy">Same brand, different product: the agent is the machinery of autonomy (skills, memory, channels, scheduling) wrapped around any capable brain - 300+ via Portal, or your own local model.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · First run on your laptop tonight - which execution backend do you choose?</p>
+      <button class="qopt" type="button">A · Local, so it has full access and nothing gets in its way</button>
+      <button class="qopt" type="button">B · SSH into your main work machine for realism</button>
+      <button class="qopt" type="button">C · The most sandboxed backend available - Docker on a typical laptop</button>
+      <p class="qwhy">House rule 1: sandbox first. Start the agent in a container, earn trust task by task, and widen permissions deliberately - never by default.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Why do agents need a much bigger context window than chat does?</p>
+      <button class="qopt" type="button">A · Every tool call, file read, and plan revision accumulates in the window - overflow it and the agent forgets its own task mid-run</button>
+      <button class="qopt" type="button">B · Bigger context makes the model smarter at reasoning</button>
+      <button class="qopt" type="button">C · The Hermes Agent license requires 64K context</button>
+      <p class="qwhy">The guide's phrase is "goes senile": an agent's working state lives in context. That is why 64K+ is recommended, and why our 14B (40,960 max) is an honest learning brain, not a production one.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 8 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The setup path</b><span>hermes setup → Custom Endpoint → http://localhost:11434/v1 → hermes4-14b-16k.</span></div>
+      <div class="cheat-item"><b>Model vs agent</b><span>Models answer; agents act. Hermes Agent runs ON models - it is not one. MIT, open source, Feb 2026.</span></div>
+      <div class="cheat-item"><b>The five house rules</b><span>Sandbox first (Docker) · allowlist tools · no credentials in prompts · watch first runs · confirm destructive/outward actions.</span></div>
+      <div class="cheat-item"><b>Memory = sensitive data</b><span>Its memory contains what it saw. Know where it lives, guard it, wipe it on retirement.</span></div>
+      <div class="cheat-item"><b>Context for agents</b><span>64K+ recommended or it "goes senile". 14B maxes at 40,960 - keep tasks short, upgrade when serious.</span></div>
+      <div class="cheat-item"><b>Upgrade paths</b><span>Bigger local model when RAM allows, or Nous Portal (OAuth, free tier with small credits, 300+ models + Tool Gateway).</span></div>
+      <div class="cheat-item"><b>The compounding loop</b><span>Does task → writes skill → reuses skill. One scheduled low-stakes job is how you start.</span></div>
+      <div class="cheat-item"><b>🏁 Graduation inventory</b><span>Sized model ✓ constitution ✓ reasoning gear ✓ JSON pipeline ✓ tool loop ✓ provider switch ✓ autonomous shell ✓.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 8 of 8 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="07-hermes-as-a-service.html">← Session 7</a> &nbsp;·&nbsp; <a href="91-how-hermes-is-made.html">Deep dives: How Hermes is made →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

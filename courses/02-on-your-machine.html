@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 2 · Get it on your machine, properly - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Session 2 of 8</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Session 2 of 8</div>
+    <h1>Get it on your machine, <span class="accent">properly</span></h1>
+    <p class="sub">Last week you ran Hermes 3 8B, the on-ramp. Today you graduate: pick the right Hermes 4 for YOUR laptop, pull it the official way, and fix the one setting that silently ruins most local setups. By the end, your assistant has a real brain and a real memory.</p>
+    <div class="chip-row">
+      <span class="chip level">🟢 Easy</span>
+      <span class="chip audience">Everyone with a laptop</span>
+      <span class="chip audience">Bring your RAM number</span>
+      <span class="chip time">45 min live + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-19 · Concepts (live cards)</span>
+      <span class="a3" style="flex:4">19-40 · Two demos</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>From "it runs" to "it runs right"</h2>
+    </div>
+    <p class="lede">Anyone can type one command and get a chatbot. Running a local model WELL means three decisions: which quantization (how compressed), which runtime (Ollama or LM Studio), and how much context (memory of the conversation). Get those right and a 9GB file on a 16GB Mac feels like magic. Get them wrong and you get a slow, forgetful bot - and most people quit there. Not us.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">★ Try it now prompt</span>
+      <span class="pill inkpill">Official Nous sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The quantization ladder decoded (and why Q4_K_M is the sweet spot), a RAM-to-model map for 16/32/64GB machines, Hermes 4 14B pulled the official way, and a custom-built <code>hermes4-14b-16k</code> model with a proper 16K context window - the single upgrade that stops local AI from "going senile" mid-conversation.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: QUANTIZATION ============ -->
+  <section class="section" id="quantization">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the HF model cards + GGUF quant repos</span>
+      <h2>Quantization without tears <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">The full-precision Hermes 4 14B is far too big for a laptop. Quantization compresses the weights - the learned numbers - into fewer bits so the model fits in consumer RAM. It is a lossy trade: smaller files run lighter and faster but get a little dumber. Your whole job is picking the right rung on that ladder.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Quantization ladder for Hermes 4 14B from Q2_K at 5.75GB to Q8_0 at 15.7GB">
+        <style>
+          .q2t { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .q2g { font: 700 13px Inter, sans-serif; fill: #5C6B75; }
+          .q2x { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .q2n { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+        </style>
+        <line x1="40" y1="230" x2="840" y2="230" stroke="#C3CFD8" stroke-width="2"/>
+        <rect x="60" y="171" width="140" height="59" rx="8" fill="#8B8BF9"/>
+        <text class="q2t" x="90" y="205">Q2_K</text>
+        <text class="q2g" x="88" y="252">5.75 GB</text>
+        <text class="q2x" x="66" y="272">tiny but noticeably dumber</text>
+        <rect x="260" y="138" width="140" height="92" rx="8" fill="#0000F2"/>
+        <text class="q2t" x="282" y="188">Q4_K_M</text>
+        <text class="q2g" x="298" y="252">9.0 GB</text>
+        <text class="q2x" x="270" y="272">the default answer</text>
+        <rect x="460" y="106" width="140" height="124" rx="8" fill="#3430F7"/>
+        <text class="q2t" x="492" y="172">Q6_K</text>
+        <text class="q2g" x="494" y="252">12.1 GB</text>
+        <text class="q2x" x="468" y="272">near-lossless, 32GB rigs</text>
+        <rect x="660" y="70" width="140" height="160" rx="8" fill="#0000A3"/>
+        <text class="q2t" x="692" y="154">Q8_0</text>
+        <text class="q2g" x="694" y="252">15.7 GB</text>
+        <text class="q2x" x="672" y="272">audiophile grade</text>
+        <rect x="238" y="88" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="q2n" x="260" y="100">Sweet spot: best quality per GB.</text>
+        <text class="q2n" x="260" y="118">Fits a 16GB Mac with room to breathe.</text>
+        <text class="q2x" x="40" y="40">Hermes 4 14B GGUF quants (bartowski repo) - same model, four compression levels</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the quant ladder for Hermes 4 14B: smaller is lighter and faster, bigger is smarter</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>What a GGUF quant actually is<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>A model's weights are billions of high-precision numbers. <strong>GGUF</strong> is the standard file format for packing them into a single portable file, and <strong>quantization</strong> is the compression step: storing each weight in 2 to 8 bits instead of 16. The naming decodes simply:</p>
+        <ul>
+          <li><strong>The Q-number is bits per weight.</strong> Q4 stores weights in about 4 bits, Q8 in about 8. Fewer bits = smaller file = less RAM = faster tokens = slightly worse answers.</li>
+          <li><strong>The suffix is the recipe.</strong> K_M means "K-quant, medium" - a smarter scheme that protects the most important weights. When in doubt, prefer _K_M variants.</li>
+          <li><strong>File size roughly equals RAM appetite.</strong> A 9.0GB Q4_K_M wants about 9GB of memory for weights, plus headroom for context and the OS. That is the whole sizing game.</li>
+        </ul>
+        <p>The community consensus, and ours: <strong>Q4_K_M is the sweet spot.</strong> Quality loss is minor for everyday work, and the savings buy you speed and headroom. Go higher only when RAM is abundant; go below Q3 only in emergencies.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The photo analogy.</strong> A RAW photo and a high-quality JPEG look identical on screen, but one is 60MB and one is 6MB. Q4_K_M is the high-quality JPEG of models: the compression is real, but you have to hunt for the artifacts. Q2 is the meme-quality repost - you can tell.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Reading a quant table like a menu<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every GGUF repo on HuggingFace lists a dozen files. You now know how to read them. The two repos we use in this course:</p>
+        <table class="clean">
+          <thead><tr><th>Quant</th><th>Hermes 4 14B (bartowski)</th><th>Hermes 4.3 36B (official Nous)</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Q2_K / Q3_K_M</strong></td><td>5.75 / 7.3 GB</td><td>- / 17.6 GB</td><td>Emergency rations; 36B Q3 is the exception - still smart</td></tr>
+            <tr><td><strong>Q4_K_M</strong></td><td>9.0 GB</td><td>21.8 GB</td><td>The default answer for almost everyone</td></tr>
+            <tr><td><strong>Q5_K_M / Q6_K</strong></td><td>10.5 / 12.1 GB</td><td>25.6 / 29.7 GB</td><td>Nice if RAM is plentiful</td></tr>
+            <tr><td><strong>Q8_0</strong></td><td>15.7 GB</td><td>38.4 GB</td><td>Near-lossless; for 32GB+ machines only</td></tr>
+          </tbody>
+        </table>
+        <p>Notice the pattern: a bigger model at a lower quant usually beats a smaller model at a higher quant. A 36B at Q3_K_M generally out-thinks a 14B at Q8_0 - personality and reasoning live in the parameter count more than in the bit depth.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>MLX vs GGUF on Apple Silicon<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>GGUF is the universal format - it runs everywhere. But on a Mac there is a second option: <strong>MLX</strong>, Apple's own machine-learning framework, tuned for Apple Silicon's unified memory. The practical difference is speed: <strong>the MLX engine delivers roughly 2-3x the throughput of GGUF on the same Mac</strong>.</p>
+        <ul>
+          <li><strong>MLX builds of Hermes exist:</strong> <code>mlx-community/Hermes-4-14B-4bit</code> and <code>-8bit</code> are the 14B in MLX form (4bit is the Q4-equivalent).</li>
+          <li><strong>LM Studio speaks both.</strong> It picks MLX automatically on a Mac when an MLX build exists. Ollama today is GGUF-only, so this is the main technical reason to also install LM Studio.</li>
+          <li><strong>Quality is comparable</strong> at matching bit depths; the win is tokens per second, which you feel most in long reasoning chains (Session 4 foreshadowing).</li>
+        </ul>
+        <p>Rule of thumb: Ollama + GGUF for scripting, automation, and the course's command-line spine; LM Studio + MLX when you want maximum interactive speed on a Mac.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: YOUR RIG ============ -->
+  <section class="section" id="your-rig">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the Ollama library and docs + LM Studio pages</span>
+      <h2>Your rig: Ollama and LM Studio <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Two runtimes, one rule of trust. Ollama is the command-line workhorse you already have; LM Studio is the polished GUI with a speed advantage on Macs. The subtle part is WHERE the model comes from - and why the official path for Hermes 4 looks different from last week's one-liner.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Two pull paths - and why we prefer official repos<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ollama can fetch models from two places, and the difference matters:</p>
+        <ul>
+          <li><strong>The Ollama library</strong> (<code>ollama run hermes3:8b</code>): curated, convenient, versioned tags. Hermes 3 lives here officially, with 3b/8b/70b/405b tags and tool-calling support.</li>
+          <li><strong>Direct HuggingFace pull</strong> (<code>ollama run hf.co/&lt;repo&gt;:&lt;quant&gt;</code>): pulls a GGUF straight from any HuggingFace repo. This is the official path for Hermes 4, because <strong>there is no official hermes4 in the Ollama library</strong>.</li>
+        </ul>
+        <p>You WILL find "hermes4" uploads in the Ollama library - they are community re-uploads with unverified provenance. Maybe fine, maybe stale, maybe misconfigured. The house rule: <strong>pull from repos owned by the source</strong> - <code>NousResearch</code> for official GGUFs, <code>bartowski</code> (the community's most trusted quantizer, linked from the Nous model cards) for the 14B ladder.</p>
+        <div class="prompt-box good"><span class="label">★ The two official pulls</span>ollama run hf.co/bartowski/NousResearch_Hermes-4-14B-GGUF:Q4_K_M
+ollama run hf.co/NousResearch/Hermes-4.3-36B-GGUF:Q4_K_M</div>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The pharmacy rule.</strong> A data team pulled a popular community re-upload of a model and spent two days debugging weird outputs - the uploader had baked in a nonstandard chat template. Same weights from the official repo worked instantly. Model files are like medicine: the active ingredient matters, but so does who packaged it.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Which Hermes for your RAM<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>You brought your RAM number - here is your model. One Mac-specific wrinkle: macOS caps how much RAM the GPU side can wire up, roughly <strong>65-75% of total RAM</strong>, so "it fits on paper" is not the same as "it fits".</p>
+        <table class="clean">
+          <thead><tr><th>Your Mac</th><th>Your Hermes</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>16GB</strong></td><td>Hermes 4 14B Q4_K_M (9.0GB)</td><td>The course hero. Keep context modest (16K, not 64K) and close Chrome's 40 tabs</td></tr>
+            <tr><td><strong>32GB</strong></td><td>14B up to Q8_0 · or Hermes 4.3 36B Q3_K_M (17.6GB)</td><td>36B Q4_K_M (21.8GB) is borderline against the wired-memory ceiling - try it, watch for swapping</td></tr>
+            <tr><td><strong>64GB</strong></td><td>Hermes 4 70B Q4_K_M (~40GB)</td><td>Frontier-class at home; the 4.3 36B Q6_K is the faster all-rounder</td></tr>
+            <tr><td><strong>Any</strong></td><td>Hermes 4 405B</td><td>API only (~229GB at Q4). Nobody runs this at home - Session 7 rents it properly</td></tr>
+          </tbody>
+        </table>
+        <p>Every claim in this course works on the 14B. Bigger models make answers better; they do not change the skills.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>LM Studio - the GUI route<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>LM Studio is a free desktop app that treats Hermes 4 as a first-class citizen - it has featured in the staff picks. Why keep it alongside Ollama:</p>
+        <ul>
+          <li><strong>Search "Hermes 4" in-app</strong> and it lists GGUF and MLX builds side by side, with a fits-your-RAM indicator before you download.</li>
+          <li><strong>MLX engine on Apple Silicon:</strong> the 2-3x throughput win from Part 1, chosen automatically.</li>
+          <li><strong>The reasoning toggle:</strong> Hermes 4 can think out loud before answering. LM Studio surfaces this as a simple on/off switch, plus a "keep CoT in subsequent turns" option. We flip that switch in anger in Session 4 - today you just get to find it.</li>
+          <li><strong>Context sliders in the UI</strong> instead of Modelfiles - same physics as Part 3, friendlier dials. It advertises the full 131K max context for Hermes-4-70B if you have the RAM to feed it.</li>
+        </ul>
+        <p>Ollama stays our spine because everything later (APIs, tools, agents) scripts against it. LM Studio is the cockpit view of the same machinery.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE CONTEXT GOTCHA ============ -->
+  <section class="section" id="context-gotcha">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers community context-window guidance</span>
+      <h2>The context gotcha <span class="tag concept">4 min live</span></h2>
+    </div>
+    <p class="lede">The number one community-documented local-AI failure is not speed and not quality - it is amnesia. Out of the box, Ollama gives models a small context window. Long chats silently scroll out of view and the model "goes senile": forgets your name, contradicts itself, loses the thread. The model was never broken. The window was.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Small default context window loses early conversation; 16K window keeps it all">
+        <style>
+          .c2t { font: 700 14px Inter, sans-serif; fill: #010A26; }
+          .c2w { font: 700 13px Inter, sans-serif; fill: #FFFFFF; }
+          .c2x { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .c2n { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+        </style>
+        <text class="c2t" x="40" y="38">Your conversation (oldest → newest)</text>
+        <rect x="40" y="52" width="800" height="34" rx="8" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <rect x="620" y="52" width="220" height="34" rx="8" fill="#3430F7"/>
+        <text class="c2w" x="648" y="74">small default window</text>
+        <text class="c2x" x="40" y="110">Everything left of the window has fallen out of the model's sight -</text>
+        <text class="c2x" x="40" y="128">your name, the persona, the plan you agreed on. It answers from scraps.</text>
+        <rect x="40" y="156" width="800" height="34" rx="8" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <rect x="40" y="156" width="800" height="34" rx="8" fill="#0000F2" opacity="0.85"/>
+        <text class="c2w" x="330" y="178">num_ctx 16384 - whole chat in view</text>
+        <rect x="40" y="212" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="c2n" x="62" y="224">The tradeoff: a bigger window costs more RAM. 16K is the sane default for a 16GB Mac.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - why local models "go senile": the window slides, the memories fall off</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The fix: num_ctx and the Modelfile<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The context window is a parameter, not a fact of life. Two ways to raise it in Ollama:</p>
+        <ul>
+          <li><strong>Environment variable:</strong> set <code>OLLAMA_CONTEXT_LENGTH</code> and every model gets the new default. Quick, blunt.</li>
+          <li><strong>A Modelfile</strong> (our way): a tiny recipe file that bakes settings into a named model. Precise, per-model, and the foundation for everything we build later - Session 3 adds your persona to this exact file.</li>
+        </ul>
+        <div class="prompt-box good"><span class="label">★ The Modelfile (save as "Modelfile", no extension)</span>FROM hf.co/bartowski/NousResearch_Hermes-4-14B-GGUF:Q4_K_M
+PARAMETER num_ctx 16384
+PARAMETER temperature 0.6</div>
+        <p>Then <code>ollama create hermes4-14b-16k -f Modelfile</code> builds your custom model, and <code>ollama run hermes4-14b-16k</code> runs it. The tradeoff is honest: context lives in RAM, so more window = more memory. 16K comfortably holds a long working session on 16GB; 32K and up is 32GB territory.</p>
+        <p>While we are in the file: <code>temperature 0.6</code> is the official Nous sampling recommendation for Hermes 4, alongside <code>top_p 0.95</code> and <code>top_k 20</code>. Session 3 explains what these dials actually do.</p>
+        <div class="callout tip">
+          <strong>Spot the symptom</strong>
+          If your local model ever starts ignoring instructions it followed an hour ago, do not blame the quant and do not re-pull. Check the context window first. It is the number one fix in every local-AI community for a reason.
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>Graduate to the hero model <span class="tag demo">★ 10 min · everyone follows</span></h2>
+    </div>
+    <p class="lede">One command upgrades you from last week's 8B on-ramp to the course hero, Hermes 4 14B - pulled straight from the official quant repo. Then we make the upgrade visible with a side-by-side test.</p>
+
+    <div class="steps">
+      <div class="step"><p>Check your disk: you need ~9GB free. <code>ollama list</code> shows what you already have.</p></div>
+      <div class="step"><p>Pull and run the hero: <code>ollama run hf.co/bartowski/NousResearch_Hermes-4-14B-GGUF:Q4_K_M</code> - the download is ~9GB, so on venue wifi we watch Phoebe's pre-pulled copy and you run yours at home.</p></div>
+      <div class="step"><p>Ask the hard question below. Note the shape of the answer: structure, edge cases, the quality of the reasoning.</p></div>
+      <div class="step"><p>Exit with <code>/bye</code>, run <code>ollama run hermes3:8b</code>, ask the identical question. Same prompt, six months of model progress apart.</p></div>
+      <div class="step"><p>Compare out loud: where did the 14B go deeper? Where was the 8B actually fine? That intuition - "which jobs need which brain" - is the skill.</p></div>
+    </div>
+
+    <div class="prompt-box good"><span class="label">★ The hard question (run on both models)</span>My team of 6 analysts spends 10 hours a week each on manual report formatting. A vendor tool costs $40k/year and saves half that time. An internal script would take one analyst 3 weeks to build and save 80% of it. Which do I choose? Show your reasoning, state your assumptions, then give a one-line recommendation.</div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The upgrade moment.</strong> A founder ran her weekly planning prompt on the 8B for a month, then tried the same prompt on the 14B. Her review: "the 8B summarized my week; the 14B noticed my week was the problem." Parameter count buys judgment, not just fluency.</p>
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>The Modelfile lab <span class="tag demo">★ 10 min · build your own</span></h2>
+    </div>
+    <p class="lede">Now make it YOURS. You will build a named custom model - hero weights, 16K memory, official sampling - and verify the build like an engineer. This file is the seed of your assistant: Session 3 gives it a personality, Session 5 gives it output rules.</p>
+
+    <div class="steps">
+      <div class="step"><p>Make a folder for your assistant (say <code>~/hermes-lab</code>) and create a file named <code>Modelfile</code> containing the three lines from Part 3: the <code>FROM hf.co/...</code> line, <code>PARAMETER num_ctx 16384</code>, <code>PARAMETER temperature 0.6</code>.</p></div>
+      <div class="step"><p>Build it: <code>ollama create hermes4-14b-16k -f Modelfile</code>. It reuses the weights you pulled in Demo 1 - no second download.</p></div>
+      <div class="step"><p>Verify like an engineer: <code>ollama show hermes4-14b-16k</code>. Confirm you see your context length and temperature in the output. Trust, but verify.</p></div>
+      <div class="step"><p>Run it: <code>ollama run hermes4-14b-16k</code>. Paste in a long document and ask questions about the START of it - the senility test your old setup would have failed.</p></div>
+      <div class="step"><p>Optional branch (Mac speed-lovers): install LM Studio, search "Hermes 4" in-app, load the 14B MLX build, and find the reasoning toggle in the chat sidebar. Do not ship it yet - that switch is Session 4's whole story.</p></div>
+    </div>
+
+    <div class="prompt-box good"><span class="label">★ Try it now - the memory test</span>Here is a long project brief: [paste 2-3 pages of any document]. First question: what was the very first constraint mentioned at the top of the document?</div>
+
+    <div class="callout tip">
+      <strong>If the build complains</strong>
+      "File not found" means you are not in the folder with the Modelfile (<code>cd ~/hermes-lab</code>). A capital-M <code>Modelfile</code> with no extension is the convention; <code>-f</code> accepts any filename if you named it differently.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 30-45 min total</span></h2>
+    </div>
+    <ul>
+      <li>Pick and install YOUR right-size model from the RAM table: 16GB → the 14B hero you already have; 32GB → try Hermes 4.3 36B Q3_K_M (<code>ollama run hf.co/NousResearch/Hermes-4.3-36B-GGUF:Q3_K_M</code>); 64GB → the 70B if you are feeling ambitious.</li>
+      <li>Run the quant ladder taste test if disk allows: pull the 14B at Q2_K next to your Q4_K_M, ask both the Demo 1 hard question, and see if you can tell which is which blind.</li>
+      <li>Note the tokens/sec feel of each model you try - not a benchmark, just "snappy / fine / sluggish". You are calibrating your hardware intuition.</li>
+      <li>Rebuild your <code>hermes4-14b-16k</code> from scratch once without looking at notes. If you can do the Modelfile flow from memory, Session 3 will feel easy.</li>
+      <li>Optional: in LM Studio, compare tokens/sec of the GGUF vs MLX build of the same model on your Mac. Post your numbers in the group - the 2-3x claim is fun to verify.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Everything above is verified against the primary sources: the model cards and GGUF repos on HuggingFace, Ollama's own docs, and LM Studio's model pages - plus the community's hard-won context-window wisdom.</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">HF model cards + GGUF repos</span><span class="note">bartowski/NousResearch_Hermes-4-14B-GGUF + NousResearch/Hermes-4.3-36B-GGUF · Part 1 quant tables</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Ollama library + docs</span><span class="note">hermes3 library page, hf.co pull syntax, Modelfile reference · Parts 2-3 + both demos</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">LM Studio pages</span><span class="note">Hermes 4 staff pick, MLX engine, reasoning toggle · Part 2 self-study + Demo 2 branch</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Community context-window guidance</span><span class="note">the "goes senile" failure mode + num_ctx fix · Part 3</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Going from Q8_0 down to Q4_K_M, what is the trade?</p>
+      <button class="qopt" type="button">A · Smaller file, same quality - Q8 is just for archival</button>
+      <button class="qopt" type="button">B · Less RAM and faster tokens, in exchange for slightly lower answer quality</button>
+      <button class="qopt" type="button">C · Fewer features - Q4 models cannot use tools</button>
+      <p class="qwhy">Quantization is lossy compression of the weights: fewer bits per weight = lighter and faster but a little dumber. Q4_K_M is the sweet spot where the loss is hard to notice and the savings are huge.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · Why do we pull Hermes 4 with an hf.co command instead of "ollama run hermes4"?</p>
+      <button class="qopt" type="button">A · The hf.co route downloads faster</button>
+      <button class="qopt" type="button">B · Ollama cannot run Hermes 4 from its own library format</button>
+      <button class="qopt" type="button">C · There is no official hermes4 in the Ollama library - library uploads are community re-ups with unverified provenance, so we pull from the official HF repos</button>
+      <p class="qwhy">Hermes 3 is officially in the library; Hermes 4 is not. The trusted path is the source: NousResearch's own GGUF repo, or bartowski's quants linked from the Nous model cards.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Your local model keeps forgetting things from earlier in a long chat. What does num_ctx 16384 fix?</p>
+      <button class="qopt" type="button">A · The context window - the default is small, so older messages fall out of the model's view and it "goes senile"</button>
+      <button class="qopt" type="button">B · The model's training data cutoff</button>
+      <button class="qopt" type="button">C · The download getting corrupted</button>
+      <p class="qwhy">The number one community-documented failure: the model only sees what fits in the window. Raising num_ctx (or OLLAMA_CONTEXT_LENGTH) keeps the whole conversation in view - at the cost of more RAM.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 2 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The hero pull</b><span>ollama run hf.co/bartowski/NousResearch_Hermes-4-14B-GGUF:Q4_K_M - 9GB, official quant repo.</span></div>
+      <div class="cheat-item"><b>The 36B pull (32GB+)</b><span>ollama run hf.co/NousResearch/Hermes-4.3-36B-GGUF:Q4_K_M - or Q3_K_M (17.6GB) to be safe.</span></div>
+      <div class="cheat-item"><b>Modelfile recipe</b><span>FROM hf.co/... + PARAMETER num_ctx 16384 + PARAMETER temperature 0.6 → ollama create hermes4-14b-16k -f Modelfile.</span></div>
+      <div class="cheat-item"><b>RAM map</b><span>16GB → 14B Q4_K_M · 32GB → 14B up to Q8 or 36B Q3_K_M · 64GB → 70B Q4_K_M · 405B → API only.</span></div>
+      <div class="cheat-item"><b>Official sampling</b><span>temperature 0.6 · top_p 0.95 · top_k 20 - the Nous recommendation for Hermes 4.</span></div>
+      <div class="cheat-item"><b>Quant rule</b><span>Q4_K_M is the sweet spot; prefer _K_M suffixes; bigger model at lower quant beats smaller at higher.</span></div>
+      <div class="cheat-item"><b>The senility fix</b><span>Forgetting mid-chat = context window, not the model. Raise num_ctx; verify with ollama show.</span></div>
+      <div class="cheat-item"><b>Mac speed lane</b><span>LM Studio + MLX build = roughly 2-3x throughput on Apple Silicon; also home of the reasoning toggle (Session 4).</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 2 of 8 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="01-meet-hermes.html">← Prev: Meet Hermes</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="03-steer-it.html">Next: Steer it →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 7 · Hermes as a service: Portal, OpenRouter, licenses - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Session 7 of 8</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Session 7 of 8</div>
+    <h1>Hermes as a service: <span class="accent">Portal, OpenRouter, licenses</span></h1>
+    <p class="sub">Your laptop tops out somewhere. The 405B, a whole team, always-on uptime, your phone - all of those need Hermes served from somewhere else. Good news: everything you built in Sessions 5-6 already works against every provider, because it is all OpenAI-compatible. Today: the provider menu, the license fine print, and the local-vs-hosted decision you will make for real workloads.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Medium</span>
+      <span class="chip audience">Everyone</span>
+      <span class="chip audience">Decision-maker friendly</span>
+      <span class="chip time">45 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-21 · Concepts (live cards)</span>
+      <span class="a3" style="flex:4">21-40 · Two demos</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>When local is not enough</h2>
+    </div>
+    <p class="lede">Local Hermes is the soul of this course - but be honest about its edges. Nobody runs the 405B at home (the Q4 alone is ~229GB). A teammate cannot use the model on your laptop when the lid is closed. Your phone cannot either. And "the demo machine went to sleep" is not an uptime strategy. The escape hatch costs one line of code: everything in the Hermes ecosystem speaks the OpenAI-compatible API, so the extractor from Session 5 and the tool loop from Session 6 run unchanged against any provider. You swap one <code>base_url</code>, and your private assistant learns to commute.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">★ Try it now prompt</span>
+      <span class="pill inkpill">Official Nous sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The full provider menu (Nous Portal, OpenRouter, and who actually hosts the big weights), a license table that tells you which Hermes you can ship in a product, a priced-out 10k-call workload so cost stops being a vibe, and your Session 5 script running against three different backends with two changed lines.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE PROVIDER MENU ============ -->
+  <section class="section" id="provider-menu">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the Hermes Agent provider docs + OpenRouter listings</span>
+      <h2>The provider menu <span class="tag concept">8 min live</span></h2>
+    </div>
+    <p class="lede">Three ways to reach a hosted Hermes, all OpenAI-compatible, all reachable from the exact code you already wrote. The differences are pricing, extras, and who you are trusting with your prompts.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hub diagram: your script in the center connecting to localhost, Nous Portal, and OpenRouter">
+        <style>
+          .s7hT { font: 700 14.5px Inter, sans-serif; fill: #FFFFFF; }
+          .s7hS { font: 700 14.5px Inter, sans-serif; fill: #010A26; }
+          .s7hX { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+          .s7hN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .s7hArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#s7hAh); }
+        </style>
+        <defs>
+          <marker id="s7hAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="330" y="110" width="220" height="76" rx="14" fill="#0000A3"/>
+        <text class="s7hT" x="366" y="142">Your script</text>
+        <text class="s7hX" x="366" y="164" fill="#DCE4F0">openai client, Session 5-6</text>
+        <rect x="40" y="40" width="220" height="66" rx="12" fill="#3430F7"/>
+        <text class="s7hT" x="62" y="68">localhost:11434/v1</text>
+        <text class="s7hX" x="62" y="90" fill="#DCE4F0">Ollama · free · private</text>
+        <rect x="620" y="40" width="230" height="66" rx="12" fill="#0000F2"/>
+        <text class="s7hT" x="642" y="68">Nous Portal</text>
+        <text class="s7hX" x="642" y="90" fill="#DCE4F0">inference-api.nousresearch.com/v1</text>
+        <rect x="620" y="196" width="230" height="66" rx="12" fill="#8B8BF9"/>
+        <text class="s7hT" x="642" y="224">OpenRouter</text>
+        <text class="s7hX" x="642" y="246" fill="#DCE4F0">openrouter.ai/api/v1 · many hosts</text>
+        <line class="s7hArr" x1="336" y1="118" x2="252" y2="92"/>
+        <line class="s7hArr" x1="544" y1="118" x2="628" y2="92"/>
+        <line class="s7hArr" x1="544" y1="178" x2="628" y2="212"/>
+        <rect x="40" y="200" width="220" height="52" rx="12" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="s7hS" x="62" y="222">Same code,</text>
+        <text class="s7hS" x="62" y="242">different base_url</text>
+        <rect x="40" y="272" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="s7hN" x="64" y="284">Two lines change per backend: base_url and api_key. Everything else is identical.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - one script in the middle, three backends on the spokes</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Nous Portal - the first-party API<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The Portal (<a href="https://portal.nousresearch.com">portal.nousresearch.com</a>) is Nous Research's own API - money and prompts go to the people who make the model. The essentials:</p>
+        <ul>
+          <li><strong>Endpoint:</strong> <code>https://inference-api.nousresearch.com/v1</code>, fully OpenAI-compatible. API keys come from the Portal dashboard.</li>
+          <li><strong>Free eval tier:</strong> roughly $0.10/month in credits - not much, but enough to smoke-test your scripts against the 405B before spending anything.</li>
+          <li><strong>The paid extras:</strong> paid tiers bundle a <strong>Tool Gateway</strong> - hosted tools your model can call (web search, scraping, image generation, browser use, speech). That pairs directly with your Session 6 tool loop, without you hosting the tools.</li>
+        </ul>
+        <div class="callout tip">
+          <strong>The bot-gate caveat</strong>
+          Portal pages are bot-gated, so scripts and AI assistants (including the one writing your notes) cannot fetch live pricing. Check the current tiers yourself in a normal browser before you budget - takes one minute, and the numbers move.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>OpenRouter - the marketplace (and the free 405B trick)<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><a href="https://openrouter.ai">OpenRouter</a> is a router across many hosting providers with one key and one endpoint. Why it matters for Hermes people:</p>
+        <ul>
+          <li><strong>The :free trick.</strong> Hermes 3 405B has a <code>:free</code> variant on OpenRouter - a genuinely zero-cost way to run experiments against a 405B-class Hermes. Rate-limited and best-effort, but for learning it is unbeatable. We use it in Demo 1.</li>
+          <li><strong>Paid prices (as of mid-2026 - verify live):</strong> Hermes 4 405B around $1.00 in / $3.00 out per 1M tokens; Hermes 4 70B around $0.13 / $0.40. Prices move constantly on marketplaces; treat these as anchors, not gospel.</li>
+          <li><strong>Provider choice for free.</strong> OpenRouter routes to whichever underlying host is up and cheapest, which is resilience you did not have to build.</li>
+        </ul>
+        <div class="prompt-box good"><span class="label">★ Try it now (once you have an OpenRouter key)</span>Point your Session 5 extract.py at base_url https://openrouter.ai/api/v1 with model nousresearch/hermes-3-llama-3.1-405b:free and run it unchanged. Cost: $0.00.</div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Who actually hosts the big weights<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Marketplaces are storefronts; someone still racks the GPUs. Worth knowing two names:</p>
+        <ul>
+          <li><strong>Nebius</strong> hosts Hermes 4 405B in FP8 and is the main underlying provider you will actually hit when you call the big model through a router.</li>
+          <li><strong>Lambda</strong> was the historic launch partner that first served Hermes 3 405B back in 2024 - a nice reminder that open weights mean ANY GPU cloud can serve Hermes, which is exactly why no single provider can hold your workload hostage.</li>
+        </ul>
+        <p>That last point is the strategic one: with closed models you rent capability from a monopoly. With open weights, hosting is a competitive commodity - if a provider raises prices, the weights are public and someone else will serve them cheaper. (Deep-dive D3 covers serving them yourself with vLLM, which even ships a named <code>--tool-call-parser hermes</code>.)</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: LICENSES ============ -->
+  <section class="section" id="licenses">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the model licenses on the HF cards</span>
+      <h2>Licenses decide products <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">"Open weights" is not one license - and if you ever ship Hermes inside a product, the license of the BASE model is what you are actually shipping under. Two minutes of table-reading now saves a legal headache later.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Llama 3 license vs Apache 2.0 - what you can ship<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Every Hermes inherits the license of its base model. The lineup sorts into two buckets:</p>
+        <table class="clean">
+          <thead><tr><th>Model</th><th>License</th><th>Shipping it in a product</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Hermes 4.3 36B</strong></td><td>Apache 2.0</td><td>Cleanest choice for products - permissive, no special conditions</td></tr>
+            <tr><td><strong>Hermes 4 14B</strong></td><td>Apache-2.0-family (Qwen3 base)</td><td>Very permissive - our course hero is also product-friendly</td></tr>
+            <tr><td><strong>Hermes 4 70B / 405B</strong></td><td>Llama 3 license</td><td>Fine for most commercial use, with Meta's conditions attached</td></tr>
+            <tr><td><strong>Hermes 3 (all sizes)</strong></td><td>Llama 3 license</td><td>Same deal - including the :free 405B you demo with</td></tr>
+          </tbody>
+        </table>
+        <p>What "Meta's conditions" means in practice: the Llama 3 license is a custom commercial license, not open source in the strict sense. The famous clause: services with more than <strong>700 million monthly active users</strong> need a separate license from Meta (congratulations if this is your problem). There are also naming and attribution requirements. For most teams it is a non-issue - but "most" is not "all", and your legal team will ask.</p>
+        <div class="callout tip">
+          <strong>The one-sentence policy</strong>
+          Building a product? Prefer the Apache bucket (4.3 36B, 4 14B) and you never have the conversation. Using Llama-based Hermes internally or via API? Relax - that is squarely normal use.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Privacy tiers - what data goes where<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The license governs what you may ship; the deployment tier governs what you expose. Keep the two separate in your head:</p>
+        <table class="clean">
+          <thead><tr><th>Tier</th><th>What leaves your machine</th><th>Who can see it</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Local (Ollama)</strong></td><td>Nothing. Wifi-off provably nothing (Session 1's test)</td><td>You</td></tr>
+            <tr><td><strong>First-party API (Portal)</strong></td><td>Prompts + outputs, under Nous's terms of service</td><td>You + Nous infrastructure</td></tr>
+            <tr><td><strong>Marketplace (OpenRouter)</strong></td><td>Prompts + outputs, under OpenRouter's terms AND the underlying host's (e.g. Nebius)</td><td>You + router + whichever provider served the call</td></tr>
+          </tbody>
+        </table>
+        <p>The discipline that follows: classify your data BEFORE choosing a backend, not after. Client-confidential and regulated data stays on the local tier - that was the whole point of Sessions 1-2. Public-ish and low-stakes data can ride the APIs for capability or convenience. Read the actual ToS of any provider before routing real workloads through it; retention policies differ and change.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE DECISION ============ -->
+  <section class="section" id="the-decision">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the call you will actually make</span>
+      <h2>Local or hosted - the decision <span class="tag concept">4 min live</span></h2>
+    </div>
+    <p class="lede">This is not a religious war, it is a routing decision - and you will make it per workload, not once. Five factors decide it.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The decision table<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <table class="clean">
+          <thead><tr><th>Factor</th><th>Local (your machine)</th><th>Hosted (Portal / OpenRouter)</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Privacy</strong></td><td>Absolute - nothing leaves the room</td><td>Provider ToS territory - classify data first</td></tr>
+            <tr><td><strong>Cost at volume</strong></td><td>Electricity; flat regardless of calls</td><td>Per token - cheap until suddenly it is not</td></tr>
+            <tr><td><strong>Capability ceiling</strong></td><td>Your RAM decides - 14B to 70B for most of us</td><td>405B on tap, always</td></tr>
+            <tr><td><strong>Latency</strong></td><td>No network hop; slower tokens/sec on big models</td><td>Network hop; datacenter-fast generation</td></tr>
+            <tr><td><strong>Ops burden</strong></td><td>Yours: updates, uptime, the sleeping laptop problem</td><td>Theirs: SLA-ish uptime, zero maintenance</td></tr>
+          </tbody>
+        </table>
+        <p>The pattern that falls out for almost everyone: <strong>sensitive or high-volume-and-simple → local; occasional-but-hard or team-facing → hosted.</strong> Demo 2 turns this into a worksheet against your own real workloads.</p>
+      </div>
+    </details>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two-lane decision flow: sensitive or high-volume goes local, harder or team-facing goes hosted">
+        <style>
+          .s7dT { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .s7dS { font: 700 14px Inter, sans-serif; fill: #010A26; }
+          .s7dX { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+          .s7dN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .s7dArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#s7dAh); }
+        </style>
+        <defs>
+          <marker id="s7dAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="330" y="30" width="220" height="60" rx="12" fill="#0000A3"/>
+        <text class="s7dT" x="360" y="56">New workload</text>
+        <text class="s7dX" x="360" y="76" fill="#DCE4F0">one question first</text>
+        <line class="s7dArr" x1="380" y1="94" x2="240" y2="140"/>
+        <line class="s7dArr" x1="500" y1="94" x2="640" y2="140"/>
+        <text class="s7dX" x="200" y="120">sensitive data? high volume?</text>
+        <text class="s7dX" x="560" y="120">needs 405B? serves a team?</text>
+        <rect x="90" y="146" width="280" height="64" rx="12" fill="#3430F7"/>
+        <text class="s7dT" x="116" y="174">Lane 1 · Stay local</text>
+        <text class="s7dX" x="116" y="194" fill="#DCE4F0">Ollama · flat cost · nothing leaves</text>
+        <rect x="510" y="146" width="280" height="64" rx="12" fill="#0000F2"/>
+        <text class="s7dT" x="536" y="174">Lane 2 · Go hosted</text>
+        <text class="s7dX" x="536" y="194" fill="#DCE4F0">Portal or OpenRouter · pay per token</text>
+        <rect x="90" y="226" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="s7dN" x="114" y="238">Route per workload, not per religion. Most people end up running both lanes.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the two-lane routing decision, one workload at a time</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>One script, three backends <span class="tag demo">★ 10 min · build your own</span></h2>
+    </div>
+    <p class="lede">The payoff for everything since Session 5: your extractor runs against a local model, a free 405B, and the first-party API - and the only thing that changes is two lines.</p>
+
+    <div class="steps">
+      <div class="step"><p>Open your Session 5 <code>extract.py</code>. Find the two lines that name a backend: the <code>OpenAI(base_url=..., api_key=...)</code> constructor and the <code>model=</code> argument. Those are the only lines that will change all demo.</p></div>
+      <div class="step"><p><strong>Backend 1 - localhost.</strong> Run it as-is against Ollama. This is your baseline: free, private, yours.</p></div>
+      <div class="step"><p><strong>Backend 2 - OpenRouter, cost $0.00.</strong> Create a key at openrouter.ai, then swap the two lines as below and run again. Same messy text, now extracted by a 405B - notice whether the output actually differs on an easy task (usually: barely, which is itself a lesson).</p></div>
+      <div class="step"><p><strong>Backend 3 - Nous Portal (if you have a key).</strong> Swap the two lines again: base_url <code>https://inference-api.nousresearch.com/v1</code>, your Portal key, and a Hermes 4 model id from the Portal's model list. The free eval tier's ~$0.10 of monthly credits covers this comfortably.</p></div>
+      <div class="step"><p><strong>Cost math.</strong> Estimate your per-call tokens: our extraction prompt is roughly 800 tokens in (schema + messy text) and 200 out. Now price a 10,000-call/month workload on Hermes 4 70B at the listed rates: 8M input tokens × $0.13/1M = $1.04, plus 2M output × $0.40/1M = $0.80. About $1.84/month - and now scale the same math to YOUR real prompt sizes and volumes before trusting it.</p></div>
+      <div class="step"><p>Land the point: nothing about your code is provider-shaped. You are one config file away from routing per workload - which is exactly what Demo 2 decides.</p></div>
+    </div>
+
+    <div class="prompt-box good"><span class="label">★ The only two lines that change per backend</span># Backend 1 - local Ollama
+client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
+model = "hf.co/bartowski/NousResearch_Hermes-4-14B-GGUF:Q4_K_M"
+
+# Backend 2 - OpenRouter (free 405B)
+client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key="sk-or-...")
+model = "nousresearch/hermes-3-llama-3.1-405b:free"
+
+# Backend 3 - Nous Portal (first-party)
+client = OpenAI(base_url="https://inference-api.nousresearch.com/v1", api_key="your-portal-key")
+model = "&lt;pick a Hermes 4 id from the Portal model list&gt;"</div>
+
+    <div class="callout tip">
+      <strong>Prices dated mid-2026</strong>
+      The $0.13/$0.40 and $1.00/$3.00 figures are anchors as of mid-2026. Marketplace prices move monthly; re-check openrouter.ai listings and the Portal pricing page (in a browser - it is bot-gated) before quoting numbers to anyone with a budget.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Pick your production tier <span class="tag demo">★ 6 min · worksheet</span></h2>
+    </div>
+    <p class="lede">No new code - a decision exercise against your own life. Three real workloads, classified with the Part 3 table. This worksheet is what you will actually reuse after the course.</p>
+
+    <div class="steps">
+      <div class="step"><p>Write down three REAL workloads you have built or want to build with your assistant. Examples from past cohorts: "summarize client interview notes", "triage inbound email", "draft LinkedIn posts", "extract line items from receipts".</p></div>
+      <div class="step"><p>For each, answer the lane-1 question first: does it touch sensitive data (client, personal, regulated), or will it run at high volume (thousands of calls)? Either yes → <strong>local</strong>. Write it down and move on - privacy vetoes everything else.</p></div>
+      <div class="step"><p>For the remainder: is your local model actually good enough for it? Test, do not guess - run one hard example on your 14B. If yes → <strong>local anyway</strong> (free beats cheap). If it visibly struggles → next step.</p></div>
+      <div class="step"><p>Occasional and experimental → <strong>free-tier API</strong> (OpenRouter :free, Portal eval credits). Recurring, team-facing, or uptime-critical → <strong>paid API</strong>, and run the Demo 1 cost math on its real volume before committing.</p></div>
+      <div class="step"><p>Sanity-check the result: most people land on 2 local + 1 hosted. If all three landed hosted, revisit whether you are underrating your 14B; if all three landed local, enjoy your electricity bill being the whole budget.</p></div>
+    </div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The three-lane consultant.</strong> An independent strategy consultant classified her stack exactly this way: interview-note summarization stayed local (client confidentiality, non-negotiable), a weekly research digest runs on the OpenRouter free 405B (occasional, zero cost), and a client-facing FAQ bot runs on a paid 70B endpoint (needs uptime her laptop cannot promise). Total monthly API bill: under $5.</p>
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 30-45 min total</span></h2>
+    </div>
+    <ul>
+      <li>Run the three-backend demo end to end: localhost, OpenRouter :free, and (if you created a key) the Portal. Keep the three two-line variants in a comment block at the top of your script.</li>
+      <li>Check the Portal's pricing page in a normal browser (it is bot-gated) and note the current tiers and Tool Gateway inclusions - compare against what we said today and see what moved.</li>
+      <li>Do the Demo 2 worksheet properly for your three real workloads, including one actual cost calculation at your honest volumes.</li>
+      <li>Skim the Llama 3 license text once in your life (it is short) - know where the 700M MAU clause and the naming requirements live, so "it's open, right?" never catches you flat-footed.</li>
+      <li>Prepare for the finale: make sure your local assistant from Sessions 5-6 still runs, and pick which backend it should use by default. Session 8 hands it autonomy - Hermes Agent, skills, memory, and a channel to reach you.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official Nous sources covered</h2>
+    </div>
+    <p class="lede">Provider facts come from the Hermes Agent provider docs, live OpenRouter listings, and the license files on the HuggingFace model cards. Pricing is the one thing no page can promise you: verify it live, in a browser.</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Nous Portal docs</span><span class="note">portal.nousresearch.com · endpoint + tiers covered; pricing pages are bot-gated - hand-verify in a browser before budgeting</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">OpenRouter Nous listings</span><span class="note">openrouter.ai/nousresearch · pricing anchors + the Hermes 3 405B :free variant used in Demo 1</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Model license files</span><span class="note">HF model cards · the Apache 2.0 vs Llama 3 license split in Part 2's table, read from the cards themselves</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · Moving your Session 5 extractor from local Ollama to the Nous Portal requires changing...</p>
+      <button class="qopt" type="button">A · Rewriting it against the Portal's own SDK</button>
+      <button class="qopt" type="button">B · The prompts - hosted models use different formats</button>
+      <button class="qopt" type="button">C · Two lines: base_url (plus key) and the model name - everything is OpenAI-compatible</button>
+      <p class="qwhy">Local Ollama, the Portal, and OpenRouter all speak the OpenAI-compatible API. Same code, different base_url is the whole architecture of this session.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · You are shipping Hermes inside a commercial product and want the cleanest license story. Which bucket?</p>
+      <button class="qopt" type="button">A · The Apache bucket: Hermes 4.3 36B or Hermes 4 14B</button>
+      <button class="qopt" type="button">B · Hermes 4 405B - biggest is safest</button>
+      <button class="qopt" type="button">C · Any of them - open weights means public domain</button>
+      <p class="qwhy">Hermes inherits its base model's license. 4.3 36B is Apache 2.0 and the 14B is Apache-2.0-family; the 70B/405B and Hermes 3 carry the Llama 3 license with Meta's conditions (700M MAU clause, naming). Open weights is not public domain.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · A workload touches confidential client data AND your 14B handles it fine. Where does it run?</p>
+      <button class="qopt" type="button">A · OpenRouter :free - free beats local</button>
+      <button class="qopt" type="button">B · Local - sensitive data vetoes hosted regardless of price, and capable-enough seals it</button>
+      <button class="qopt" type="button">C · Paid Portal tier - first-party is always safest</button>
+      <p class="qwhy">Privacy is the first gate in the decision table: sensitive data stays local, full stop. Free API is still someone else's computer under someone else's ToS.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 7 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The architecture</b><span>Same code, different base_url - localhost:11434/v1, inference-api.nousresearch.com/v1, openrouter.ai/api/v1. Two lines change.</span></div>
+      <div class="cheat-item"><b>Nous Portal</b><span>First-party API · keys from portal.nousresearch.com · free eval tier ~$0.10/mo · paid tiers bundle the Tool Gateway (search, scraping, image gen, browser, speech).</span></div>
+      <div class="cheat-item"><b>The free 405B</b><span>OpenRouter's Hermes 3 405B :free variant - zero-cost 405B-class experiments. Rate-limited, perfect for learning.</span></div>
+      <div class="cheat-item"><b>Price anchors (mid-2026, verify live)</b><span>Hermes 4 70B ~$0.13/$0.40 per 1M in/out · 405B ~$1.00/$3.00. Portal pricing: check in a browser, it is bot-gated.</span></div>
+      <div class="cheat-item"><b>License buckets</b><span>Apache: 4.3 36B (cleanest) + 4 14B. Llama 3 license: 4 70B/405B + Hermes 3 (700M MAU clause, naming rules).</span></div>
+      <div class="cheat-item"><b>Privacy tiers</b><span>Local = nothing leaves · Portal = Nous ToS · marketplace = router + underlying host (e.g. Nebius) ToS. Classify data BEFORE picking a backend.</span></div>
+      <div class="cheat-item"><b>The routing rule</b><span>Sensitive or high-volume-simple → local. Occasional-but-hard → free tier. Team-facing or uptime-critical → paid, after doing the cost math.</span></div>
+      <div class="cheat-item"><b>Next session</b><span>The finale: Hermes Agent. Your assistant gets skills, memory, a channel to you - and autonomy.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 7 of 8 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="06-tool-calling.html">← Prev: Tool calling</a> &nbsp;·&nbsp; <a href="../index.html">All sessions</a> &nbsp;·&nbsp; <a href="08-hermes-agent.html">Next: Your assistant goes autonomous →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

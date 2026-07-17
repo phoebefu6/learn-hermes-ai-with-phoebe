@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 4 · Think when it matters: hybrid reasoning - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Session 4 of 8</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Session 4 of 8</div>
+    <h1>Think when it matters: <span class="accent">hybrid reasoning</span></h1>
+    <p class="sub">Your assistant has had one speed so far: answer immediately. Hermes 4 hides a second gear - a deliberate reasoning mode where the model thinks out loud inside think tags before it commits to an answer. Today: what the second gear is, when it transforms results (and when it just burns your battery), and the three switches that flip it.</p>
+    <div class="chip-row">
+      <span class="chip level">🟡 Medium</span>
+      <span class="chip audience">Everyone</span>
+      <span class="chip audience">Two gears, one model</span>
+      <span class="chip time">45 min live + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-20 · Concepts (live cards)</span>
+      <span class="a3" style="flex:4">20-40 · Two demos</span>
+      <span class="a4" style="flex:1">40-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>The gear you did not know it had</h2>
+    </div>
+    <p class="lede">Session 3 gave your assistant a constitution. Today we give it judgment about effort. Hermes 4 is a <strong>hybrid reasoning</strong> model: by default it answers instantly, but on demand it will deliberate - visibly, inside think tags - before answering. Used on the right problems, that one switch turns near-random performance into near-perfect. Used on the wrong problems, it just makes your laptop hot. Learning the difference is the whole session.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">★ Try it now prompt</span>
+      <span class="pill inkpill">Official Nous sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      A working mental model of hybrid reasoning (same weights, two gears), the benchmark evidence for exactly when thinking pays, all three switches that enable it (system prompt, LM Studio toggle, chat-template flag), a reasoning-mode variant of your own assistant, and a personal checklist for which of your real tasks deserve the slow gear.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: ONE MODEL, TWO GEARS ============ -->
+  <section class="section" id="two-gears">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the Hermes 4 report, section 3</span>
+      <h2>One model, two gears <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Some labs ship two separate models - a fast one and a "reasoning" one - and make you choose at download time. Hermes 4 puts both behaviors in one set of weights. The default gear answers like every chat model you know. The reasoning gear makes the model deliberate with itself first, inside <code>&lt;think&gt; &lt;/think&gt;</code> tags, and only then produce the final answer.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two lanes: instant mode goes question to answer; reasoning mode goes question through a think-tags deliberation box to answer">
+        <style>
+          .s4aT { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .s4aS { font: 700 15px Inter, sans-serif; fill: #010A26; }
+          .s4aL { font: 700 13px Inter, sans-serif; fill: #5C6B75; }
+          .s4aX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .s4aN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .s4aArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#s4aAh); }
+        </style>
+        <defs>
+          <marker id="s4aAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <text class="s4aL" x="30" y="46">INSTANT GEAR (default)</text>
+        <rect x="30" y="60" width="160" height="54" rx="10" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="s4aS" x="58" y="92">Question</text>
+        <line class="s4aArr" x1="198" y1="87" x2="640" y2="87"/>
+        <rect x="650" y="60" width="160" height="54" rx="10" fill="#0000F2"/>
+        <text class="s4aT" x="688" y="92">Answer</text>
+        <text class="s4aX" x="300" y="78">immediate · cheap · fine for most asks</text>
+        <text class="s4aL" x="30" y="166">REASONING GEAR (on demand)</text>
+        <rect x="30" y="180" width="160" height="54" rx="10" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="s4aS" x="58" y="212">Question</text>
+        <line class="s4aArr" x1="198" y1="207" x2="308" y2="207"/>
+        <rect x="316" y="174" width="270" height="66" rx="10" fill="#3430F7"/>
+        <text class="s4aT" x="342" y="202">&lt;think&gt; deliberation &lt;/think&gt;</text>
+        <text class="s4aX" x="342" y="224" fill="#DCE4F0">explores, checks, self-corrects</text>
+        <line class="s4aArr" x1="594" y1="207" x2="640" y2="207"/>
+        <rect x="650" y="180" width="160" height="54" rx="10" fill="#0000A3"/>
+        <text class="s4aT" x="688" y="212">Answer</text>
+        <rect x="30" y="268" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="s4aN" x="54" y="280">Same weights, different gear - the model itself decides how long to deliberate, then closes the tags and answers.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - two lanes through the same model: instant by default, deliberate on demand</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>Think tags - deliberation you can read<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>When the reasoning gear is on, the model writes its internal monologue between <code>&lt;think&gt;</code> and <code>&lt;/think&gt;</code> before the visible answer. Inside the tags you will watch it restate the problem, try an approach, catch its own mistake, and start over - like a scratchpad you get to read. Three things to internalize:</p>
+        <ul>
+          <li><strong>It is the same model.</strong> No second download, no different weights. The gear is selected by how you prompt it, not by what you installed.</li>
+          <li><strong>The model budgets its own deliberation.</strong> Easy question in reasoning mode: a few lines of thought. Genuinely hard one: pages. You do not set a thinking length; the model decides when it is done.</li>
+          <li><strong>The scratchpad is not the answer.</strong> The text inside the tags is exploratory - it can wander, backtrack, and be wrong on the way to being right. Only what comes after <code>&lt;/think&gt;</code> is the model's actual response.</li>
+        </ul>
+        <div class="callout tip">
+          <strong>Chat apps hide this from you</strong>
+          Hosted reasoning models show a "thinking..." spinner and hide the monologue. Running Hermes locally, you see every word of the deliberation. That transparency is one of the best learning tools in this course - and Demo 1 is built around reading it together.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The 30k self-stop - a great engineering yarn<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Free-running deliberation has a failure mode: the model thinks so long it runs out of room. Every model has a context limit, and a chain of thought that never closes its <code>&lt;/think&gt;</code> tag means no answer at all.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The model that talked itself off a cliff.</strong> During Hermes 4 evaluation, the 14B model was hitting its 40,960-token context limit on 60% of LiveCodeBench reasoning runs - it thought right up to the wall and never got to answer. The Nous fix was elegant: a second SFT stage that teaches the model to wrap up and close <code>&lt;/think&gt;</code> by roughly 30k tokens. The cost was honest and small - a few percent on the hardest benchmarks (in that experiment's frame, the 405B went from 55.0 to 52.4 on AIME'24). The trade: slightly shorter maximum thinking in exchange for always actually finishing. An unfinished genius answer scores zero.</p>
+        </div>
+        <p>Remember this story when you size context windows: your <code>hermes4-14b-16k</code> build from Session 2 has 16,384 tokens of room, and a deep reasoning run can genuinely fill it. If reasoning answers get cut off, context length is the first suspect.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Why hybrid beats a dedicated reasoning model<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Dedicated reasoning models deliberate on everything - including "write a two-line email", where deliberation adds nothing but latency. Dedicated instant models can never slow down for the problem that deserves it. A hybrid gives you a per-question choice with zero switching cost: same weights, same memory footprint, same Ollama tag, just a different prompt. On a laptop, where RAM is the scarce resource and every loaded model competes for it, one model that does both is not a compromise - it is the win. The Hermes 4 technical report (section 3) covers how both behaviors were trained into a single checkpoint.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: WHEN THINKING PAYS ============ -->
+  <section class="section" id="when-thinking-pays">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the Hermes 4 report, section 4 evals</span>
+      <h2>When thinking pays <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Reasoning mode is not "smart mode". It is a targeted tool with a measurable profile: transformative on multi-step problems, near-useless on everything else. Nous published the numbers, so we do not have to guess.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The evidence - same model, two gears, hard math<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>These are Hermes 4 405B scores with reasoning on versus off, from the technical report's evaluations. Read the AIME rows twice:</p>
+        <table class="clean">
+          <thead><tr><th>Task type</th><th>Instant</th><th>Reasoning</th><th>Verdict</th></tr></thead>
+          <tbody>
+            <tr><td><strong>MATH-500</strong> (competition math)</td><td>73.8</td><td>96.3</td><td>Big win - near-perfect with thinking</td></tr>
+            <tr><td><strong>AIME'24</strong> (olympiad qualifier)</td><td>11.4</td><td>81.9</td><td>Transformation - 7x, fail to strong pass</td></tr>
+            <tr><td><strong>AIME'25</strong> (olympiad qualifier)</td><td>10.6</td><td>78.1</td><td>Transformation - same story, newer exam</td></tr>
+            <tr><td><strong>Everyday Q&amp;A, drafts, lookups</strong></td><td>good</td><td>good</td><td>Barely moves - you just paid tokens and seconds</td></tr>
+          </tbody>
+        </table>
+        <p>The pattern: when a problem has <strong>steps that build on each other</strong> - and a wrong early step poisons everything after it - deliberation is worth 5-7x. When a problem is retrieval, phrasing, or taste, the instant gear was already fine.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The rule of thumb - and what a laptop actually pays<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Your ON/OFF instinct, in one table:</p>
+        <table class="clean">
+          <thead><tr><th>Reasoning ON</th><th>Reasoning OFF</th></tr></thead>
+          <tbody>
+            <tr><td>Multi-step logic and constraint puzzles</td><td>Factual lookups and definitions</td></tr>
+            <tr><td>Math with intermediate results</td><td>Drafts, emails, rewrites, summaries</td></tr>
+            <tr><td>Tricky code and debugging traces</td><td>Casual chat and brainstorming</td></tr>
+            <tr><td>Careful analysis where a wrong step compounds</td><td>Anything you will verify yourself anyway</td></tr>
+          </tbody>
+        </table>
+        <div class="callout tip">
+          <strong>Tokens are seconds on your machine</strong>
+          On a laptop pushing maybe 10-25 tokens per second, a 3,000-token deliberation is two to five minutes of fan noise before the answer even starts - and it eats your 16k context window too. Hosted models hide this cost behind someone else's GPUs; locally you feel every token. That is not a bug: it builds exactly the budgeting instinct this session is about.
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: THE THREE SWITCHES ============ -->
+  <section class="section" id="three-switches">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the DeepHermes-3 model card + LM Studio announcement</span>
+      <h2>The three switches <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">Three ways to flip the gear, from most universal to most programmatic. All three end in the same place: the model deliberating inside think tags.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Switch 1 · the system prompt (works everywhere)<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The original switch, introduced with DeepHermes-3 and carried into Hermes 4: a system prompt that instructs the model to deliberate in think tags. This is the exact published prompt - use it verbatim:</p>
+        <div class="prompt-box good"><span class="label">★ The reasoning toggle prompt (verbatim, from the DeepHermes-3 model card)</span>You are a deep thinking AI, you may use extremely long chains of thought to deeply consider the problem and deliberate with yourself via systematic reasoning processes to help come to a correct solution prior to answering. You should enclose your thoughts and internal monologue inside &lt;think&gt; &lt;/think&gt; tags, and then provide your solution or response to the problem.</div>
+        <p>Because it is just a system prompt, it works in Ollama, LM Studio, Python, or any chat UI - and it stacks with what you learned in Session 3: put it in a Modelfile <code>SYSTEM</code> block and you have a permanent thinking variant of your assistant (that is tonight's homework).</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Switch 2 · the LM Studio toggle (one click)<span class="mini">1 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>LM Studio ships native support for Hermes 4's hybrid mode: load a Hermes 4 model and you get a UI toggle that turns reasoning on and off per chat - no prompt engineering required. There is a second option next to it worth knowing: <strong>keep the chain of thought in subsequent turns</strong>, so earlier deliberations stay in the conversation the model sees. On by default, prior thinking is dropped each turn to save context; keep it when later turns need to build on the reasoning itself, not just the conclusions.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Switch 3 · the chat-template flag (for code)<span class="mini">2 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>When you drive Hermes from Python with the HuggingFace tokenizer, the chat template exposes reasoning as a flag - no prompt text needed:</p>
+        <div class="prompt-box good"><span class="label">★ Python - reasoning via the chat template</span>prompt = tokenizer.apply_chat_template(
+    messages,
+    thinking=True,       # flip the reasoning gear on
+    keep_cots=True,      # retain prior chains of thought across turns
+    add_generation_prompt=True,
+    tokenize=False,
+)</div>
+        <p><code>thinking=True</code> is the gear; <code>keep_cots=True</code> is the multi-turn memory of deliberations - the programmatic twin of LM Studio's keep-CoT checkbox. Session 5 onward we mostly drive Hermes from Python, so this switch becomes your daily one.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>The two-gear experiment <span class="tag demo">★ 12 min · everyone follows</span></h2>
+    </div>
+    <p class="lede">One genuinely hard puzzle, both gears, same model on your machine. The goal is to watch the difference, not be told about it - and to read a real chain of thought together.</p>
+
+    <div class="prompt-box good"><span class="label">★ The puzzle (paste it in both gears)</span>Ana, Ben, and Cara each need one 1-hour meeting slot from: 9am, 10am, 11am, 1pm. Constraints: (1) Ana must meet before 11am. (2) Ben's slot must be immediately after Cara's. (3) Cara will not take the 9am slot. Who gets which slot, and which slot stays free? Explain your final assignment.</div>
+
+    <div class="steps">
+      <div class="step"><p>Instant gear first: <code>ollama run hermes4-14b-16k</code>, paste the puzzle, note the answer and roughly how fast it arrived. Small models in instant mode often stumble on constraint chaining - if it gets it right, ask "are you sure? check each constraint" and watch how confident it is either way.</p></div>
+      <div class="step"><p>Flip the gear without leaving Ollama: type <code>/set system "..."</code> with the full DeepHermes toggle prompt from Part 3 between the quotes (have it in your clipboard before class).</p></div>
+      <div class="step"><p>Paste the same puzzle again. Watch the <code>&lt;think&gt;</code> block stream: it will enumerate the slots, test Cara-Ben pairings, hit the 11am constraint, backtrack, and settle. Read it aloud together - this is the model showing its work.</p></div>
+      <div class="step"><p>Check the answer against the constraints as a group (it should be: Ana 9am, Cara 10am, Ben 11am, 1pm free). Then compare: instant gear's confidence versus reasoning gear's visible verification.</p></div>
+      <div class="step"><p>Count the cost too: the reasoning run took noticeably longer and produced many times the tokens. Both observations - better answer, real cost - are the lesson.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>If the instant gear happens to get it right</strong>
+      Small puzzles sometimes fall to a lucky pattern-match. Do not fight it - the reasoning run is still the demo: the visible verification inside the think tags is what instant mode cannot give you, even when its answer is correct.
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>The LM Studio route - and where thinking does NOT pay <span class="tag demo">★ 8 min · one click</span></h2>
+    </div>
+    <p class="lede">Same model, second switch: LM Studio's UI toggle. Then the counter-demo everyone needs - an everyday question in both gears, to watch reasoning cost real time for nothing.</p>
+
+    <div class="steps">
+      <div class="step"><p>Open LM Studio (optional install from Session 2) and load your Hermes 4 14B. In the chat panel, find the reasoning toggle - note the keep-CoT option beside it.</p></div>
+      <div class="step"><p>Toggle reasoning ON and paste the Demo 1 puzzle. Same think-tags behavior as the system-prompt route - two switches, one gear. LM Studio folds the thinking into a collapsible block; expand it.</p></div>
+      <div class="step"><p>Now the counter-demo. Toggle reasoning OFF and ask the everyday question below. Instant, perfectly good answer.</p></div>
+      <div class="step"><p>Toggle reasoning ON and ask the exact same question. Watch it deliberate about... a thank-you note. The answer is not better - you just paid seconds and tokens for nothing.</p></div>
+      <div class="step"><p>Say the rule out loud one more time: multi-step logic, math, tricky code, careful analysis = ON. Lookups, drafts, chat = OFF.</p></div>
+    </div>
+
+    <div class="prompt-box bad"><span class="label">★ The counter-demo - reasoning adds nothing here</span>Write a warm two-line thank-you note to a colleague who covered my meetings while I was out sick.</div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The analyst who left thinking on.</strong> An analyst set the reasoning prompt as their assistant's permanent default after it nailed a tricky reconciliation. A week later every "rephrase this Slack message" took ninety seconds and the assistant felt broken. The fix was this session's design: two named variants - the everyday one and a <code>hermes4-think</code> - and the judgment to pick per task.</p>
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 30-45 min total</span></h2>
+    </div>
+    <ul>
+      <li>Build your personal "reasoning-worthy" checklist: list 5 tasks you actually do each week and mark each ON or OFF using Part 2's rule of thumb. Bring it to Session 5 - it becomes routing logic later in the course.</li>
+      <li>Give your assistant a permanent second gear: create a <code>hermes4-think</code> variant with the Modelfile below, then <code>ollama create hermes4-think -f Modelfile.think</code>.</li>
+      <li>Race the gears on something from YOUR world - a scheduling conflict, a spreadsheet formula bug, a logic-heavy email chain. Note which gear you would actually reach for next time.</li>
+      <li>Read one full chain of thought slowly, end to end. Notice the backtracking - that "wait, that violates constraint 2" moment is the capability you are paying tokens for.</li>
+      <li>Optional: in LM Studio, run a two-turn conversation with keep-CoT on and off, and see when retaining the deliberation actually changes the second answer.</li>
+    </ul>
+    <div class="prompt-box good"><span class="label">★ Modelfile.think - your assistant's second gear</span>FROM hermes4-14b-16k
+SYSTEM """You are a deep thinking AI, you may use extremely long chains of thought to deeply consider the problem and deliberate with yourself via systematic reasoning processes to help come to a correct solution prior to answering. You should enclose your thoughts and internal monologue inside &lt;think&gt; &lt;/think&gt; tags, and then provide your solution or response to the problem."""</div>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official Nous sources covered</h2>
+    </div>
+    <p class="lede">Everything above traces to primary sources: the Hermes 4 technical report's reasoning and evaluation sections, the DeepHermes-3 model card that published the toggle prompt, and LM Studio's Hermes 4 support announcement.</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Hermes 4 technical report · sections 3 + 4</span><span class="note">arXiv 2508.18255 · reasoning-length control (the 30k self-stop) + the eval deltas; the training machinery behind it is deep-dive D1</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">DeepHermes-3 model card</span><span class="note">HuggingFace · the verbatim reasoning toggle prompt, quoted exactly in Part 3</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">LM Studio Hermes 4 announcement</span><span class="note">the UI reasoning toggle + keep-CoT option, Demo 2</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · What are the &lt;think&gt; &lt;/think&gt; tags?</p>
+      <button class="qopt" type="button">A · A separate reasoning model you download alongside Hermes</button>
+      <button class="qopt" type="button">B · The same model's visible scratchpad - deliberation it writes before the final answer, in reasoning mode</button>
+      <button class="qopt" type="button">C · A formatting trick that makes answers look more thorough</button>
+      <p class="qwhy">Same weights, second gear: in reasoning mode the model deliberates inside the tags - exploring, backtracking, self-correcting - then closes them and gives the real answer.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">2 · When does reasoning mode actually pay?</p>
+      <button class="qopt" type="button">A · Always - it is simply the smarter mode</button>
+      <button class="qopt" type="button">B · Never on a laptop - it is only for datacenter GPUs</button>
+      <button class="qopt" type="button">C · On multi-step problems: AIME'24 went from 11.4 instant to 81.9 with reasoning, while everyday Q&amp;A barely moves</button>
+      <p class="qwhy">The published deltas are the rule of thumb: hard math and logic transform (11.4 → 81.9 on AIME'24); lookups, drafts, and chat just cost you tokens and seconds.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">3 · Which setting keeps prior chains of thought in the conversation across turns?</p>
+      <button class="qopt" type="button">A · keep_cots=True in apply_chat_template (or LM Studio's keep-CoT option)</button>
+      <button class="qopt" type="button">B · thinking=True - that is what it is for</button>
+      <button class="qopt" type="button">C · Nothing - chains of thought always persist automatically</button>
+      <p class="qwhy">thinking=True flips the gear for a turn; keep_cots=True (and LM Studio's matching checkbox) is what retains earlier deliberations so later turns can build on them.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 4 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The toggle prompt (short form)</b><span>"You are a deep thinking AI... enclose your thoughts and internal monologue inside &lt;think&gt; &lt;/think&gt; tags, and then provide your solution." Use the full verbatim version from Part 3.</span></div>
+      <div class="cheat-item"><b>The ON/OFF rule</b><span>ON: multi-step logic, math, tricky code, careful analysis. OFF: lookups, drafts, chat - tokens and seconds are real costs locally.</span></div>
+      <div class="cheat-item"><b>Three switches</b><span>1 system prompt (works everywhere) · 2 LM Studio UI toggle · 3 thinking=True in apply_chat_template.</span></div>
+      <div class="cheat-item"><b>keep_cots</b><span>keep_cots=True (or LM Studio's keep-CoT option) retains prior deliberations across turns; default is to drop them to save context.</span></div>
+      <div class="cheat-item"><b>The headline number</b><span>AIME'24: 11.4 instant vs 81.9 reasoning (Hermes 4 405B). MATH-500: 73.8 vs 96.3. Everyday Q&amp;A: barely moves.</span></div>
+      <div class="cheat-item"><b>The 30k self-stop</b><span>A second SFT stage taught Hermes 4 to close &lt;/think&gt; by ~30k tokens - the 14B was maxing out context on 60% of LiveCodeBench runs before it. Cost: a few % on the hardest benchmarks.</span></div>
+      <div class="cheat-item"><b>Your second gear</b><span>hermes4-think = FROM hermes4-14b-16k + the toggle prompt in SYSTEM. Two named variants, pick per task.</span></div>
+      <div class="cheat-item"><b>Next session</b><span>Structured output: your assistant starts returning JSON your scripts can consume - the bridge from toy to tool.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 4 of 8 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="03-steer-it.html">← Previous: Steer it</a> &nbsp;·&nbsp; <a href="05-structured-output.html">Next: Structured output →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

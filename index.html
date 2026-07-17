@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>learn hermes ai with phoebe - own your AI in 8 sessions</title>
+<link rel="stylesheet" href="assets/style.css?v=1">
+<style>
+  .stats-row { display: flex; gap: 2.4rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .stat b { display: block; font-size: 2.1rem; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: .72rem; opacity: .85; text-transform: uppercase; letter-spacing: .09em; font-weight: 600; }
+
+  .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+  .course-card {
+    border: 1px solid var(--hairline);
+    border-top: 4px solid var(--diff, var(--indigo));
+    border-radius: var(--radius);
+    padding: 1.2rem 1.3rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    text-decoration: none;
+    color: var(--ink);
+    background: #fff;
+    transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+    position: relative;
+  }
+  .course-card:hover { border-color: var(--indigo-soft); border-top-color: var(--diff, var(--indigo)); box-shadow: 0 8px 28px rgba(0,0,242,.10); transform: translateY(-3px); }
+  .course-card .cicon { font-size: 1.7rem; line-height: 1; }
+  .course-card .cnum { font-size: .72rem; font-weight: 700; color: var(--indigo); text-transform: uppercase; letter-spacing: .1em; }
+  .course-card h3 { font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
+  .course-card p { font-size: .85rem; color: var(--muted); flex: 1; }
+  .course-card .meta { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+  .diff-legend { display: flex; gap: 1rem; margin-top: 1.6rem; font-size: .74rem; color: var(--muted); font-weight: 600; flex-wrap: wrap; }
+  .diff-legend i { display: inline-block; width: .85rem; height: .35rem; border-radius: 999px; margin-right: .35rem; vertical-align: middle; }
+
+  .paths { margin-top: 2.6rem; }
+  .paths h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .3rem; }
+  .paths .plede { color: var(--muted); font-size: .92rem; margin-bottom: .8rem; }
+  .path { display: flex; gap: .55rem; align-items: center; padding: .75rem 0; border-bottom: .5px solid var(--hairline); flex-wrap: wrap; }
+  .path:last-child { border-bottom: none; }
+  .path b { min-width: 15.5rem; font-size: .9rem; }
+  .path .pstep { background: var(--indigo-50); color: var(--indigo); border-radius: 999px; padding: .16rem .68rem; font-weight: 700; font-size: .8rem; text-decoration: none; transition: all .12s ease; }
+  .path .pstep:hover { background: var(--indigo); color: #fff; }
+  .path .parr { color: var(--faint); font-weight: 700; }
+
+  .dd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .6rem; margin-top: .9rem; }
+  .dd { border: 1px solid var(--hairline); border-radius: 10px; padding: .6rem .85rem; display: flex; gap: .55rem; align-items: baseline; text-decoration: none; color: var(--ink); font-weight: 600; font-size: .84rem; transition: all .12s ease; }
+  .dd b { color: var(--indigo); font-variant-numeric: tabular-nums; }
+  .dd:hover { border-color: var(--indigo); transform: translateY(-2px); }
+
+  .mm-section { margin-top: 1.6rem; }
+  .mm-section h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: .2rem; }
+  .mm-section .mm-lede { color: var(--muted); font-size: .92rem; margin-bottom: .4rem; }
+  .mm-wrap { border: 1px solid var(--hairline); border-radius: var(--radius); background: linear-gradient(180deg,#fff, #F3F6FB); padding: .6rem; overflow-x: auto; }
+  .mm-svg { width: 100%; height: auto; display: block; max-width: 60rem; margin: 0 auto; min-width: 34rem; }
+  .mm-link { cursor: pointer; text-decoration: none; }
+  .mm-node rect { transition: opacity .15s ease, filter .15s ease; }
+  .mm-node text { pointer-events: none; }
+  .mm-link:hover .mm-node rect { filter: brightness(1.06); }
+  .mm-edge { transition: opacity .15s ease; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe</div>
+    <h1>Own your AI: eight sessions to a private assistant that answers to you</h1>
+    <p class="sub">Nous Research's Hermes is a frontier-quality AI you can download, steer, and run on your own laptop - no subscription, no policy layer, no data leaving the room. One running build across the course: your own private AI assistant, from first hello to fully autonomous.</p>
+    <div class="stats-row">
+      <div class="stat"><b data-count="8">8</b><span>sessions</span></div>
+      <div class="stat"><b data-count="5">5</b><span>deep dives</span></div>
+      <div class="stat"><b data-count="10">10</b><span>official sources covered</span></div>
+      <div class="stat"><b data-count="45">45</b><span>min per session</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="section">
+    <div class="course-grid">
+      <a class="course-card" href="courses/01-meet-hermes.html" style="--diff:#34D399">
+        <span class="cicon">🪽</span>
+        <span class="cnum">Session 1 · easiest</span>
+        <h3>Meet Hermes: the AI that answers to you</h3>
+        <p>Open weights, the model family map, neutral alignment - and your first Hermes running locally by the end of the hour.</p>
+        <span class="meta"><span class="pill amber">▶ Start here</span><span class="pill light">Everyone</span></span>
+      </a>
+      <a class="course-card" href="courses/02-on-your-machine.html" style="--diff:#34D399">
+        <span class="cicon">💻</span>
+        <span class="cnum">Session 2 · easy</span>
+        <h3>Get it on your machine, properly</h3>
+        <p>Quantization without tears, Ollama vs LM Studio, the context-window gotcha, and the right Hermes for YOUR RAM.</p>
+        <span class="meta"><span class="pill light">Everyone with a laptop</span></span>
+      </a>
+      <a class="course-card" href="courses/03-steer-it.html" style="--diff:#FBBF24">
+        <span class="cicon">🎭</span>
+        <span class="cnum">Session 3 · medium</span>
+        <h3>Steer it: system prompts and personas</h3>
+        <p>The system prompt as constitution: personas that hold, house rules, sampling settings, and the steering patterns from the Hermes report.</p>
+        <span class="meta"><span class="pill light">Everyone</span></span>
+      </a>
+      <a class="course-card" href="courses/04-hybrid-reasoning.html" style="--diff:#FBBF24">
+        <span class="cicon">🧠</span>
+        <span class="cnum">Session 4 · medium</span>
+        <h3>Think when it matters: hybrid reasoning</h3>
+        <p>One model, two gears: instant answers or deep deliberation in think tags - and the three ways to flip the switch.</p>
+        <span class="meta"><span class="pill light">Everyone</span></span>
+      </a>
+      <a class="course-card" href="courses/05-structured-output.html" style="--diff:#FB923C">
+        <span class="cicon">📦</span>
+        <span class="cnum">Session 5 · hands-on</span>
+        <h3>Structured output: JSON that validates</h3>
+        <p>Schema-driven answers your scripts can consume: JSON mode, Pydantic validation, and Hermes's malformed-JSON repair trick.</p>
+        <span class="meta"><span class="pill light">Builders</span></span>
+      </a>
+      <a class="course-card" href="courses/06-tool-calling.html" style="--diff:#FB923C">
+        <span class="cicon">🛠️</span>
+        <span class="cnum">Session 6 · hands-on</span>
+        <h3>Tool calling: give it hands</h3>
+        <p>The tool-calling format Hermes made famous, and a 20-line Python loop that lets your local model act on the world.</p>
+        <span class="meta"><span class="pill light">Builders</span></span>
+      </a>
+      <a class="course-card" href="courses/07-hermes-as-a-service.html" style="--diff:#FBBF24">
+        <span class="cicon">☁️</span>
+        <span class="cnum">Session 7 · medium</span>
+        <h3>Hermes as a service: APIs and licenses</h3>
+        <p>Nous Portal, OpenRouter, the pricing math, Llama license vs Apache 2.0 - and the local-vs-hosted decision framework.</p>
+        <span class="meta"><span class="pill light">Everyone + decision makers</span></span>
+      </a>
+      <a class="course-card" href="courses/08-hermes-agent.html" style="--diff:#F87171">
+        <span class="cicon">🤖</span>
+        <span class="cnum">Session 8 · capstone</span>
+        <h3>Go autonomous: Hermes Agent</h3>
+        <p>Point the open-source Hermes Agent at your local model: skills, persistent memory, channels - your assistant starts acting on its own.</p>
+        <span class="meta"><span class="pill light">Everyone who made it</span></span>
+      </a>
+    </div>
+    <div class="diff-legend">
+      <span><i style="background:#34D399"></i>easy - everyone</span>
+      <span><i style="background:#FBBF24"></i>medium - steering and judgment</span>
+      <span><i style="background:#FB923C"></i>hands-on - a little Python helps</span>
+      <span><i style="background:#F87171"></i>capstone - the full build</span>
+    </div>
+
+    <div class="paths">
+      <h2>Choose your path 🗺️</h2>
+      <p class="plede">Everyone starts at Session 1. After that, follow your goal - each stop is 45 minutes.</p>
+      <div class="path"><b>🧭 Curious explorer - just want to use it</b>
+        <a class="pstep" href="courses/01-meet-hermes.html">1</a><span class="parr">→</span>
+        <a class="pstep" href="courses/02-on-your-machine.html">2</a><span class="parr">→</span>
+        <a class="pstep" href="courses/03-steer-it.html">3</a><span class="parr">→</span>
+        <a class="pstep" href="courses/04-hybrid-reasoning.html">4</a>
+      </div>
+      <div class="path"><b>🔧 Builder - the full journey</b>
+        <a class="pstep" href="courses/01-meet-hermes.html">1</a><span class="parr">→</span>
+        <a class="pstep" href="courses/02-on-your-machine.html">2</a><span class="parr">→</span>
+        <a class="pstep" href="courses/03-steer-it.html">3</a><span class="parr">→</span>
+        <a class="pstep" href="courses/04-hybrid-reasoning.html">4</a><span class="parr">→</span>
+        <a class="pstep" href="courses/05-structured-output.html">5</a><span class="parr">→</span>
+        <a class="pstep" href="courses/06-tool-calling.html">6</a><span class="parr">→</span>
+        <a class="pstep" href="courses/07-hermes-as-a-service.html">7</a><span class="parr">→</span>
+        <a class="pstep" href="courses/08-hermes-agent.html">8</a>
+      </div>
+      <div class="path"><b>👔 Decision maker - should my team use this?</b>
+        <a class="pstep" href="courses/01-meet-hermes.html">1</a><span class="parr">→</span>
+        <a class="pstep" href="courses/07-hermes-as-a-service.html">7</a><span class="parr">→</span>
+        <a class="pstep" href="courses/95-reading-refusalbench.html">D5 alignment</a>
+      </div>
+    </div>
+
+    <div class="paths">
+      <h2>The deep-dive track 🔬</h2>
+      <p class="plede">Five self-paced pages for the curious: how Hermes is actually made, the decentralized-training story, and the production-grade material that will not fit in 45 minutes.</p>
+      <div class="dd-grid">
+        <a class="dd" href="courses/91-how-hermes-is-made.html"><b>D1</b>How Hermes is made</a>
+        <a class="dd" href="courses/92-trained-by-the-swarm.html"><b>D2</b>Trained by the swarm</a>
+        <a class="dd" href="courses/93-production-serving.html"><b>D3</b>Production serving</a>
+        <a class="dd" href="courses/94-fine-tune-your-own.html"><b>D4</b>Fine-tune your own</a>
+        <a class="dd" href="courses/95-reading-refusalbench.html"><b>D5</b>Reading RefusalBench</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section mm-section">
+    <h2>The knowledge map 🧠</h2>
+    <p class="mm-lede">The whole course at a glance - hover a session to spotlight its concepts, click any node to jump in.</p>
+    <div class="mm-wrap"><div id="mindmap"></div></div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>learn-hermes-ai-with-phoebe · by Phoebe Fu · sources: <a href="https://nousresearch.com/releases">Nous Research releases</a> · <a href="https://arxiv.org/abs/2508.18255">Hermes 4 technical report</a></span>
+  </footer>
+</main>
+
+<script>
+window.MINDMAP_DATA = {
+  title: "Learn\nHermes AI",
+  centerColor: "#0000A3",
+  sessions: [
+    { label: "Meet\nHermes", href: "courses/01-meet-hermes.html", color: "#34D399",
+      concepts: [
+        { label: "Open weights", href: "courses/01-meet-hermes.html" },
+        { label: "Neutral alignment", href: "courses/01-meet-hermes.html" },
+        { label: "First local run", href: "courses/01-meet-hermes.html" } ] },
+    { label: "On your\nmachine", href: "courses/02-on-your-machine.html", color: "#34D399",
+      concepts: [
+        { label: "Quantization", href: "courses/02-on-your-machine.html" },
+        { label: "Ollama + LM Studio", href: "courses/02-on-your-machine.html" },
+        { label: "Context gotcha", href: "courses/02-on-your-machine.html" } ] },
+    { label: "Steer\nit", href: "courses/03-steer-it.html", color: "#FBBF24",
+      concepts: [
+        { label: "System prompts", href: "courses/03-steer-it.html" },
+        { label: "Personas", href: "courses/03-steer-it.html" },
+        { label: "Sampling settings", href: "courses/03-steer-it.html" } ] },
+    { label: "Hybrid\nreasoning", href: "courses/04-hybrid-reasoning.html", color: "#FBBF24",
+      concepts: [
+        { label: "Think tags", href: "courses/04-hybrid-reasoning.html" },
+        { label: "Three toggles", href: "courses/04-hybrid-reasoning.html" },
+        { label: "When to think", href: "courses/04-hybrid-reasoning.html" } ] },
+    { label: "Structured\noutput", href: "courses/05-structured-output.html", color: "#FB923C",
+      concepts: [
+        { label: "JSON mode", href: "courses/05-structured-output.html" },
+        { label: "Schema prompt", href: "courses/05-structured-output.html" },
+        { label: "Validation", href: "courses/05-structured-output.html" } ] },
+    { label: "Tool\ncalling", href: "courses/06-tool-calling.html", color: "#FB923C",
+      concepts: [
+        { label: "Tool-call format", href: "courses/06-tool-calling.html" },
+        { label: "The agent loop", href: "courses/06-tool-calling.html" },
+        { label: "Local tools", href: "courses/06-tool-calling.html" } ] },
+    { label: "Hermes as\na service", href: "courses/07-hermes-as-a-service.html", color: "#FBBF24",
+      concepts: [
+        { label: "Nous Portal API", href: "courses/07-hermes-as-a-service.html" },
+        { label: "Pricing math", href: "courses/07-hermes-as-a-service.html" },
+        { label: "Licenses", href: "courses/07-hermes-as-a-service.html" } ] },
+    { label: "Hermes\nAgent", href: "courses/08-hermes-agent.html", color: "#F87171",
+      concepts: [
+        { label: "Agent setup", href: "courses/08-hermes-agent.html" },
+        { label: "Skills + memory", href: "courses/08-hermes-agent.html" },
+        { label: "Going autonomous", href: "courses/08-hermes-agent.html" } ] }
+  ]
+};
+</script>
+<script src="assets/mindmap.js?v=1"></script>
+<script src="assets/app.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep dive D3 · Production serving: vLLM, SGLang, llama.cpp - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Deep dive D3 of 5</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Deep dive D3 of 5</div>
+    <h1>Production serving: <span class="accent">vLLM, SGLang, llama.cpp</span></h1>
+    <p class="sub">Ollama got your Hermes running for one person. This page is about serving it to many - concurrent users, parsed tool calls, real throughput - with the three engines the industry actually deploys, and the flags that make Hermes a first-class citizen on each.</p>
+    <div class="chip-row">
+      <span class="chip level">🔵 Self-paced</span>
+      <span class="chip audience">Engineers</span>
+      <span class="chip audience">GPU or server helpful</span>
+      <span class="chip time">~35 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:3">Part 1 · The landscape</span>
+      <span class="a2" style="flex:3">Part 2 · llama.cpp everywhere</span>
+      <span class="a3" style="flex:3">Part 3 · Choices that bite</span>
+      <span class="a4" style="flex:2">Demo · Real endpoint</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Deep dive D3</span>
+      <h2>Ollama got you here - production needs more</h2>
+    </div>
+    <p class="lede">Everything in Sessions 2-6 ran through Ollama, and that was the right call: one installer, one command, one user. Production is a different sport. Ten simultaneous users need continuous batching, your Session 6 tool loop needs the server to PARSE tool calls (not just emit text), and throughput per GPU dollar starts to matter. The good news: the tool-calling format Hermes pioneered is so standard that vLLM literally names a parser after it.</p>
+    <div class="legend">
+      <span class="pill light">Self-study - read at your own pace</span>
+      <span class="pill peach">★ Try it now command</span>
+      <span class="pill inkpill">Sources: vLLM docs · llama.cpp docs · official GGUF repo</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with</strong>
+      A three-lane map of the serving landscape (laptop, server, edge), the exact vLLM flag combo that turns Hermes tool calling on, the llama.cpp one-liner that pulls the official 4.3 GGUF straight from HuggingFace, the quant-ladder economics table, the config traps that bite in week two (context windows, sampling defaults), and a standing endpoint your Session 5 script can hit unchanged.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE SERVING LANDSCAPE ============ -->
+  <section class="section" id="landscape">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the vLLM and SGLang tool-calling docs</span>
+      <h2>The serving landscape <span class="tag concept">~9 min read</span></h2>
+    </div>
+    <p class="lede">Three lanes, three jobs. Pick the lane before you pick the engine, and most serving decisions make themselves.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three serving lanes: laptop tools, server engines, and edge runtime, each with their engines and traits">
+        <style>
+          .d3lA-T { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .d3lA-S { font: 700 15px Inter, sans-serif; fill: #010A26; }
+          .d3lA-X { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .d3lA-D { font: 400 12.5px Inter, sans-serif; fill: #DCE4F0; }
+          .d3lA-N { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .d3lA-C { font: 700 11.5px Inter, sans-serif; fill: #010A26; }
+        </style>
+        <rect x="30" y="30" width="260" height="200" rx="12" fill="#8B8BF9"/>
+        <text class="d3lA-T" x="52" y="62">Laptop lane</text>
+        <text class="d3lA-D" x="52" y="88">Ollama · LM Studio</text>
+        <text class="d3lA-D" x="52" y="110">One user · dev and demos</text>
+        <text class="d3lA-D" x="52" y="132">Zero-config · model swapping</text>
+        <rect x="52" y="152" width="120" height="24" rx="12" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="d3lA-C" x="66" y="168">you, today</text>
+        <rect x="310" y="30" width="260" height="200" rx="12" fill="#0000F2"/>
+        <text class="d3lA-T" x="332" y="62">Server lane</text>
+        <text class="d3lA-D" x="332" y="88">vLLM · SGLang</text>
+        <text class="d3lA-D" x="332" y="110">Many users · continuous batching</text>
+        <text class="d3lA-D" x="332" y="132">Tool-call parsing · tensor parallel</text>
+        <rect x="332" y="152" width="150" height="24" rx="12" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="d3lA-C" x="346" y="168">production traffic</text>
+        <rect x="590" y="30" width="260" height="200" rx="12" fill="#0000A3"/>
+        <text class="d3lA-T" x="612" y="62">Edge lane</text>
+        <text class="d3lA-D" x="612" y="88">llama.cpp</text>
+        <text class="d3lA-D" x="612" y="110">Runs anywhere · CPU or GPU</text>
+        <text class="d3lA-D" x="612" y="132">GGUF quants · tiny footprint</text>
+        <rect x="612" y="152" width="170" height="24" rx="12" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="d3lA-C" x="626" y="168">odd hardware, appliances</text>
+        <rect x="30" y="256" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="d3lA-N" x="54" y="268">Same model weights, same OpenAI-style API on all three lanes - only the engine and the flags change.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - three lanes: laptop (Ollama/LM Studio), server (vLLM/SGLang), edge (llama.cpp)</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode self">Self-study</span>Dev serving vs production serving<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ollama is a superb development tool - and that is a positioning, not an insult. The honest split:</p>
+        <ul>
+          <li><strong>Ollama / LM Studio (laptop lane):</strong> optimized for one human. Instant model swapping, sane defaults, runs on a Mac. What they do not give you: high-throughput continuous batching across dozens of concurrent requests, first-class tool-call parsing, or multi-GPU tensor parallelism.</li>
+          <li><strong>vLLM / SGLang (server lane):</strong> optimized for many humans. Continuous batching keeps the GPU saturated as requests arrive and finish mid-flight; paged attention manages KV-cache memory; tensor parallelism spreads a big model across GPUs. This is what "production" means mechanically.</li>
+          <li><strong>llama.cpp (edge lane):</strong> optimized for running ANYWHERE - CPU-only boxes, odd accelerators, small appliances - via aggressive GGUF quantization. Part 2 is all about it.</li>
+        </ul>
+        <p>Rule of thumb: if your users could all be replaced by you pressing Enter, stay on Ollama. The moment real concurrent traffic shows up, move to the server lane - do not try to scale the laptop lane with a load balancer and hope.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>vLLM and the parser named hermes<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Here is the flex hiding in plain sight: to serve Hermes on vLLM with working tool calls, you pass a parser that is <strong>literally named after the model family</strong>:</p>
+        <div class="prompt-box good"><span class="label">★ The flag combo</span>vllm serve NousResearch/Hermes-4-14B --enable-auto-tool-choice --tool-call-parser hermes</div>
+        <ul>
+          <li><strong><code>--enable-auto-tool-choice</code></strong> lets the server decide when the model's output is a tool call versus plain text.</li>
+          <li><strong><code>--tool-call-parser hermes</code></strong> tells vLLM the model emits the Hermes format - <code>&lt;tool_call&gt;{...}&lt;/tool_call&gt;</code> blocks, the format you hand-parsed in Session 6. The server now extracts them and returns proper OpenAI-style <code>tool_calls</code> objects.</li>
+        </ul>
+        <p>Why is it named that? Because Hermes 2 Pro's function-calling format was so widely copied that it became the de facto open standard - so when vLLM built parsers, "hermes" was the name for the whole format family. The model you have been learning is not just compatible with the standard; it IS the standard.</p>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The week-two bug this prevents.</strong> Teams serve a tool-calling model without a parser, and their client library sees tool calls as weird text in <code>content</code>. Everything "works" in a smoke test, then the agent loop silently never calls a tool. The parser flag is the difference between text that looks like a tool call and a tool call.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>SGLang and Hermes 4.3<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>SGLang</strong> is the other serious server-lane engine - same job as vLLM (continuous batching, OpenAI-compatible API, tensor parallelism), with a particularly strong reputation for structured-output workloads.</p>
+        <ul>
+          <li><strong>The 4.3 wrinkle:</strong> for Hermes 4.3, SGLang works with the <code>qwen25</code> tool-call parser rather than a hermes-named one - the tag conventions line up with Qwen 2.5's format handling. Not intuitive; worth writing on a sticky note.</li>
+          <li><strong>Choosing between them:</strong> both are production-grade. If your team already runs one, stay on it. If starting fresh with Hermes, vLLM's named parser and larger deployment corpus make it the lower-friction default; benchmark SGLang if structured output dominates your traffic.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: LLAMA.CPP ============ -->
+  <section class="section" id="llamacpp">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers llama.cpp server docs + the official GGUF repo</span>
+      <h2>llama.cpp everywhere <span class="tag concept">~8 min read</span></h2>
+    </div>
+    <p class="lede">llama.cpp is the runtime that made local LLMs a thing: a C++ engine that runs GGUF-quantized models on nearly any hardware, with an OpenAI-compatible server built in. Ollama itself is built on it. Going direct buys you control and the smallest possible footprint.</p>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The one-liner, and two gotchas that waste an afternoon<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Modern llama.cpp pulls models straight from HuggingFace. One command stands up an OpenAI-compatible server with the official Hermes 4.3 GGUF:</p>
+        <div class="prompt-box good"><span class="label">★ The one-liner</span>llama-server -hf NousResearch/Hermes-4.3-36B-GGUF:Q4_K_M --jinja</div>
+        <ul>
+          <li><strong>Gotcha 1 - the binary name.</strong> Some HuggingFace page snippets render the command as <code>llama serve</code>. That command does not exist: the actual binary is <strong><code>llama-server</code></strong> (hyphen, no subcommand). If your shell says command not found, this is why.</li>
+          <li><strong>Gotcha 2 - the chat template.</strong> The <strong><code>--jinja</code></strong> flag tells llama.cpp to use the chat template embedded in the GGUF file. Without it you can get a generic template - and a wrongly templated Hermes will mangle system prompts, think tags, and tool calls in ways that look like a dumb model rather than a config error. From Session 3 you know the template IS the protocol: always pass <code>--jinja</code>.</li>
+        </ul>
+        <div class="prompt-box bad"><span class="label">Seen in the wild - do not copy</span>llama serve -hf NousResearch/Hermes-4.3-36B-GGUF:Q4_K_M</div>
+        <div class="callout tip">
+          <strong>Why go direct instead of Ollama?</strong>
+          Control (every server flag exposed), footprint (one static binary, fine for containers and appliances), and currency (new llama.cpp features land here first). The price is that YOU own the flags Ollama was quietly setting for you - context size included.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Quant ladder economics - the official 4.3 GGUFs<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Nous publishes official GGUFs at <code>NousResearch/Hermes-4.3-36B-GGUF</code>. The ladder, with directional hardware fits (leave a few GB of headroom for the KV cache and the OS):</p>
+        <table class="clean">
+          <thead><tr><th>Quant</th><th>Size</th><th>Fits comfortably on</th><th>The honest read</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Q3_K_M</strong></td><td>17.6GB</td><td>32GB Mac · 24GB GPU</td><td>The squeeze - noticeable quality tax, but it runs</td></tr>
+            <tr><td><strong>Q4_K_M</strong></td><td>21.8GB</td><td>32GB Mac (tight) · 32GB GPU</td><td>The community default: best quality-per-GB tradeoff</td></tr>
+            <tr><td><strong>Q5_K_M</strong></td><td>25.6GB</td><td>48GB class</td><td>Meaningfully closer to full quality</td></tr>
+            <tr><td><strong>Q6_K</strong></td><td>29.7GB</td><td>48GB class</td><td>Near-transparent for most workloads</td></tr>
+            <tr><td><strong>Q8_0</strong></td><td>38.4GB</td><td>64GB Mac · 48GB+ GPU</td><td>Effectively lossless - if you have the room, take it</td></tr>
+          </tbody>
+        </table>
+        <p>How to choose: start at Q4_K_M, then move ONE rung at a time in the direction your constraint pushes - down a rung if you are out of memory, up a rung if quality on your actual task disappoints. Test on your workload, not on vibes: quant sensitivity varies more by task than by benchmark.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: CHOICES THAT BITE ============ -->
+  <section class="section" id="choices">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the config traps</span>
+      <h2>Serving choices that bite <span class="tag concept">~8 min read</span></h2>
+    </div>
+    <p class="lede">Most serving outages are not crashes - they are configs that were fine in the demo and wrong at scale. Four to get right on day one.</p>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Context windows are a per-model fact<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>"Hermes" is not one context window. Configure per model, and remember the KV cache for long contexts eats GPU memory that then cannot hold concurrent users:</p>
+        <table class="clean">
+          <thead><tr><th>Model</th><th>Context window</th><th>Serving implication</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Hermes 4.3 36B</strong></td><td>512K</td><td>Huge headroom - but a full 512K request can monopolize a GPU's memory; cap max length per request in prod</td></tr>
+            <tr><td><strong>Hermes 4 70B / 405B</strong></td><td>131K class</td><td>The standard Llama 3.1 window - plan KV cache accordingly</td></tr>
+            <tr><td><strong>Hermes 4 14B</strong></td><td>40,960</td><td>The small one - reasoning traces can eat most of it (D1 tells that story); budget prompts tightly</td></tr>
+          </tbody>
+        </table>
+        <p>Long-context serving is a memory budget negotiation: every token of context a request holds is KV cache another user cannot have. Set <code>max_model_len</code> (vLLM) to what your product actually needs, not to what the model can do.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>FP8 - the first lever for big models<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Official <strong>FP8 variants exist for Hermes 4 70B and 405B</strong> - and for server-lane deployments of the big models, FP8 is usually the first lever to pull:</p>
+        <ul>
+          <li><strong>Roughly half the memory</strong> of BF16 weights, with minimal quality loss on GPUs that support it natively (Hopper/Blackwell class).</li>
+          <li><strong>Halving weights buys concurrency:</strong> the memory you free becomes KV cache, which becomes more simultaneous users on the same hardware.</li>
+          <li><strong>Order of operations:</strong> BF16 does not fit? Try FP8 before reaching for aggressive integer quants - it usually costs less quality per GB saved, and vLLM/SGLang serve it natively.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Sampling defaults live in the server now<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>On your laptop, you set temperature per chat. In production, defaults belong in the serving layer so every client gets known-good behavior. The official Hermes recommendation:</p>
+        <div class="prompt-box good"><span class="label">★ Official sampling defaults</span>temperature 0.6, top_p 0.95, top_k 20</div>
+        <ul>
+          <li>Set these as server-side defaults; let clients override deliberately, not accidentally.</li>
+          <li>Engine defaults differ (some ship temperature 1.0) - an unset temperature is a silent quality bug that shows up as "the model got flaky in prod".</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Capacity planning - directional numbers<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Real capacity depends on your traffic shape (prompt length, output length, burstiness), so treat this as a starting sketch, not a promise:</p>
+        <table class="clean">
+          <thead><tr><th>Concurrent users (chat-like)</th><th>Directional setup</th></tr></thead>
+          <tbody>
+            <tr><td>1-5</td><td>One 24GB GPU · 14B class, or 36B quantized via llama.cpp</td></tr>
+            <tr><td>10-50</td><td>One 80GB GPU · vLLM/SGLang · 14B-36B, continuous batching doing the heavy lifting</td></tr>
+            <tr><td>50-200</td><td>2-4 x 80GB · tensor parallelism · 70B FP8 becomes realistic</td></tr>
+            <tr><td>More</td><td>Multiple replicas behind a load balancer · benchmark before you buy</td></tr>
+          </tbody>
+        </table>
+        <ul>
+          <li><strong>The one rule that survives contact with reality:</strong> Ollama is a dev tool - for concurrent production traffic use vLLM or SGLang with tensor parallelism, and load-test with YOUR prompt/output length distribution before committing to hardware.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The demo-day trap.</strong> A team demos on Ollama, gets budget, ships the same box to 40 users. Requests queue serially, p95 latency hits minutes, and the postmortem says "the model is too slow". The model was fine - the lane was wrong. Continuous batching on vLLM turned the same GPU into a service.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO: REAL ENDPOINT ============ -->
+  <section class="section" id="demo-endpoint">
+    <div class="section-kicker">
+      <span class="klabel">Build-along</span>
+      <h2>Stand up a real endpoint <span class="tag demo">★ ~15 min · GPU box or cloud instance</span></h2>
+    </div>
+    <p class="lede">Full circle with the course spine: stand up a production-grade Hermes endpoint, then point your Session 5 script at it - same OpenAI client, one changed line.</p>
+
+    <div class="steps">
+      <div class="step"><p>On a machine with an NVIDIA GPU (a rented cloud instance is fine), install vLLM into a fresh environment: <code>pip install vllm</code>.</p></div>
+      <div class="step"><p>Serve Hermes with tool-call parsing on - the Part 1 flag combo. First run downloads the weights from HuggingFace, so give it time.</p></div>
+      <div class="step"><p>Smoke-test from a second terminal with the curl below. You should get an OpenAI-shaped JSON response back - that shape is the whole point.</p></div>
+      <div class="step"><p>Now open your Session 5 structured-output script and change ONE line: <code>base_url="http://localhost:8000/v1"</code> (from your Ollama <code>localhost:11434/v1</code>). Run it. Same client, same schema prompt, production engine.</p></div>
+      <div class="step"><p>If you built the Session 6 tool loop: run it against the new endpoint and notice tool calls now arrive as parsed <code>tool_calls</code> objects, not text you regex out. That is <code>--tool-call-parser hermes</code> earning its keep.</p></div>
+    </div>
+
+    <div class="prompt-box good"><span class="label">★ The serve command</span>vllm serve NousResearch/Hermes-4-14B --enable-auto-tool-choice --tool-call-parser hermes</div>
+
+    <div class="prompt-box good"><span class="label">★ The curl smoke test</span>curl http://localhost:8000/v1/chat/completions -H "Content-Type: application/json" -d '{"model": "NousResearch/Hermes-4-14B", "messages": [{"role": "user", "content": "One sentence: who are you?"}], "temperature": 0.6, "top_p": 0.95}'</div>
+
+    <div class="callout tip">
+      <strong>No GPU handy?</strong>
+      Do the same exercise in the edge lane: the <code>llama-server</code> one-liner from Part 2 also exposes an OpenAI-compatible API (default port 8080). Slower, but the client-side lesson - one base_url swap, everything else unchanged - lands identically.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 45-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Complete the build-along: a vLLM (or llama-server) endpoint standing, curl smoke test green, and your Session 5 script running against it with only the base_url changed.</li>
+      <li>Run the quant ladder on your own machine: pull two adjacent 4.3 GGUF quants (say Q4_K_M and Q5_K_M), ask both the same 5 questions from your real work, and note where you can actually tell the difference.</li>
+      <li>Write the one-pager you will need later: for YOUR use case, which lane (laptop/server/edge), which engine, which model + quant, and the three flags you must not forget (tool parser, --jinja, sampling defaults).</li>
+      <li>Optional: read the vLLM tool-calling docs page end to end and count how many model families get a named parser. Notice which name Hermes gets.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">Serving flags change faster than model facts - the commands here were verified against the sources below, and you should re-check the docs before a production deploy.</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">vLLM docs - tool calling</span><span class="note">the hermes parser + --enable-auto-tool-choice · Part 1 and the build-along</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">llama.cpp docs</span><span class="note">llama-server, -hf pulls, --jinja · Part 2 covers the serving path; build/compile options not covered</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Official 4.3 GGUF repo</span><span class="note">NousResearch/Hermes-4.3-36B-GGUF · quant ladder sizes in Part 2 · note: some page snippets misrender the command as "llama serve"</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">1 · What do the flags <code>--enable-auto-tool-choice --tool-call-parser hermes</code> give you on vLLM?</p>
+      <button class="qopt" type="button">A · They make the model think longer before answering</button>
+      <button class="qopt" type="button">B · They enable the 512K context window</button>
+      <button class="qopt" type="button">C · The server detects and parses the model's tool-call blocks into proper OpenAI-style tool_calls objects, instead of returning them as raw text</button>
+      <p class="qwhy">Without the parser, tool calls arrive as text in content and agent loops silently break. The parser is named hermes because the Hermes function-calling format became the open standard vLLM parses.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · Your shell says "command not found" after copying a llama.cpp command from a HuggingFace page. Most likely fix?</p>
+      <button class="qopt" type="button">A · The page snippet says "llama serve" but the actual binary is llama-server - and remember --jinja for the embedded chat template</button>
+      <button class="qopt" type="button">B · You must run it through Ollama first</button>
+      <button class="qopt" type="button">C · GGUF models cannot be served over HTTP</button>
+      <p class="qwhy">Some HF page snippets misrender the command. The real invocation is llama-server -hf NousResearch/Hermes-4.3-36B-GGUF:Q4_K_M --jinja - and skipping --jinja risks a wrong chat template, which breaks system prompts, think tags, and tool calls.</p>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">3 · Your Ollama demo wowed everyone, and now 40 users are coming Monday. What is the right move?</p>
+      <button class="qopt" type="button">A · Put a load balancer in front of three Ollama instances</button>
+      <button class="qopt" type="button">B · Move to the server lane: vLLM or SGLang with continuous batching (and tensor parallelism if the model needs multiple GPUs), then load-test with your real traffic shape</button>
+      <button class="qopt" type="button">C · Nothing - Ollama handles concurrency the same way vLLM does</button>
+      <p class="qwhy">Ollama is a dev tool built for one user at a time. Concurrent production traffic is what vLLM/SGLang exist for: continuous batching keeps the GPU saturated across in-flight requests, which is the difference between a queue and a service.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Deep dive D3 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>Three lanes</b><span>Laptop = Ollama/LM Studio (one user) · Server = vLLM/SGLang (concurrency) · Edge = llama.cpp (anywhere).</span></div>
+      <div class="cheat-item"><b>vLLM flags</b><span>vllm serve NousResearch/Hermes-4-14B --enable-auto-tool-choice --tool-call-parser hermes.</span></div>
+      <div class="cheat-item"><b>SGLang + 4.3</b><span>Use the qwen25 tool-call parser for Hermes 4.3. Not intuitive; sticky-note it.</span></div>
+      <div class="cheat-item"><b>llama.cpp one-liner</b><span>llama-server -hf NousResearch/Hermes-4.3-36B-GGUF:Q4_K_M --jinja · binary is llama-server, NOT "llama serve".</span></div>
+      <div class="cheat-item"><b>Quant ladder (4.3 official)</b><span>Q3_K_M 17.6GB · Q4_K_M 21.8GB (default) · Q5_K_M 25.6GB · Q6_K 29.7GB · Q8_0 38.4GB.</span></div>
+      <div class="cheat-item"><b>Context by model</b><span>4.3-36B = 512K · Hermes 4 70B/405B = 131K class · 14B = 40,960. FP8 variants exist for 70B/405B.</span></div>
+      <div class="cheat-item"><b>Sampling defaults</b><span>temperature 0.6 · top_p 0.95 · top_k 20 - set them server-side, not per client.</span></div>
+      <div class="cheat-item"><b>Full circle</b><span>Same OpenAI client as Session 5 - only base_url changes (localhost:8000/v1). Ollama = dev; vLLM/SGLang = production.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Deep dive D3 of 5 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="92-trained-by-the-swarm.html">← Prev: Trained by the swarm</a> &nbsp;·&nbsp; <a href="94-fine-tune-your-own.html">Next: Fine-tune your own →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

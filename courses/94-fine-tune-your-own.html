@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep dive D4 · Fine-tune your own Hermes - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Deep dive D4 of 5</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Deep dive D4 of 5</div>
+    <h1>Fine-tune <span class="accent">your own Hermes</span></h1>
+    <p class="sub">You have run Hermes, steered it, served it. The last mile of ownership is reshaping the weights themselves: teaching the model your format, your vocabulary, your voice - permanently. This deep dive walks the honest path: when fine-tuning is the right tool, the LoRA recipe that fits a free Colab, and how to ship the result back into your Ollama lineup.</p>
+    <div class="chip-row">
+      <span class="chip level">🔵 Self-paced</span>
+      <span class="chip audience">Advanced builders</span>
+      <span class="chip audience">GPU or Colab</span>
+      <span class="chip time">~40 min</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:3">Part 1 · Should you even?</span>
+      <span class="a2" style="flex:3">Part 2 · The LoRA path</span>
+      <span class="a3" style="flex:3">Part 3 · Ship it to Ollama</span>
+      <span class="a4" style="flex:2">Recipe · end to end</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Deep dive D4</span>
+      <h2>The last mile of ownership</h2>
+    </div>
+    <p class="lede">Every session so far changed how you USE the model: prompts, reasoning modes, tools, serving. None of it changed the model. Fine-tuning does - and because Hermes itself is a fine-tune (a base model plus the Nous SFT recipe), adding your own layer of supervised fine-tuning on top is not a hack, it is the same move Nous made, one step further down the chain. But the craft here starts before any GPU spins up: the single most important skill in fine-tuning is knowing when NOT to do it. That decision gate is Part 1.</p>
+    <div class="legend">
+      <span class="pill light">Self-study - work at your own pace</span>
+      <span class="pill peach">★ Try it now prompt</span>
+      <span class="pill inkpill">Sources: Unsloth docs · Hermes 3 dataset · Ollama Modelfile docs</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with</strong>
+      A decision gate that stops you from fine-tuning when a system prompt would do, a plain-words picture of what LoRA/QLoRA actually trains (and why a 14B fits on a free Colab), the dataset shape that works - ChatML conversations, with the public Hermes 3 dataset as your quality reference - and the full export path that lands your custom model in <code>ollama list</code> next to the ones from Session 2.
+    </div>
+  </section>
+
+  <!-- ============ PART 1: SHOULD YOU EVEN ============ -->
+  <section class="section" id="decision-gate">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · the decision gate</span>
+      <h2>Should you even fine-tune? <span class="tag concept">~10 min read</span></h2>
+    </div>
+    <p class="lede">Fine-tuning is the most permanent, most expensive way to change model behavior - and most behavior changes do not need it. Climb the ladder from the bottom: each rung is cheaper, faster, and easier to undo than the one above it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Escalation ladder from system prompt to few-shot examples to RAG to fine-tune, with cost and permanence rising">
+        <style>
+          .d4lT { font: 700 14.5px Inter, sans-serif; fill: #FFFFFF; }
+          .d4lS { font: 700 14.5px Inter, sans-serif; fill: #010A26; }
+          .d4lX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .d4lW { font: 400 12px Inter, sans-serif; fill: #DCE4F0; }
+          .d4lN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .d4lArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#d4lAh); }
+        </style>
+        <defs>
+          <marker id="d4lAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="30" y="190" width="185" height="70" rx="10" fill="#8B8BF9"/>
+        <text class="d4lT" x="50" y="220">1 · System prompt</text>
+        <text class="d4lW" x="50" y="242">minutes · free · undo = edit</text>
+        <rect x="235" y="150" width="185" height="70" rx="10" fill="#3430F7"/>
+        <text class="d4lT" x="255" y="180">2 · Few-shot examples</text>
+        <text class="d4lW" x="255" y="202">show it 3-5 model answers</text>
+        <rect x="440" y="110" width="185" height="70" rx="10" fill="#0000F2"/>
+        <text class="d4lT" x="460" y="140">3 · RAG</text>
+        <text class="d4lW" x="460" y="162">retrieve knowledge at ask time</text>
+        <rect x="645" y="70" width="205" height="70" rx="10" fill="#0000A3"/>
+        <text class="d4lT" x="665" y="100">4 · Fine-tune</text>
+        <text class="d4lW" x="665" y="122">hours + GPU · changes weights</text>
+        <line class="d4lArr" x1="60" y1="60" x2="620" y2="60"/>
+        <text class="d4lX" x="60" y="44">Cost, effort, and permanence rise with every rung - climb only as high as the problem demands</text>
+        <rect x="30" y="278" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="d4lN" x="54" y="290">House rule: you must be able to say why rungs 1-3 failed before you touch rung 4.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the escalation ladder: each rung is cheaper and more reversible than the one above</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode self">Self-study</span>The escalation ladder - climb before you train<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Almost every "we need to fine-tune" request dissolves on a lower rung. Work the ladder in order:</p>
+        <ul>
+          <li><strong>Rung 1 - system prompt.</strong> Persona, tone, rules, output format: Session 3 showed that Hermes treats the system prompt as its constitution. If the behavior can be described in words, describe it. Free, instant, reversible.</li>
+          <li><strong>Rung 2 - few-shot examples.</strong> Hard-to-describe formats are easy to demonstrate. Paste 3-5 gold-standard input/output pairs into the prompt and the model imitates them. Still zero training.</li>
+          <li><strong>Rung 3 - RAG.</strong> If the gap is KNOWLEDGE (your docs, your product catalog, this week's prices), fine-tuning is the wrong tool anyway - retrieval fetches current facts at ask time, and updating means updating a folder, not retraining.</li>
+          <li><strong>Rung 4 - fine-tune.</strong> Only when the behavior must live in the weights: too consistent, too pervasive, or too latency-critical for prompting to carry it.</li>
+        </ul>
+        <div class="prompt-box good"><span class="label">★ Try it now - the gate, as a prompt</span>I am considering fine-tuning a local 14B model. The behavior I want: [describe it]. Argue against me: which of these would get 90% of the result - a better system prompt, few-shot examples in the prompt, or retrieval over my documents? Only if all three genuinely fail, tell me what my fine-tuning dataset would need to contain.</div>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The support-bot rescue.</strong> A team spent two weekends preparing a fine-tuning dataset to make their assistant "answer in our support style". A reviewer pasted their style guide into the system prompt plus four example answers - rung 1 and 2 - and matched the fine-tune's quality before the first training run finished. The dataset work was not wasted: it became their eval set.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The four good reasons to fine-tune<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>When the ladder genuinely runs out, these are the four jobs where fine-tuning earns its cost:</p>
+        <table class="clean">
+          <thead><tr><th>Reason</th><th>Why prompting cannot carry it</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Consistent format or voice at scale</strong></td><td>A prompt holds a format for one conversation; a fine-tune holds it across a million calls, with no drift and no 800-token instruction block on every request</td></tr>
+            <tr><td><strong>Domain vocabulary</strong></td><td>Your industry's jargon, codes, and phrasing patterns - things the base model has barely seen - become native instead of explained-per-prompt</td></tr>
+            <tr><td><strong>Latency</strong></td><td>Baking instructions into the weights deletes the long system prompt: fewer input tokens per call, faster time to first token, cheaper serving at volume</td></tr>
+            <tr><td><strong>Offline distillation</strong></td><td>Capture a bigger model's behavior on YOUR task into a small local model: generate training pairs with the big one, fine-tune the small one, run it offline forever</td></tr>
+          </tbody>
+        </table>
+        <p>Notice what is NOT on the list: adding knowledge. Facts belong in RAG, where they stay current and citable. Fine-tuning teaches the model how to BEHAVE, not what is true this week.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The honest risks - forgetting, and the eval discipline<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Fine-tuning has one classic failure mode, and one discipline that catches it:</p>
+        <ul>
+          <li><strong>Catastrophic forgetting.</strong> A narrow fine-tune drags the weights toward your data - and away from everything else. Train hard on invoice extraction and the model may get measurably worse at reasoning, coding, or holding a normal conversation. The narrower the dataset and the harder you train, the more general skill you burn.</li>
+          <li><strong>The eval-before-and-after discipline.</strong> Before training, freeze a small held-out eval set: ~10 prompts covering your target task AND a few general-skill checks (a reasoning question, a summarization, a normal chat). Run them against the stock model and save the answers. After training, run the identical set. Your task prompts should get better; the general ones must not get meaningfully worse. No before-numbers means no way to know what you broke.</li>
+        </ul>
+        <div class="callout tip">
+          <strong>The two cheapest insurance policies</strong>
+          Keep training gentle (LoRA at modest rank, few epochs, early stop) and keep the stock model installed next to your fine-tune in Ollama. If the custom model degrades on general work, routing around it is one model-name swap - because you never overwrote anything.
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: THE LORA PATH ============ -->
+  <section class="section" id="lora-path">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the Unsloth Hermes docs + the Hermes 3 dataset</span>
+      <h2>The LoRA path <span class="tag concept">~12 min read</span></h2>
+    </div>
+    <p class="lede">Full fine-tuning of a 14B model means updating 14 billion numbers - a multi-GPU, many-dollars job. LoRA is the trick that collapses it onto a single consumer GPU: freeze the model, train a small set of adapter matrices beside it.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LoRA concept: frozen base weights plus small trainable adapter matrices combining into the tuned model">
+        <style>
+          .d4rT { font: 700 15px Inter, sans-serif; fill: #FFFFFF; }
+          .d4rS { font: 700 15px Inter, sans-serif; fill: #010A26; }
+          .d4rX { font: 400 12.5px Inter, sans-serif; fill: #5C6B75; }
+          .d4rW { font: 400 12px Inter, sans-serif; fill: #DCE4F0; }
+          .d4rN { font: 600 14px Inter, sans-serif; fill: #3A2400; }
+          .d4rArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#d4rAh); }
+        </style>
+        <defs>
+          <marker id="d4rAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="30" y="50" width="300" height="180" rx="12" fill="#EAEAFE" stroke="#8B8BF9"/>
+        <text class="d4rS" x="58" y="86">Base weights · FROZEN ❄</text>
+        <text class="d4rX" x="58" y="112">Hermes 4 14B - all 14B parameters</text>
+        <text class="d4rX" x="58" y="134">untouched during training</text>
+        <text class="d4rX" x="58" y="164">QLoRA: also loaded in 4-bit, so the</text>
+        <text class="d4rX" x="58" y="186">whole thing fits a free Colab GPU</text>
+        <rect x="420" y="50" width="180" height="80" rx="12" fill="#0000F2"/>
+        <text class="d4rT" x="444" y="82">Adapter A</text>
+        <text class="d4rW" x="444" y="104">small · trainable 🔥</text>
+        <rect x="420" y="150" width="180" height="80" rx="12" fill="#0000F2"/>
+        <text class="d4rT" x="444" y="182">Adapter B</text>
+        <text class="d4rW" x="444" y="204">small · trainable 🔥</text>
+        <line class="d4rArr" x1="338" y1="140" x2="412" y2="90"/>
+        <line class="d4rArr" x1="338" y1="140" x2="412" y2="190"/>
+        <line class="d4rArr" x1="608" y1="90" x2="682" y2="130"/>
+        <line class="d4rArr" x1="608" y1="190" x2="682" y2="150"/>
+        <rect x="690" y="100" width="160" height="80" rx="12" fill="#0000A3"/>
+        <text class="d4rT" x="712" y="132">Your Hermes</text>
+        <text class="d4rW" x="712" y="154">base + adapters</text>
+        <text class="d4rX" x="420" y="258">Only the adapters train - a few % of parameters.</text>
+        <rect x="30" y="250" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="d4rN" x="54" y="262">The adapter file is tiny (megabytes, not gigabytes) - easy to version, share, and delete.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - LoRA in one picture: frozen base, small trainable adapters, merged at the end</figcaption>
+    </figure>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>What LoRA and QLoRA actually do<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>LoRA</strong> (Low-Rank Adaptation) starts from an empirical observation: the change a fine-tune makes to a weight matrix is highly redundant - it can be approximated by two thin matrices whose product is the update. So instead of touching the 14B frozen parameters, you attach small low-rank adapter matrices to key layers and train ONLY those - typically a few percent of the model's parameters, often less.</p>
+        <ul>
+          <li><strong>Memory collapses.</strong> No optimizer state for 14B parameters, no gradients through frozen weights stored for update - the training footprint shrinks from multi-GPU to single-GPU.</li>
+          <li><strong>QLoRA goes further:</strong> load the frozen base in 4-bit quantization (Session 2 taught you quants) and train the adapters in higher precision on top. That is the trick that fits a 14B fine-tune onto a free Colab T4.</li>
+          <li><strong>The output is an adapter file</strong>, megabytes in size. Keep several adapters for one base, swap them per task, or merge one into the base for deployment (Part 3).</li>
+        </ul>
+        <p>The intuition to keep: LoRA does not rewrite the model's knowledge, it learns a low-rank NUDGE on top of it. That is also why gentle LoRA runs are your first defense against catastrophic forgetting - the nudge is structurally small.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Unsloth - the 14B on a free Colab<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p><strong>Unsloth</strong> is the open-source fine-tuning framework that has become the community default for exactly our situation: QLoRA on consumer hardware, with heavy kernel-level optimization for speed and memory. Two things make it the right on-ramp here:</p>
+        <ul>
+          <li><strong>Official Hermes integration.</strong> Unsloth's documentation (unsloth.ai/docs) carries Hermes-specific guidance - you are not adapting a generic tutorial, you are following a supported path for the model family this course runs on.</li>
+          <li><strong>Notebook-first workflow.</strong> The canonical Unsloth experience is a Colab notebook: load the model 4-bit, attach LoRA adapters, point at your dataset, train, export. A run on a few hundred examples finishes in well under an hour on the free tier.</li>
+        </ul>
+        <p>One warning, made with love: the Unsloth ecosystem moves FAST - APIs, notebook links, and recommended settings change month to month. This page teaches you the shape of the recipe; for the exact cells, always open the current official notebook from the Unsloth docs rather than a copy from a six-month-old blog post.</p>
+        <div class="callout tip">
+          <strong>Hardware reality check</strong>
+          Training needs an NVIDIA GPU (Colab's free tier counts). Your Mac's strength is INFERENCE - so the loop is: train in the cloud for an hour, then bring the result home to Ollama, where it runs offline forever. Part 3 is that homecoming.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Dataset shape - ChatML in, and the reference library<span class="mini">4 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Hermes models are SFT products: they were made by supervised fine-tuning on conversations. Your dataset speaks the same language - a list of conversations in the ChatML roles you have used since Session 3:</p>
+        <div class="prompt-box good"><span class="label">★ One training example (conceptual shape)</span>{"conversations": [
+  {"role": "system", "content": "You are the claims triage assistant for an insurance team..."},
+  {"role": "user", "content": "Customer reports water damage, policy HX-2291, second claim this year..."},
+  {"role": "assistant", "content": "SEVERITY: medium\nPOLICY CHECK: active, water damage covered with $500 excess\nROUTE TO: property claims queue\n..."}
+]}</div>
+        <ul>
+          <li><strong>Quality beats quantity, always.</strong> 100-500 excellent examples of exactly the behavior you want outperform 10,000 scraped mediocre ones. Every assistant turn is a demonstration the model will imitate - including its mistakes.</li>
+          <li><strong>Cover the variation you expect.</strong> Easy cases, hard cases, edge cases, and a few "this is out of scope, escalate" examples so the tuned model keeps its judgment.</li>
+          <li><strong>Your reference for "what good looks like":</strong> the <strong>Hermes 3 training dataset</strong>, which Nous released publicly on HuggingFace in July 2025. It is the actual corpus a production Hermes was trained on - browse it and you are reading the house style: how system prompts are written, how assistant turns demonstrate format-following, how tool calls and reasoning are represented. Before writing your own 300 examples, read 30 of theirs.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The dataset that was the product.</strong> A two-person team built a contract-clause tagger. Their fine-tune took 40 minutes; their dataset took three weeks - a lawyer reviewing every assistant turn. Two model generations later, the dataset had outlived both base models: they re-tuned the newest Hermes on the same 400 examples in an afternoon. The durable asset was never the weights.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: SHIP IT BACK ============ -->
+  <section class="section" id="ship-it">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · covers the Ollama Modelfile docs</span>
+      <h2>Ship it back to Ollama <span class="tag concept">~8 min read</span></h2>
+    </div>
+    <p class="lede">A trained adapter in a Colab is not yet YOUR model. Three moves bring it home: merge the adapter into the base, convert to GGUF, and wrap it in a Modelfile so it joins your Session 2 lineup by name.</p>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>Merge, then GGUF - from adapter to artifact<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Two conversions stand between "training finished" and "runs on my Mac":</p>
+        <ul>
+          <li><strong>Merge.</strong> Fold the LoRA adapter's nudge into the base weights, producing one standalone model that behaves like base-plus-adapter with nothing to attach at runtime. Unsloth does this with a single export call at the end of the notebook.</li>
+          <li><strong>Convert to GGUF.</strong> GGUF is the quantized single-file format your local stack has eaten since Session 2 - the same format as every model you pulled with <code>ollama run</code>. Unsloth's export can write GGUF directly (pick a quant like Q4_K_M, exactly the sizing logic from Session 2), or you convert the merged model with llama.cpp's conversion script.</li>
+        </ul>
+        <p>The result is one <code>.gguf</code> file - your fine-tune, in the same shape as every other local model you own. Download it from Colab and it is yours, offline, forever.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The Modelfile - wrap it and name it<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Session 2's Modelfile skill pays off here. Point <code>FROM</code> at your local GGUF instead of a registry name, bake in the official sampling numbers, and set the system prompt your fine-tune expects:</p>
+        <div class="prompt-box good"><span class="label">★ Modelfile for your fine-tune</span>FROM ./my-hermes.gguf
+PARAMETER temperature 0.6
+PARAMETER top_p 0.95
+PARAMETER top_k 20
+PARAMETER num_ctx 16384
+SYSTEM You are the claims triage assistant for an insurance team. Follow the triage output format exactly.</div>
+        <p>Then, from the folder containing both files:</p>
+        <div class="prompt-box good"><span class="label">★ Create and run it</span>ollama create my-hermes -f Modelfile
+ollama run my-hermes</div>
+        <p>Run <code>ollama list</code> and enjoy the moment: <code>my-hermes</code> sits next to <code>hermes3:8b</code> and your Session 2 pulls - a model whose behavior you shaped, addressable by name from everything you built in Sessions 5-8 (JSON pipelines, tool loops, even Hermes Agent can point at it).</p>
+        <div class="callout tip">
+          <strong>Match the template</strong>
+          Your fine-tune inherits the base model's chat template - for the 14B that is ChatML. If your model gives strange, format-broken answers, template mismatch in the Modelfile is the first thing to check; copy the TEMPLATE block from the base model's Modelfile (<code>ollama show --modelfile</code>) if needed.
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>License carry-through - what your fine-tune inherits<span class="mini">2 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Session 7's license lesson has one extra clause for fine-tuners: <strong>your fine-tune inherits the base model's license</strong>. Training on top does not launder the terms.</p>
+        <ul>
+          <li><strong>Llama-based Hermes</strong> (Hermes 3, Hermes 4 70B/405B): a fine-tune is a derivative under the Llama 3 license - its naming, distribution, and use conditions carry through to YOUR model.</li>
+          <li><strong>Apache 2.0 Hermes</strong> (the Qwen-based Hermes 4 14B, Hermes 4.3-36B): the clean case - permissive terms, straightforward commercial use, no naming obligations. One more reason the 14B is this course's hero.</li>
+          <li><strong>Shipping to customers?</strong> Read the actual license of the actual base before you distribute weights, and note the dataset side too: data you train on must be data you have the right to use.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ THE RECIPE ============ -->
+  <section class="section" id="recipe">
+    <div class="section-kicker">
+      <span class="klabel">The recipe</span>
+      <h2>End to end - dataset to ollama run <span class="tag demo">★ one afternoon</span></h2>
+    </div>
+    <p class="lede">The whole path, in order. Steps 1 and 4 are where your time should go; the middle is increasingly push-button.</p>
+
+    <div class="steps">
+      <div class="step"><p><strong>Prepare 100-500 ChatML examples.</strong> Real inputs from your task, gold-standard assistant answers, consistent system prompt. Browse 30 conversations from the public Hermes 3 dataset first to calibrate what good looks like. Set aside ~10 extra prompts as your held-out eval set - they must never enter training.</p></div>
+      <div class="step"><p><strong>Baseline eval.</strong> Run the 10 held-out prompts (plus 2-3 general-skill checks) against stock Hermes 4 14B and save every answer. This is your "before".</p></div>
+      <div class="step"><p><strong>Open the current official Unsloth notebook</strong> for Hermes/Qwen3-family QLoRA from unsloth.ai/docs - follow the live version, it moves fast. Load the 14B in 4-bit, attach LoRA adapters, point at your dataset.</p></div>
+      <div class="step"><p><strong>Train gently.</strong> Modest rank, 1-3 epochs, watch the loss curve. On a free Colab GPU a few hundred examples train in tens of minutes. Resist the urge to train harder "to be sure" - that is how forgetting happens.</p></div>
+      <div class="step"><p><strong>Eval after.</strong> Same 10 + general prompts against the tuned model. Task answers better, general answers intact? Proceed. General skill visibly degraded? Lower the epochs or rank and rerun - this is the checkpoint that protects you.</p></div>
+      <div class="step"><p><strong>Export GGUF.</strong> Merge the adapter and export to GGUF (Q4_K_M is the sane default) from the notebook. Download the file.</p></div>
+      <div class="step"><p><strong>Modelfile + create.</strong> Write the Modelfile from Part 3 (FROM ./my-hermes.gguf, the official sampling PARAMETERs, your SYSTEM line), then <code>ollama create my-hermes -f Modelfile</code>.</p></div>
+      <div class="step"><p><strong>Run it.</strong> <code>ollama run my-hermes</code>, wifi off if you like. A model you reshaped, running on hardware you own, answering in the behavior you taught it. That is the last mile, walked.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>Keep both models installed</strong>
+      Your fine-tune is a specialist; stock Hermes stays the generalist. Route your task to <code>my-hermes</code> and everything else to the stock model - Ollama serves both by name, and Session 6's tool loop can pick per request.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 2-4 hours total</span></h2>
+    </div>
+    <ul>
+      <li>Run the decision gate honestly: write down the behavior you want, then attempt it with a system prompt (rung 1) and few-shot examples (rung 2). Only proceed if both genuinely fall short - and keep the failed attempts as evidence.</li>
+      <li>Read 30 conversations from the public Hermes 3 dataset on HuggingFace. Note three things their assistant turns do that yours should copy.</li>
+      <li>Build a starter dataset: 50 ChatML examples for your task, plus a 10-prompt held-out eval set. (50 is enough for a first experiment; grow to 100-500 for the real run.)</li>
+      <li>Run the recipe end to end on the free Colab tier, including the before/after eval - and write one sentence on what changed, good and bad.</li>
+      <li>Ship it home: export GGUF, write the Modelfile, <code>ollama create</code>, and show a colleague <code>ollama list</code> with your model's name in it.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official sources covered</h2>
+    </div>
+    <p class="lede">This page teaches the shape of the recipe from stable primary sources; the exact notebook cells live in fast-moving docs, and the page says so where it matters.</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">Unsloth Hermes docs</span><span class="note">unsloth.ai/docs · the supported fine-tuning path; follow the CURRENT official notebook - the ecosystem moves monthly</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Hermes 3 training dataset</span><span class="note">HuggingFace, released July 2025 · the canonical reference for what good training conversations look like</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Ollama Modelfile docs</span><span class="note">FROM ./model.gguf, PARAMETER, SYSTEM, ollama create · the homecoming path in Part 3</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · Your assistant needs to answer from this week's product catalog. Fine-tune?</p>
+      <button class="qopt" type="button">A · Yes - knowledge belongs in the weights</button>
+      <button class="qopt" type="button">B · No - that is a knowledge gap, so RAG is the right rung; fine-tuning teaches behavior, not current facts</button>
+      <button class="qopt" type="button">C · Yes, but only with QLoRA to keep it cheap</button>
+      <p class="qwhy">The escalation ladder: facts that change belong in retrieval, where updating means updating a folder. Fine-tune for consistent format/voice, domain vocabulary, latency, or distillation - not for this week's prices.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · What does LoRA train?</p>
+      <button class="qopt" type="button">A · Small low-rank adapter matrices attached to key layers - a few percent of parameters - while the base weights stay frozen</button>
+      <button class="qopt" type="button">B · All 14B parameters, just at a lower learning rate</button>
+      <button class="qopt" type="button">C · Only the tokenizer and the chat template</button>
+      <p class="qwhy">Frozen base plus tiny trainable adapters is the whole trick - it collapses the memory footprint onto one consumer GPU (QLoRA adds a 4-bit base, fitting a free Colab), and the structurally small nudge is your first defense against forgetting.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">3 · What must happen BEFORE your first training run?</p>
+      <button class="qopt" type="button">A · Merge the adapter into the base model</button>
+      <button class="qopt" type="button">B · Convert the dataset to GGUF</button>
+      <button class="qopt" type="button">C · Freeze a held-out eval set and record the stock model's answers - the "before" that lets you detect catastrophic forgetting after</button>
+      <p class="qwhy">Eval before and after is the discipline of the whole page: task prompts should improve, general-skill prompts must not degrade. Without before-numbers you cannot know what your fine-tune broke.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Deep dive D4 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The ladder</b><span>System prompt → few-shot → RAG → fine-tune. Climb only as high as the problem demands; prove the lower rungs failed.</span></div>
+      <div class="cheat-item"><b>Four good reasons</b><span>Consistent format/voice at scale · domain vocabulary · latency (bake instructions in) · offline distillation.</span></div>
+      <div class="cheat-item"><b>LoRA / QLoRA</b><span>Frozen base + small trainable adapters (a few % of params). QLoRA loads the base 4-bit: 14B fits a free Colab.</span></div>
+      <div class="cheat-item"><b>The tool</b><span>Unsloth (official Hermes integration, unsloth.ai/docs) - always follow the CURRENT notebook, it moves fast.</span></div>
+      <div class="cheat-item"><b>Dataset shape</b><span>100-500 gold ChatML conversations. Reference for quality: the public Hermes 3 dataset on HuggingFace.</span></div>
+      <div class="cheat-item"><b>The discipline</b><span>Eval before AND after on ~10 held-out prompts + general checks - catastrophic forgetting is real and measurable.</span></div>
+      <div class="cheat-item"><b>Homecoming</b><span>Merge → GGUF (Q4_K_M) → Modelfile (FROM ./my-hermes.gguf, temp 0.6 / top_p 0.95 / top_k 20) → ollama create my-hermes.</span></div>
+      <div class="cheat-item"><b>License rule</b><span>Fine-tunes inherit the base license: Llama-based stays Llama 3; the 14B and 4.3-36B are clean Apache 2.0.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Deep dive D4 of 5 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="93-production-serving.html">← Prev: Production serving</a> &nbsp;·&nbsp; <a href="95-reading-refusalbench.html">Next: Reading RefusalBench →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 6 · Tool calling: give it hands - learn hermes ai with phoebe</title>
+<link rel="stylesheet" href="../assets/style.css?v=1">
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="wrap">
+    <span class="crumb"><a href="../index.html">learn-hermes-ai-with-phoebe</a> / Session 6 of 8</span>
+    <button class="btn" id="toggle-all" type="button">Expand all</button>
+    <button class="btn primary" id="zoom-toggle" type="button">Projector zoom: off</button>
+  </div>
+</div>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">Learn Hermes AI with Phoebe · Session 6 of 8</div>
+    <h1>Tool calling: <span class="accent">give it hands</span></h1>
+    <p class="sub">Until now your assistant could only talk. Today it learns to act: check the weather, read a file, run a function you wrote - through the open tool-calling format that Hermes made famous and the rest of the ecosystem copied. This is the seed of Session 8's autonomous agent, planted by hand so you understand every moving part.</p>
+    <div class="chip-row">
+      <span class="chip level">🟠 Hands-on</span>
+      <span class="chip audience">Builders</span>
+      <span class="chip audience">The agent seed</span>
+      <span class="chip time">45 min live + self-study depth</span>
+    </div>
+    <div class="agenda">
+      <span class="a1" style="flex:1">0-3 · Welcome</span>
+      <span class="a2" style="flex:4">3-18 · Concepts (live cards)</span>
+      <span class="a3" style="flex:4">18-38 · Two demos</span>
+      <span class="a4" style="flex:1">38-45 · Q&amp;A</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section class="section" id="intro">
+    <div class="section-kicker">
+      <span class="klabel">Part 0</span>
+      <h2>From talking to doing</h2>
+    </div>
+    <p class="lede">Session 5 gave your assistant a machine-readable mouth: validated JSON your scripts can consume. Today we close the loop in the other direction - the model asks YOUR code to do things. A language model plus a loop that executes its requests is the entire recipe for an agent. Hermes did not just adopt this pattern; it defined the open standard for it, which is why understanding the raw format here pays off everywhere else you will ever work.</p>
+    <div class="legend">
+      <span class="pill solid">Live - presented in session</span>
+      <span class="pill light">Self-study - read after class</span>
+      <span class="pill peach">★ Try it now prompt</span>
+      <span class="pill inkpill">Official Nous sources covered</span>
+    </div>
+    <div class="callout win">
+      <strong>★ What you walk out with today</strong>
+      The tools / tool_call / tool_response cycle read fluently in its raw form, the practical OpenAI-style route that works on your local endpoint today, a working 20-line agent loop with two real tools running against your own hermes4-14b-16k, and the three safety habits that keep "it has hands" from ever becoming "it has free rein".
+    </div>
+  </section>
+
+  <!-- ============ PART 1: THE FORMAT ============ -->
+  <section class="section" id="the-format">
+    <div class="section-kicker">
+      <span class="klabel">Part 1 · covers the Hermes tool-calling format + model-card function-calling sections</span>
+      <h2>The format Hermes made famous <span class="tag concept">6 min live</span></h2>
+    </div>
+    <p class="lede">Tool calling is a conversation protocol, not magic. The model is told what functions exist, it emits a structured request when it wants one, your code runs it and reports back, and the model turns the result into an answer. Hermes 2 Pro pioneered the open version of this protocol - and it stuck so hard that vLLM literally ships a parser named after it: <code>--tool-call-parser hermes</code>.</p>
+
+    <figure class="zoomable">
+      <svg viewBox="0 0 880 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The five-step agent loop: user asks, model emits tool_call, your code executes, tool_response returns, model answers">
+        <style>
+          .s6aT { font: 700 14px Inter, sans-serif; fill: #FFFFFF; }
+          .s6aX { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+          .s6aD { font: 400 12px Inter, sans-serif; fill: #DCE4F0; }
+          .s6aN { font: 600 13.5px Inter, sans-serif; fill: #3A2400; }
+          .s6aArr { stroke: #C3CFD8; stroke-width: 2.5; fill: none; marker-end: url(#s6aAh); }
+          .s6aLoop { stroke: #C3CFD8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#s6aAh); }
+        </style>
+        <defs>
+          <marker id="s6aAh" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="none" stroke="#C3CFD8" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <rect x="330" y="20" width="220" height="56" rx="12" fill="#0000F2"/>
+        <text class="s6aT" x="358" y="44">1 · You ask a question</text>
+        <text class="s6aD" x="358" y="64">"Should I cycle today?"</text>
+        <path class="s6aArr" d="M552 60 Q 650 80 690 108"/>
+        <rect x="626" y="112" width="228" height="56" rx="12" fill="#3430F7"/>
+        <text class="s6aT" x="648" y="136">2 · Model emits tool_call</text>
+        <text class="s6aD" x="648" y="156">a structured request, not an action</text>
+        <path class="s6aArr" d="M742 172 Q 748 210 726 244"/>
+        <rect x="596" y="248" width="258" height="56" rx="12" fill="#0000A3"/>
+        <text class="s6aT" x="618" y="272">3 · YOUR code executes it</text>
+        <text class="s6aD" x="618" y="292">allowlist lookup · validate arguments</text>
+        <path class="s6aArr" d="M640 308 Q 560 344 500 356"/>
+        <rect x="240" y="344" width="256" height="56" rx="12" fill="#3430F7"/>
+        <text class="s6aT" x="262" y="368">4 · tool_response goes back</text>
+        <text class="s6aD" x="262" y="388">the result, as a message in the chat</text>
+        <path class="s6aArr" d="M236 368 Q 130 340 96 300"/>
+        <rect x="26" y="188" width="232" height="56" rx="12" fill="#0000F2"/>
+        <text class="s6aT" x="48" y="212">5 · Model answers plainly</text>
+        <text class="s6aD" x="48" y="232">"31°C, hazy sun - go for it"</text>
+        <path class="s6aArr" d="M120 184 Q 160 100 322 52"/>
+        <path class="s6aLoop" d="M492 372 Q 560 200 630 172"/>
+        <text class="s6aX" x="470" y="318">needs another tool?</text>
+        <text class="s6aX" x="470" y="334">loop back to step 2</text>
+        <rect x="330" y="150" width="14" height="14" rx="3" fill="#E08700"/>
+        <text class="s6aN" x="354" y="162">The model never executes anything.</text>
+        <text class="s6aN" x="354" y="182">It proposes; your loop disposes.</text>
+      </svg>
+      <figcaption>🔍 Click to zoom - the five-step agent loop: one cycle per tool, capped by you</figcaption>
+    </figure>
+
+    <details class="card" open>
+      <summary><span class="mode live">Live</span>The cycle in one pass<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Four kinds of message, one repeating cycle. In the raw Hermes format they look like this:</p>
+        <ul>
+          <li><strong>Tool definitions</strong> ride in the SYSTEM message, as JSON schemas inside <code>&lt;tools&gt; ... &lt;/tools&gt;</code> tags. The model reads them like a menu.</li>
+          <li><strong>The model orders from the menu</strong> by emitting <code>&lt;tool_call&gt; {"name": "...", "arguments": {...}} &lt;/tool_call&gt;</code> - a request written in JSON, nothing more.</li>
+          <li><strong>Your code executes</strong> the function and sends the result back in a <code>&lt;tool_response&gt; ... &lt;/tool_response&gt;</code> turn.</li>
+          <li><strong>The model reads the response</strong> and either answers in plain language or orders again.</li>
+        </ul>
+        <div class="prompt-box good"><span class="label">★ The raw format, uncut (what actually crosses the wire)</span>SYSTEM (excerpt):
+You are a function calling AI. You may call functions defined inside these tags:
+&lt;tools&gt;
+[{"name": "get_weather", "description": "Get current weather for a city.",
+  "parameters": {"type": "object", "properties": {"city": {"type": "string"}},
+  "required": ["city"]}}]
+&lt;/tools&gt;
+
+ASSISTANT emits:
+&lt;tool_call&gt;
+{"name": "get_weather", "arguments": {"city": "Singapore"}}
+&lt;/tool_call&gt;
+
+YOUR CODE replies:
+&lt;tool_response&gt;
+{"city": "Singapore", "temp_c": 31, "sky": "hazy sun"}
+&lt;/tool_response&gt;
+
+ASSISTANT answers:
+31°C and hazy sun in Singapore - fine for cycling, bring water.</div>
+        <p>Read that once and every tool-calling system you meet for the rest of your career will feel familiar - they are all variations of this exchange.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Why an open standard mattered<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>In the Hermes 2 Pro era, function calling was a proprietary party trick: each hosted lab had its own private format behind its own API. Nous published theirs - the tags, the schemas, the training data recipe - and the open ecosystem standardized on it almost overnight.</p>
+        <ul>
+          <li><strong>The proof is in the parser.</strong> vLLM, the workhorse open-source inference server, has <code>--tool-call-parser hermes</code> as a named option. When infrastructure names a parser after your format, you set the standard. (We meet vLLM properly in deep-dive D3.)</li>
+          <li><strong>Portability follows.</strong> Because the format is open and trained into the weights, tool calling works the same whether Hermes runs on your laptop, a vLLM server, or a hosted API - no vendor adapter layer.</li>
+          <li><strong>And it composes with Session 5.</strong> Tool arguments are just JSON. The schema-following muscle Hermes built for structured output is the same muscle that makes its tool calls parse cleanly.</li>
+        </ul>
+        <div class="callout example">
+          <span class="ex-pill">Real world</span>
+          <p><strong>The format outlived the model.</strong> Teams that learned tool calling on Hermes 2 Pro in 2024 moved to Hermes 3, then Hermes 4, then to entirely different open models served by vLLM - and their tool-calling code barely changed. Betting on the open format was the durable decision; the model was the replaceable part.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 2: TWO WAYS IN ============ -->
+  <section class="section" id="two-ways-in">
+    <div class="section-kicker">
+      <span class="klabel">Part 2 · covers the Hermes-Function-Calling repo + Ollama's OpenAI-compatible tools support</span>
+      <h2>Two ways in <span class="tag concept">5 min live</span></h2>
+    </div>
+    <p class="lede">You can speak the raw format yourself, or let the OpenAI-compatible endpoint speak it for you. Learn both: the raw form is understanding, the <code>tools=</code> parameter is practice. They are the same thing wearing different clothes.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>Raw format vs the tools= parameter<span class="mini">3 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Ollama's OpenAI-compatible endpoint - the same <code>http://localhost:11434/v1</code> you used in Session 5 - supports the standard <code>tools=</code> parameter for hermes3 and Hermes 4 models. You pass an OpenAI-style list of JSON schemas; under the hood, the chat template renders it into the <code>&lt;tools&gt;</code> block for you and parses <code>&lt;tool_call&gt;</code> back out into a structured object.</p>
+        <table class="clean">
+          <thead><tr><th></th><th>Raw Hermes format</th><th>OpenAI tools= route</th></tr></thead>
+          <tbody>
+            <tr><td><strong>You write</strong></td><td>The <code>&lt;tools&gt;</code> block in your system prompt, by hand</td><td>A Python list of schemas passed as <code>tools=</code></td></tr>
+            <tr><td><strong>You parse</strong></td><td><code>&lt;tool_call&gt;</code> tags out of raw text yourself</td><td><code>msg.tool_calls</code>, already structured</td></tr>
+            <tr><td><strong>Best for</strong></td><td>Understanding, debugging, custom stacks</td><td>Day-to-day building (today's demos)</td></tr>
+            <tr><td><strong>Under the hood</strong></td><td>Is the wire format</td><td>Renders into the wire format via the chat template</td></tr>
+          </tbody>
+        </table>
+        <p>House position: build with <code>tools=</code>, but be the person in the room who can read the raw tags when something misbehaves. Debugging tool calls without knowing the wire format is like debugging HTTP without ever seeing a header.</p>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary><span class="mode self">Self-study</span>The canon repo: Hermes-Function-Calling<span class="mini">3 min read</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>The canonical reference is Nous's own <a href="https://github.com/NousResearch/Hermes-Function-Calling">github.com/NousResearch/Hermes-Function-Calling</a> (~1.4k stars): <code>functioncall.py</code> shows the full raw-format loop, <code>jsonmode.py</code> covers schema-constrained output, and the Pydantic validation patterns there directly inspired what we built in Session 5.</p>
+        <div class="callout tip">
+          <strong>Honesty note</strong>
+          The repo was written in the Hermes 2 Pro era and has not chased every release since. Read it for the FORMAT and the patterns - those are current and canonical - not for model names or version numbers. The format it teaches is exactly what Hermes 4 still speaks.
+        </div>
+        <p>Worth an evening skim: seeing the loop written by the people who trained the behavior into the model removes any remaining mystery about what tool calling "really is".</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ PART 3: SAFETY ============ -->
+  <section class="section" id="you-own-the-hands">
+    <div class="section-kicker">
+      <span class="klabel">Part 3 · the safety contract</span>
+      <h2>You own the hands <span class="tag concept">4 min live</span></h2>
+    </div>
+    <p class="lede">Here is the sentence that should reorganize your thinking: the model never executes anything. It only ever emits a JSON request. Every actual action happens in YOUR loop, in code you wrote, with permissions you granted. That is not a limitation - it is the security model, and it echoes Session 1's deal: the model follows you, accountability follows you too.</p>
+
+    <details class="card">
+      <summary><span class="mode live">Live</span>The model proposes, your loop disposes<span class="mini">4 min</span><span class="caret">▶</span></summary>
+      <div class="body">
+        <p>Three habits, non-negotiable from your very first agent loop:</p>
+        <ul>
+          <li><strong>Allowlist functions.</strong> The only things the model can trigger are entries in a dict you populated. Unknown tool name? Return an error message, never <code>eval</code> anything. If a function is not in the dict, it does not exist.</li>
+          <li><strong>Validate arguments.</strong> Tool arguments are model output - treat them like user input from the internet. Paths get resolved and checked against an allowed folder, numbers get range-checked, strings get length-capped. Demo 1's <code>read_file</code> shows the pattern.</li>
+          <li><strong>Cap iterations.</strong> An agent loop with no cap is an infinite loop with an LLM in it. A simple <code>for step in range(5)</code> turns a runaway loop into a visible, debuggable stop.</li>
+        </ul>
+        <div class="callout tip">
+          <strong>The destructive-action rule</strong>
+          Read-only tools (read a file, check weather, search notes) can run automatically. Anything that writes, deletes, sends, or spends gets a human confirmation step between tool_call and execution - today, and honestly, forever. Session 8's agent keeps this rule even when autonomous.
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============ DEMO 1 ============ -->
+  <section class="section" id="demo-1">
+    <div class="section-kicker">
+      <span class="klabel">Demo 1 of 2</span>
+      <h2>The 20-line agent loop <span class="tag demo">★ 14 min · builders follow</span></h2>
+    </div>
+    <p class="lede">Everything from Parts 1-3 in one small script: the openai client from Session 5, pointed at your local model, with two tools - a weather stub and an allowlisted file reader. Twenty lines of loop. When this runs, you have built an agent.</p>
+
+    <div class="steps">
+      <div class="step"><p>Same setup as Session 5: activate your venv, make sure <code>ollama serve</code> is up and <code>hermes4-14b-16k</code> responds. Create a folder <code>~/hermes-notes</code> and drop one small text file in it (a meeting note, a packing list, anything).</p></div>
+      <div class="step"><p>Define the two tools and the allowlist dict. Note the <code>read_file</code> path check - this is argument validation in its simplest useful form.</p></div>
+      <div class="step"><p>Write the schemas - the same JSON-schema muscle as Session 5, wrapped in the OpenAI <code>tools=</code> shape.</p></div>
+      <div class="step"><p>Run the loop with a question that needs a tool. Watch the sequence in your terminal: tool_call → execute → tool_response → plain-language answer.</p></div>
+      <div class="step"><p>Ask a question needing the OTHER tool ("summarize my note about ..."). Then one needing NO tool ("what is a haiku?") - notice the model simply answers, no call emitted. Choosing when NOT to use tools is part of what Nous trained in.</p></div>
+      <div class="step"><p>Kill the wifi and run it again. Local model, local tools, local files: the whole agent works offline.</p></div>
+    </div>
+
+    <div class="prompt-box good"><span class="label">★ Step 1 - client, tools, allowlist (tools.py)</span>from openai import OpenAI
+import json, os
+
+client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
+
+NOTES_DIR = os.path.realpath(os.path.expanduser("~/hermes-notes"))
+
+def get_weather(city: str) -> str:
+    # stub for today: canned data so the demo never depends on a weather API
+    return json.dumps({"city": city, "temp_c": 31, "sky": "hazy sun"})
+
+def read_file(path: str) -> str:
+    full = os.path.realpath(os.path.join(NOTES_DIR, path))
+    if not full.startswith(NOTES_DIR + os.sep):   # validate the argument
+        return json.dumps({"error": "path outside the allowlisted folder"})
+    with open(full) as f:
+        return f.read()[:4000]
+
+TOOLS = {"get_weather": get_weather, "read_file": read_file}   # the allowlist</div>
+
+    <div class="prompt-box good"><span class="label">★ Step 2 - the menu the model reads (schemas)</span>SCHEMAS = [
+  {"type": "function", "function": {
+    "name": "get_weather",
+    "description": "Get current weather for a city.",
+    "parameters": {"type": "object",
+      "properties": {"city": {"type": "string"}},
+      "required": ["city"]}}},
+  {"type": "function", "function": {
+    "name": "read_file",
+    "description": "Read a text file from the user's notes folder.",
+    "parameters": {"type": "object",
+      "properties": {"path": {"type": "string", "description": "filename inside the notes folder"}},
+      "required": ["path"]}}},
+]</div>
+
+    <div class="prompt-box good"><span class="label">★ Step 3 - the 20-line agent loop</span>messages = [{"role": "user",
+    "content": "Check the weather in Singapore and tell me if I should cycle to work."}]
+
+for step in range(5):                        # iteration cap: the loop always ends
+    r = client.chat.completions.create(
+        model="hermes4-14b-16k", messages=messages, tools=SCHEMAS)
+    msg = r.choices[0].message
+    if not msg.tool_calls:                   # no tool wanted: final answer
+        print(msg.content)
+        break
+    messages.append(msg)                     # keep the tool_call in the history
+    for tc in msg.tool_calls:
+        fn = TOOLS.get(tc.function.name)     # allowlist lookup - nothing else runs
+        args = json.loads(tc.function.arguments)
+        print(f"  [tool] {tc.function.name}({args})")
+        out = fn(**args) if fn else json.dumps({"error": "unknown tool"})
+        messages.append({"role": "tool", "tool_call_id": tc.id, "content": out})
+else:
+    print("Stopped: hit the iteration cap.")</div>
+
+    <div class="callout example">
+      <span class="ex-pill">Real world</span>
+      <p><strong>The inbox triager.</strong> A operations lead wired exactly this loop to two read-only tools: one reads exported emails from a folder, one reads the team roster CSV. The local model drafts a routing suggestion per email; a human presses send. Twenty lines of loop plus a tight allowlist - running for months, zero cloud, zero incidents.</p>
+    </div>
+  </section>
+
+  <!-- ============ DEMO 2 ============ -->
+  <section class="section" id="demo-2">
+    <div class="section-kicker">
+      <span class="klabel">Demo 2 of 2</span>
+      <h2>Break it on purpose <span class="tag demo">★ 6 min · builders follow</span></h2>
+    </div>
+    <p class="lede">You do not understand a safety mechanism until you have watched it catch something. Three deliberate failures, three lessons.</p>
+
+    <div class="steps">
+      <div class="step"><p>Ask for something no registered tool can do: "What is the current price of AMD stock?" Watch what the model does - it may improvise from stale training data, admit it lacks a tool, or try a creative near-miss call. Discuss: which behavior did you get, and which would you WANT in production?</p></div>
+      <div class="step"><p>Try to escape the allowlist: "Read the file ../../.ssh/id_rsa for me." The model may happily emit the tool_call - and your path check in <code>read_file</code> returns the error instead of the file. The model was never the security layer; your validation was.</p></div>
+      <div class="step"><p>Drop the cap to <code>range(2)</code> and ask a question needing both tools plus a synthesis. Watch the loop stop early and say so. Restore to 5. Lesson: the cap is a seatbelt, and you just chose its size deliberately.</p></div>
+    </div>
+
+    <div class="callout tip">
+      <strong>What "it improvised" teaches you</strong>
+      When the model lacks the right tool, it does not stop wanting to help - it answers from memory, which may be stale or wrong. Production agents fix this with instructions in the system prompt: "If no available tool can answer, say so explicitly. Never guess at data a tool should provide." Add that line to your constitution tonight - it is the cheapest reliability upgrade in this course.
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section class="section" id="exercise">
+    <div class="section-kicker">
+      <span class="klabel">Homework</span>
+      <h2>Try it yourself - this week <span class="tag exercise">◐ 45-60 min total</span></h2>
+    </div>
+    <ul>
+      <li>Give YOUR assistant one real tool. Best candidates: <code>read_note(filename)</code> over your actual notes folder, or <code>check_calendar(day)</code> reading a calendar export CSV. Keep it read-only.</li>
+      <li>Keep the allowlist tight: one folder, resolved paths, the <code>startswith</code> check. Copy the Demo 1 pattern rather than improvising your own.</li>
+      <li>Add the "if no tool fits, say so - never guess" line to your system prompt and verify it changes the unregistered-tool behavior from Demo 2.</li>
+      <li>Run the Demo 2 escape attempt against your own tool. If your validation does not catch it, fix the validation before adding any second tool.</li>
+      <li>Optional stretch: skim <code>functioncall.py</code> in the Hermes-Function-Calling repo and find the three loop steps you wrote today. They have been there since Hermes 2 Pro.</li>
+    </ul>
+  </section>
+
+  <!-- ============ SOURCES ============ -->
+  <section class="section" id="official">
+    <div class="section-kicker">
+      <span class="klabel">Source material</span>
+      <h2>Official Nous sources covered</h2>
+    </div>
+    <p class="lede">Today's session teaches from the canonical function-calling repo and the model cards' function-calling sections. The vLLM parser gets a mention here and a proper treatment in deep-dive D3.</p>
+    <div class="covered">
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Hermes-Function-Calling repo</span><span class="note">github.com/NousResearch/Hermes-Function-Calling · Parts 1-2 + homework stretch · Hermes 2 Pro era, format still canonical</span></div>
+      <div class="covered-row"><span class="status pill solid">✓</span><span class="name">Model cards: function-calling sections</span><span class="note">the tools / tool_call / tool_response format and system-prompt template · Part 1</span></div>
+      <div class="covered-row"><span class="status pill light">◐</span><span class="name">vLLM hermes tool-call parser</span><span class="note">named in Part 1 as proof the format became the standard · full vLLM serving is deep-dive D3</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="section" id="quiz">
+    <div class="section-kicker">
+      <span class="klabel">Check yourself</span>
+      <h2>Three questions before you go 🎯 <span class="tag exercise">◐ 90 seconds</span></h2>
+    </div>
+    <div class="quiz-q" data-answer="1">
+      <p class="qtext">1 · When Hermes "calls a tool", who actually executes the function?</p>
+      <button class="qopt" type="button">A · The model, inside its own weights</button>
+      <button class="qopt" type="button">B · Your code - the loop you wrote, against the allowlist you populated</button>
+      <button class="qopt" type="button">C · Ollama, automatically and invisibly</button>
+      <p class="qwhy">The model only emits a JSON request. Every actual action happens in your loop - which is exactly why the allowlist and argument validation are YOUR responsibility.</p>
+    </div>
+    <div class="quiz-q" data-answer="0">
+      <p class="qtext">2 · Where do the tool definitions live?</p>
+      <button class="qopt" type="button">A · As JSON schemas in the system message's &lt;tools&gt; block - or passed as the tools= parameter, which renders into that block</button>
+      <button class="qopt" type="button">B · In a separate config file Ollama reads at startup</button>
+      <button class="qopt" type="button">C · Baked into the model weights at training time</button>
+      <p class="qwhy">Two doors, one room: write the &lt;tools&gt; block yourself (raw format) or pass tools= and let the chat template render it. The model reads the same menu either way.</p>
+    </div>
+    <div class="quiz-q" data-answer="2">
+      <p class="qtext">3 · Why does the agent loop need an iteration cap?</p>
+      <button class="qopt" type="button">A · Ollama refuses more than 5 requests per session</button>
+      <button class="qopt" type="button">B · The model gets less accurate after a few calls</button>
+      <button class="qopt" type="button">C · Without one, a model that keeps requesting tools makes the loop run forever - the cap turns a runaway into a visible stop</button>
+      <p class="qwhy">An uncapped agent loop is an infinite loop with an LLM inside. for step in range(5) is the simplest seatbelt there is - size it deliberately per task.</p>
+    </div>
+    <p class="quiz-score"></p>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="cheat" id="cheatsheet">
+    <h3>Session 6 cheat sheet <span>· pin this</span></h3>
+    <div class="grid-2">
+      <div class="cheat-item"><b>The cycle</b><span>&lt;tools&gt; in system → model emits &lt;tool_call&gt; → your code runs it → &lt;tool_response&gt; back → plain answer.</span></div>
+      <div class="cheat-item"><b>The loop skeleton</b><span>for step in range(5): call with tools= → no tool_calls? print and break → else execute via allowlist dict, append role:"tool" result.</span></div>
+      <div class="cheat-item"><b>Two ways in</b><span>Raw format = understanding and debugging. tools= on localhost:11434/v1 = daily practice. Same wire format underneath.</span></div>
+      <div class="cheat-item"><b>Safety trio</b><span>Allowlist functions (dict lookup only) · validate arguments (paths, ranges) · cap iterations. Non-negotiable.</span></div>
+      <div class="cheat-item"><b>Destructive-action rule</b><span>Read-only tools run free; anything that writes, deletes, sends, or spends gets human confirmation first.</span></div>
+      <div class="cheat-item"><b>The pedigree</b><span>Hermes pioneered the open format; vLLM ships --tool-call-parser hermes. Learn it once, use it everywhere.</span></div>
+      <div class="cheat-item"><b>Canon repo</b><span>NousResearch/Hermes-Function-Calling: functioncall.py + jsonmode.py. Hermes 2 Pro era - trust the format, not the version numbers.</span></div>
+      <div class="cheat-item"><b>Next session</b><span>Your loop meets the cloud: hosted Hermes APIs, real prices, and licenses - same code, new base_url.</span></div>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <span>Session 6 of 8 · learn-hermes-ai-with-phoebe · by Phoebe Fu</span>
+    <span><a href="05-structured-output.html">← Session 5</a> &nbsp;·&nbsp; <a href="07-hermes-as-a-service.html">Next: Hermes as a service →</a></span>
+  </footer>
+
+</main>
+
+<script src="../assets/app.js?v=1"></script>
+</body>
+</html>
