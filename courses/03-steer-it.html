@@ -154,7 +154,37 @@ You decline: [your refusal policy - what it should not do, and what it should ha
       <summary><span class="mode live">Live</span>ChatML vs Llama-3 headers - who speaks what<span class="mini">3 min</span><span class="caret">▶</span></summary>
       <div class="body">
         <p>Different Hermes models inherit different wire formats from their base models:</p>
-        <table class="clean">
+        
+<figure class="zoomable">
+  <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels contrasting the two chat template families Hermes models inherit: Hermes 4 14B and Hermes 3 use ChatML with im_start role markers, while Hermes 4 70B, 405B, and 4.3 use Llama-3-style header tokens naming each role.">
+    <style>
+      .h3aT { font: 700 13px Inter, sans-serif; fill: #010A26; }
+      .h3aH1 { font: 700 13px Inter, sans-serif; fill: #0000A3; }
+      .h3aH2 { font: 700 13px Inter, sans-serif; fill: #3A2400; }
+      .h3aB { font: 400 12px Inter, sans-serif; fill: #010A26; }
+      .h3aC { font: 400 11.5px monospace; fill: #DCE4F0; }
+      .h3aN { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+    </style>
+    <rect x="0" y="0" width="880" height="300" fill="#F5F5F5"/>
+    <text class="h3aT" x="40" y="28">Two wire formats, one Hermes family</text>
+
+    <rect x="40" y="50" width="390" height="180" rx="12" fill="#EAEAFE" stroke="#0000F2" stroke-width="1.5"/>
+    <text class="h3aH1" x="58" y="84">CHATML</text>
+    <text class="h3aB" x="58" y="110">Hermes 4 14B + Hermes 3</text>
+    <rect x="58" y="130" width="356" height="30" rx="6" fill="#010A26"/>
+    <text class="h3aC" x="70" y="150">&lt;|im_start|&gt; role markers</text>
+
+    <rect x="450" y="50" width="390" height="180" rx="12" fill="#FFF7E6" stroke="#E08700" stroke-width="1.5"/>
+    <text class="h3aH2" x="468" y="84">LLAMA-3-STYLE HEADERS</text>
+    <text class="h3aB" x="468" y="110">Hermes 4 70B/405B + 4.3</text>
+    <rect x="468" y="130" width="356" height="30" rx="6" fill="#010A26"/>
+    <text class="h3aC" x="480" y="150">header tokens naming each role</text>
+
+    <text class="h3aN" x="40" y="276">Each Hermes model inherits its base model's wire format - never mix formats between models.</text>
+  </svg>
+  <figcaption>🔍 Click to zoom - same assistant, two different wire formats under the hood</figcaption>
+</figure>
+<table class="clean">
           <thead><tr><th>Model</th><th>Template family</th><th>Looks like</th></tr></thead>
           <tbody>
             <tr><td><strong>Hermes 4 14B</strong> + <strong>Hermes 3</strong></td><td>ChatML</td><td>&lt;|im_start|&gt; role markers</td></tr>
@@ -214,6 +244,35 @@ Should we build or buy the reporting tool?&lt;|im_end|&gt;
         <div class="callout example">
           <span class="ex-pill">Real world</span>
           <p><strong>The pitch review.</strong> A founder ran her investor deck past her assistant twice: default constitution said "strong narrative, tighten slide 7". The anti-sycophancy version said "your market-size math double-counts the enterprise segment - fix that before anyone sees slide 3". Same model, same deck. The second answer was worth money.</p>
+<figure class="zoomable">
+  <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels showing the same flawed investor deck reviewed by the same model under two constitutions: the default build says the narrative is strong and to tighten slide seven, while the anti-sycophancy build says the market-size math double-counts the enterprise segment and must be fixed before slide three ships.">
+    <style>
+      .h3bT { font: 700 13px Inter, sans-serif; fill: #010A26; }
+      .h3bH1 { font: 700 13px Inter, sans-serif; fill: #5C6B75; }
+      .h3bH2 { font: 700 13px Inter, sans-serif; fill: #0000A3; }
+      .h3bB { font: 400 12px Inter, sans-serif; fill: #010A26; }
+      .h3bN { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+    </style>
+    <rect x="0" y="0" width="880" height="300" fill="#F5F5F5"/>
+    <text class="h3bT" x="40" y="28">Same model, same deck: what anti-sycophancy changes</text>
+
+    <rect x="40" y="50" width="390" height="180" rx="12" fill="#DAE3E8" stroke="#5C6B75" stroke-width="1.5"/>
+    <text class="h3bH1" x="58" y="84">DEFAULT: ENCOURAGING EDITOR</text>
+    <text class="h3bB" x="58" y="114">"Strong narrative, tighten</text>
+    <text class="h3bB" x="58" y="134">slide 7."</text>
+    <text class="h3bB" x="58" y="154">Improves the plan as given</text>
+
+    <rect x="450" y="50" width="390" height="180" rx="12" fill="#EAEAFE" stroke="#0000F2" stroke-width="1.5"/>
+    <text class="h3bH2" x="468" y="84">ANTI-SYCOPHANCY: RED-TEAM</text>
+    <text class="h3bB" x="468" y="114">"Your market-size math</text>
+    <text class="h3bB" x="468" y="134">double-counts the enterprise</text>
+    <text class="h3bB" x="468" y="154">segment - fix before slide 3."</text>
+
+    <text class="h3bN" x="40" y="276">Same model, same deck - the second answer, from one added system prompt, was worth money.</text>
+  </svg>
+  <figcaption>🔍 Click to zoom - one system prompt, a different verdict on the same deck</figcaption>
+</figure>
+
         </div>
       </div>
     </details>

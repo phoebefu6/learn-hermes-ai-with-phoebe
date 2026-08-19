@@ -151,7 +151,47 @@
       <summary><span class="mode live">Live</span>The evidence - same model, two gears, hard math<span class="mini">3 min</span><span class="caret">▶</span></summary>
       <div class="body">
         <p>These are Hermes 4 405B scores with reasoning on versus off, from the technical report's evaluations. Read the AIME rows twice:</p>
-        <table class="clean">
+        
+<figure class="zoomable">
+  <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A bar chart comparing Hermes 4 405B instant versus reasoning mode scores from the technical report: MATH-500 rises from 73.8 to 96.3, AIME'24 rises from 11.4 to 81.9, and AIME'25 rises from 10.6 to 78.1, showing reasoning mode transforms multi-step math while everyday tasks barely move.">
+    <style>
+      .s4bT { font: 700 13px Inter, sans-serif; fill: #010A26; }
+      .s4bK { font: 600 11px Inter, sans-serif; fill: #010A26; }
+      .s4bL { font: 700 12px Inter, sans-serif; fill: #010A26; }
+      .s4bVW { font: 700 11.5px Inter, sans-serif; fill: #FFFFFF; }
+      .s4bVI { font: 700 11.5px Inter, sans-serif; fill: #010A26; }
+      .s4bN { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+    </style>
+    <rect x="0" y="0" width="880" height="320" fill="#F5F5F5"/>
+    <text class="s4bT" x="40" y="28">Reasoning transforms multi-step math, barely moves the rest</text>
+    <rect x="560" y="42" width="14" height="14" rx="3" fill="#5C6B75"/>
+    <text class="s4bK" x="580" y="54">Instant</text>
+    <rect x="650" y="42" width="14" height="14" rx="3" fill="#0000F2"/>
+    <text class="s4bK" x="670" y="54">Reasoning</text>
+
+    <text class="s4bL" x="240" y="79" text-anchor="end">MATH-500</text>
+    <rect x="250" y="60" width="369" height="16" fill="#5C6B75"/>
+    <text class="s4bVW" x="262" y="72">73.8</text>
+    <rect x="250" y="82" width="482" height="16" fill="#0000F2"/>
+    <text class="s4bVW" x="262" y="94">96.3</text>
+
+    <text class="s4bL" x="240" y="169" text-anchor="end">AIME'24</text>
+    <rect x="250" y="150" width="57" height="16" fill="#5C6B75"/>
+    <text class="s4bVI" x="317" y="162">11.4</text>
+    <rect x="250" y="172" width="410" height="16" fill="#0000F2"/>
+    <text class="s4bVW" x="262" y="184">81.9</text>
+
+    <text class="s4bL" x="240" y="259" text-anchor="end">AIME'25</text>
+    <rect x="250" y="240" width="53" height="16" fill="#5C6B75"/>
+    <text class="s4bVI" x="313" y="252">10.6</text>
+    <rect x="250" y="262" width="391" height="16" fill="#0000F2"/>
+    <text class="s4bVW" x="262" y="274">78.1</text>
+
+    <text class="s4bN" x="40" y="304">Deliberation is worth 5-7x when a wrong early step poisons everything after it.</text>
+  </svg>
+  <figcaption>🔍 Click to zoom - reasoning mode turns a fail into a strong pass on multi-step math</figcaption>
+</figure>
+<table class="clean">
           <thead><tr><th>Task type</th><th>Instant</th><th>Reasoning</th><th>Verdict</th></tr></thead>
           <tbody>
             <tr><td><strong>MATH-500</strong> (competition math)</td><td>73.8</td><td>96.3</td><td>Big win - near-perfect with thinking</td></tr>
@@ -168,7 +208,36 @@
       <summary><span class="mode live">Live</span>The rule of thumb - and what a laptop actually pays<span class="mini">3 min</span><span class="caret">▶</span></summary>
       <div class="body">
         <p>Your ON/OFF instinct, in one table:</p>
-        <table class="clean">
+        
+<figure class="zoomable">
+  <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels listing when to turn Hermes reasoning mode on, for multi-step logic, math with intermediate results, and tricky code, versus off, for factual lookups, drafts, and casual chat, noting that a 3,000 token deliberation can cost minutes of laptop time.">
+    <style>
+      .s4cT { font: 700 13px Inter, sans-serif; fill: #010A26; }
+      .s4cH1 { font: 700 13px Inter, sans-serif; fill: #0000A3; }
+      .s4cH2 { font: 700 13px Inter, sans-serif; fill: #5C6B75; }
+      .s4cB { font: 400 12px Inter, sans-serif; fill: #010A26; }
+      .s4cN { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+    </style>
+    <rect x="0" y="0" width="880" height="300" fill="#F5F5F5"/>
+    <text class="s4cT" x="40" y="28">The ON/OFF instinct, in one glance</text>
+
+    <rect x="40" y="50" width="390" height="180" rx="12" fill="#EAEAFE" stroke="#0000F2" stroke-width="1.5"/>
+    <text class="s4cH1" x="58" y="84">REASONING ON</text>
+    <text class="s4cB" x="58" y="114">Multi-step logic and puzzles</text>
+    <text class="s4cB" x="58" y="134">Math with intermediate results</text>
+    <text class="s4cB" x="58" y="154">Tricky code and debugging traces</text>
+
+    <rect x="450" y="50" width="390" height="180" rx="12" fill="#DAE3E8" stroke="#5C6B75" stroke-width="1.5"/>
+    <text class="s4cH2" x="468" y="84">REASONING OFF</text>
+    <text class="s4cB" x="468" y="114">Factual lookups and definitions</text>
+    <text class="s4cB" x="468" y="134">Drafts, emails, rewrites, summaries</text>
+    <text class="s4cB" x="468" y="154">Casual chat and brainstorming</text>
+
+    <text class="s4cN" x="40" y="276">On a laptop, a 3,000-token deliberation can mean minutes of fan noise before it starts.</text>
+  </svg>
+  <figcaption>🔍 Click to zoom - flip reasoning on for multi-step problems, off for everything routine</figcaption>
+</figure>
+<table class="clean">
           <thead><tr><th>Reasoning ON</th><th>Reasoning OFF</th></tr></thead>
           <tbody>
             <tr><td>Multi-step logic and constraint puzzles</td><td>Factual lookups and definitions</td></tr>

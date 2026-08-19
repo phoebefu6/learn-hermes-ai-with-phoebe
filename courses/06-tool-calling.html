@@ -173,7 +173,36 @@ ASSISTANT answers:
       <summary><span class="mode live">Live</span>Raw format vs the tools= parameter<span class="mini">3 min</span><span class="caret">▶</span></summary>
       <div class="body">
         <p>Ollama's OpenAI-compatible endpoint - the same <code>http://localhost:11434/v1</code> you used in Session 5 - supports the standard <code>tools=</code> parameter for hermes3 and Hermes 4 models. You pass an OpenAI-style list of JSON schemas; under the hood, the chat template renders it into the <code>&lt;tools&gt;</code> block for you and parses <code>&lt;tool_call&gt;</code> back out into a structured object.</p>
-        <table class="clean">
+        
+<figure class="zoomable">
+  <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels contrasting the raw Hermes tool calling format, where you write the tools block by hand and parse tool_call tags yourself, against the OpenAI tools parameter route, where you pass a Python list and receive already structured tool calls, best for day to day building.">
+    <style>
+      .s6bT { font: 700 13px Inter, sans-serif; fill: #010A26; }
+      .s6bH1 { font: 700 13px Inter, sans-serif; fill: #5C6B75; }
+      .s6bH2 { font: 700 13px Inter, sans-serif; fill: #0000A3; }
+      .s6bB { font: 400 12px Inter, sans-serif; fill: #010A26; }
+      .s6bN { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+    </style>
+    <rect x="0" y="0" width="880" height="300" fill="#F5F5F5"/>
+    <text class="s6bT" x="40" y="28">Same protocol, two ways to speak it</text>
+
+    <rect x="40" y="50" width="390" height="180" rx="12" fill="#DAE3E8" stroke="#5C6B75" stroke-width="1.5"/>
+    <text class="s6bH1" x="58" y="84">RAW HERMES FORMAT</text>
+    <text class="s6bB" x="58" y="114">You write: &lt;tools&gt; block by hand</text>
+    <text class="s6bB" x="58" y="134">You parse: tool_call tags yourself</text>
+    <text class="s6bB" x="58" y="154">Best for: debugging, custom stacks</text>
+
+    <rect x="450" y="50" width="390" height="180" rx="12" fill="#EAEAFE" stroke="#0000F2" stroke-width="1.5"/>
+    <text class="s6bH2" x="468" y="84">OPENAI TOOLS= ROUTE</text>
+    <text class="s6bB" x="468" y="114">You write: Python list as tools=</text>
+    <text class="s6bB" x="468" y="134">You parse: msg.tool_calls, structured</text>
+    <text class="s6bB" x="468" y="154">Best for: day-to-day building</text>
+
+    <text class="s6bN" x="40" y="276">Build with tools=, but stay able to read the raw tags when something misbehaves.</text>
+  </svg>
+  <figcaption>🔍 Click to zoom - same wire format, hand-written or handled for you</figcaption>
+</figure>
+<table class="clean">
           <thead><tr><th></th><th>Raw Hermes format</th><th>OpenAI tools= route</th></tr></thead>
           <tbody>
             <tr><td><strong>You write</strong></td><td>The <code>&lt;tools&gt;</code> block in your system prompt, by hand</td><td>A Python list of schemas passed as <code>tools=</code></td></tr>
@@ -206,6 +235,41 @@ ASSISTANT answers:
       <h2>You own the hands <span class="tag concept">4 min live</span></h2>
     </div>
     <p class="lede">Here is the sentence that should reorganize your thinking: the model never executes anything. It only ever emits a JSON request. Every actual action happens in YOUR loop, in code you wrote, with permissions you granted. That is not a limitation - it is the security model, and it echoes Session 1's deal: the model follows you, accountability follows you too.</p>
+<figure class="zoomable">
+  <svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A decision tree for tool safety: a tool that only reads data runs automatically, while a tool that writes, deletes, sends, or spends waits for a human confirmation step between the tool call and its execution.">
+    <style>
+      .s6cT { font: 700 13px Inter, sans-serif; fill: #010A26; }
+      .s6cQ { font: 700 12px Inter, sans-serif; fill: #010A26; }
+      .s6cO { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+      .s6cS { font: 400 10.5px Inter, sans-serif; fill: rgba(255,255,255,.86); }
+      .s6cE { font: 700 11px Inter, sans-serif; fill: #5C6B75; }
+      .s6cN { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+    </style>
+    <rect x="0" y="0" width="880" height="340" fill="#F5F5F5"/>
+    <text class="s6cT" x="40" y="28">Read-only runs itself; everything else waits for you</text>
+
+    <rect x="40" y="142" width="240" height="56" rx="10" fill="#EAEAFE" stroke="#0000F2" stroke-width="1.5"/>
+    <text class="s6cQ" x="58" y="176">Does the tool only read data?</text>
+
+    <rect x="640" y="60" width="200" height="70" rx="10" fill="#0000F2"/>
+    <text class="s6cO" x="658" y="90">RUNS AUTOMATICALLY</text>
+    <text class="s6cS" x="658" y="107">reads, weather, search</text>
+
+    <rect x="640" y="210" width="200" height="70" rx="10" fill="#E08700"/>
+    <text class="s6cO" x="658" y="240">NEEDS CONFIRMATION</text>
+    <text class="s6cS" x="658" y="257">writes, deletes, or sends</text>
+
+    <path d="M280,170 L640,95" fill="none" stroke="#0000F2" stroke-width="1.6"/>
+    <text class="s6cE" x="460" y="126" text-anchor="middle">yes</text>
+
+    <path d="M280,170 L640,245" fill="none" stroke="#E08700" stroke-width="1.6"/>
+    <text class="s6cE" x="460" y="212" text-anchor="middle">no</text>
+
+    <text class="s6cN" x="40" y="316">Read-only tools run automatically; anything that writes, deletes, sends, or spends waits for you.</text>
+  </svg>
+  <figcaption>🔍 Click to zoom - the model proposes the action, a human confirms anything destructive</figcaption>
+</figure>
+
 
     <details class="card">
       <summary><span class="mode live">Live</span>The model proposes, your loop disposes<span class="mini">4 min</span><span class="caret">▶</span></summary>

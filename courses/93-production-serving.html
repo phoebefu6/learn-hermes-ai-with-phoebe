@@ -172,7 +172,43 @@
       <summary><span class="mode self">Self-study</span>Quant ladder economics - the official 4.3 GGUFs<span class="mini">4 min read</span><span class="caret">▶</span></summary>
       <div class="body">
         <p>Nous publishes official GGUFs at <code>NousResearch/Hermes-4.3-36B-GGUF</code>. The ladder, with directional hardware fits (leave a few GB of headroom for the KV cache and the OS):</p>
-        <table class="clean">
+        
+<figure class="zoomable">
+  <svg viewBox="0 0 880 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A bar chart of the official Hermes 4.3 36B GGUF quantization ladder by size: Q3_K_M at 17.6GB, Q4_K_M at 21.8GB highlighted as the community default, Q5_K_M at 25.6GB, Q6_K at 29.7GB, and Q8_0 at 38.4GB, described as effectively lossless.">
+    <style>
+      .d3mT { font: 700 13px Inter, sans-serif; fill: #010A26; }
+      .d3mL { font: 700 12px Inter, sans-serif; fill: #010A26; }
+      .d3mV { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+      .d3mN { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+    </style>
+    <rect x="0" y="0" width="880" height="350" fill="#F5F5F5"/>
+    <text class="d3mT" x="40" y="28">Quant ladder: size climbs, quality tax shrinks</text>
+
+    <text class="d3mL" x="240" y="90" text-anchor="end">Q3_K_M</text>
+    <rect x="260" y="70" width="220" height="30" fill="#0000F2"/>
+    <text class="d3mV" x="272" y="90">17.6GB</text>
+
+    <text class="d3mL" x="240" y="142" text-anchor="end">Q4_K_M</text>
+    <rect x="260" y="122" width="273" height="30" fill="#E08700"/>
+    <text class="d3mV" x="272" y="142">21.8GB - default</text>
+
+    <text class="d3mL" x="240" y="194" text-anchor="end">Q5_K_M</text>
+    <rect x="260" y="174" width="320" height="30" fill="#0000F2"/>
+    <text class="d3mV" x="272" y="194">25.6GB</text>
+
+    <text class="d3mL" x="240" y="246" text-anchor="end">Q6_K</text>
+    <rect x="260" y="226" width="371" height="30" fill="#0000F2"/>
+    <text class="d3mV" x="272" y="246">29.7GB</text>
+
+    <text class="d3mL" x="240" y="298" text-anchor="end">Q8_0</text>
+    <rect x="260" y="278" width="480" height="30" fill="#0000F2"/>
+    <text class="d3mV" x="272" y="298">38.4GB - lossless</text>
+
+    <text class="d3mN" x="40" y="336">Start at Q4_K_M, the community default, then move one rung toward your constraint.</text>
+  </svg>
+  <figcaption>🔍 Click to zoom - Q4_K_M is the community default: best quality per GB</figcaption>
+</figure>
+<table class="clean">
           <thead><tr><th>Quant</th><th>Size</th><th>Fits comfortably on</th><th>The honest read</th></tr></thead>
           <tbody>
             <tr><td><strong>Q3_K_M</strong></td><td>17.6GB</td><td>32GB Mac · 24GB GPU</td><td>The squeeze - noticeable quality tax, but it runs</td></tr>
@@ -199,7 +235,36 @@
       <summary><span class="mode self">Self-study</span>Context windows are a per-model fact<span class="mini">3 min read</span><span class="caret">▶</span></summary>
       <div class="body">
         <p>"Hermes" is not one context window. Configure per model, and remember the KV cache for long contexts eats GPU memory that then cannot hold concurrent users:</p>
-        <table class="clean">
+        
+<figure class="zoomable">
+  <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A bar chart comparing three Hermes context windows: Hermes 4.3 36B at 512K tokens, Hermes 4 70B and 405B at 131K class tokens, and Hermes 4 14B at 40,960 tokens, the smallest, where reasoning traces can consume most of the budget.">
+    <style>
+      .d3nT { font: 700 13px Inter, sans-serif; fill: #010A26; }
+      .d3nL { font: 700 12px Inter, sans-serif; fill: #010A26; }
+      .d3nVW { font: 700 12px Inter, sans-serif; fill: #FFFFFF; }
+      .d3nVI { font: 700 12px Inter, sans-serif; fill: #010A26; }
+      .d3nN { font: 400 12px Inter, sans-serif; fill: #5C6B75; }
+    </style>
+    <rect x="0" y="0" width="880" height="300" fill="#F5F5F5"/>
+    <text class="d3nT" x="40" y="28">Context window is a per-model fact, not one number</text>
+
+    <text class="d3nL" x="240" y="90" text-anchor="end">Hermes 4.3 36B</text>
+    <rect x="260" y="70" width="480" height="30" fill="#0000F2"/>
+    <text class="d3nVW" x="272" y="90">512K</text>
+
+    <text class="d3nL" x="240" y="142" text-anchor="end">Hermes 4 70B/405B</text>
+    <rect x="260" y="122" width="123" height="30" fill="#0000F2"/>
+    <text class="d3nVW" x="272" y="142">131K class</text>
+
+    <text class="d3nL" x="240" y="194" text-anchor="end">Hermes 4 14B</text>
+    <rect x="260" y="174" width="38" height="30" fill="#E08700"/>
+    <text class="d3nVI" x="308" y="194">40,960</text>
+
+    <text class="d3nN" x="40" y="276">Reasoning traces can eat most of the 14B's window - budget prompts tightly.</text>
+  </svg>
+  <figcaption>🔍 Click to zoom - the 14B's window is roughly a twelfth of the 4.3's</figcaption>
+</figure>
+<table class="clean">
           <thead><tr><th>Model</th><th>Context window</th><th>Serving implication</th></tr></thead>
           <tbody>
             <tr><td><strong>Hermes 4.3 36B</strong></td><td>512K</td><td>Huge headroom - but a full 512K request can monopolize a GPU's memory; cap max length per request in prod</td></tr>
